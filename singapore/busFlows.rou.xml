@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-01-25 21:57:06.182058 by $Id: ptlines2flows.py v1_3_1+0313-ccb31df3eb jakob.erdmann@dlr.de 2019-09-02 13:26:32 +0200 $ v1_14_1+0000-f654d7b963e
+  options: -n .\singapore.net.xml -s .\busstops.xml -l .\buslines.xml -o busFlows.rou.xml -p 300 <doubleminus>use-osm-routes
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="bus" vClass="bus"/>
+    <vType id="tram" vClass="tram"/>
+    <vType id="train" vClass="rail"/>
+    <vType id="subway" vClass="rail_urban"/>
+    <vType id="light_rail" vClass="rail_urban"/>
+    <vType id="monorail" vClass="rail"/>
+    <vType id="trolleybus" vClass="bus"/>
+    <vType id="minibus" vClass="bus"/>
+    <vType id="share_taxi" vClass="taxi"/>
+    <vType id="aerialway" vClass="bus"/>
+    <vType id="ferry" vClass="ship"/>
+    <route id="bus_22:1" edges="479169486 479169488 473439152 223671420 632482225 792755656 477711619 21463643 636736093 306116898 636736606 22674809 477557468 74746294 477557471 632953499 632953495 477557470 633788296 74746298 640008546 602479029#0 587050475#0 476374559#0 639549065 649924884 476374560 795505751 630419697 22291132 476374561#0 33264343 655041207 476377509 33264605 633245786 628515049 634102357 74553758 539638975 358645124 476380447 476380451 474929433 539379658 476381191 74769762 630866045 631722832 305935886 74553749 475116737 475116738 475116739 478881770 448937598 633397743 824411067 479080151 479083903 305935878 535604972 652292208 532990228 532977599 174765783 633194212 633194211 174552467 174552465 628222001 630159972 628201210 594262532#0 174402279 22694299 633219124#0 633149548 22650763 634477657 22719965#0 543768663 736482787 576773653 464288938 174041987#0 22719967 630171311 482256070 652293278 635112968 652558527 464008725 634469471 479764655 479764653 480275410 630160531 479124342 630163199 74902653 532977598 661628136 479754537 22325259 383365020 632203646 634184990 634794777 479079789 655137145 463995441 22293549 655137684 630854648 667699977 33264691#0 633809926 445716790 74671097 445716788#0 538260866 633299924 474929430 538761283#0 538761282 631844130 649405237 539638976 476753248#0 75516211 630855998 500368905 661665982 795505748 795505747 632497914 173961732 630419696#0 632512661 639549066 655655597 443122391 74553771 639916002 655658863 74746296 655144778 477574135 655504834 636737164 74746295 173779734 447712957 476429330 477958806 587048092 476431846 74675111 792764584 473439150 74553776 826116981 473440854 473440856 632474268 655146644#0 74687493 585646221#0 23816952 75511727 -645158440 -464288982 1167108141 245934570#2 1167108140 75039128 632562097#0 655145244 666806812 465467899 770367113 475343499 473440857 655147259" >
+        <stop busStop="410464251" duration="20" until="1884.0"/> <!-- Eunos Interchange -->
+        <stop busStop="1995038394" duration="20" until="1939.0"/> <!-- Eunos Station/ Interchange -->
+        <stop busStop="410465918" duration="20" until="2004.0"/> <!-- Eunos Station -->
+        <stop busStop="410465914" duration="20" until="2062.0"/> <!-- Blk 17 -->
+    </route>
+    <route id="bus_22:0" edges="543768663 736482787 576773653 464288938 174041987#0 22719967 630171311 482256070 652293278 635112968 652558527 464008725 634469471 479764655 479764653 480275410 630160531 479124342 630163199 74902653 532977598 661628136 479754537 22325259 383365020 632203646 634184990 634794777 479079789 655137145 463995441 22293549 655137684 630854648 667699977 33264691#0 633809926 445716790 74671097 445716788#0 538260866 633299924 474929430 538761283#0 538761282 631844130 649405237 539638976 476753248#0 75516211 630855998 500368905 661665982 795505748 795505747 632497914 173961732 630419696#0 632512661 639549066 655655597 443122391 74553771 639916002 655658863 74746296 655144778 477574135 655504834 636737164 74746295 173779734 447712957 476429330 477958806 587048092 476431846 74675111 792764584 473439150 74553776 826116981 473440854 473440856 632474268 655146644#0 74687493 585646221#0 23816952 75511727 -645158440 -464288982 1167108141" >
+        <stop busStop="410460005" duration="20" until="31.0"/> <!-- Ang Mo Kio Interchange -->
+        <stop busStop="410459901" duration="20" until="147.0"/> <!-- Blk 422 -->
+        <stop busStop="410459897" duration="20" until="226.0"/> <!-- Blk 420 -->
+        <stop busStop="410459904" duration="20" until="272.0"/> <!-- Opposite Christ The King Church -->
+        <stop busStop="410459657" duration="20" until="341.0"/> <!-- After Ang Mo Kio Avenue 10 -->
+        <stop busStop="410459651" duration="20" until="423.0"/> <!-- Golden Hill Estate -->
+        <stop busStop="410467153" duration="20" until="511.0"/> <!-- Cardiff Residence -->
+        <stop busStop="410462101" duration="20" until="585.0"/> <!-- Blk 230 -->
+        <stop busStop="410462103" duration="20" until="616.0"/> <!-- Opposite Blk 257 -->
+        <stop busStop="410475114" duration="20" until="740.0"/> <!-- Blk 206 -->
+        <stop busStop="1531005322" duration="20" until="803.0"/> <!-- Serangoon Station Exit C/Blk 201 -->
+        <stop busStop="410483103" duration="20" until="864.0"/> <!-- Opposite Blk 1 -->
+        <stop busStop="410482520" duration="20" until="922.0"/> <!-- Blk 161 -->
+        <stop busStop="410482572" duration="20" until="998.0"/> <!-- After Paya Lebar Cresent -->
+        <stop busStop="410482568" duration="20" until="1052.0"/> <!-- Raya Garden -->
+        <stop busStop="410482491" duration="20" until="1123.0"/> <!-- Paya Lebar Gardens -->
+        <stop busStop="410482562" duration="20" until="1169.0"/> <!-- After Rochdale Road -->
+        <stop busStop="410482564" duration="20" until="1250.0"/> <!-- Opposite Paya Lebar Street -->
+        <stop busStop="410482570" duration="20" until="1311.0"/> <!-- Opposite Asiawide Industrial Building -->
+        <stop busStop="410482551" duration="20" until="1363.0"/> <!-- After Tai Seng Station Exit C -->
+        <stop busStop="410471081" duration="20" until="1427.0"/> <!-- Opposite Trinity @ Paya Lebar -->
+        <stop busStop="410471030" duration="20" until="1494.0"/> <!-- Citipoint Industrial Complex -->
+        <stop busStop="410480716" duration="20" until="1576.0"/> <!-- Blk 3019 -->
+        <stop busStop="410480722" duration="20" until="1639.0"/> <!-- Blk 3021 -->
+        <stop busStop="410480721" duration="20" until="1688.0"/> <!-- Blk 3023 -->
+        <stop busStop="5701793241" duration="20" until="1758.0"/> <!-- Ubi Station Exit B -->
+        <stop busStop="410480724" duration="20" until="1808.0"/> <!-- Automobile Megamart -->
+        <stop busStop="410464248" duration="20" until="1873.0"/> <!-- Blk 637 -->
+        <stop busStop="410465916" duration="20" until="1942.0"/> <!-- Opposite Blk 322 -->
+        <stop busStop="410465917" duration="20" until="2009.0"/> <!-- Opposite Blk 16 -->
+        <stop busStop="410465915" duration="20" until="2080.0"/> <!-- Opposite Eunos Station -->
+        <stop busStop="410462762" duration="20" until="2153.0"/> <!-- After Lorong 106 Changi -->
+        <stop busStop="410466111" duration="20" until="2252.0"/> <!-- Blk 3A -->
+    </route>
+    <route id="bus_43:0" edges="1111008091 724076802 476395133 708819911 445283029 74962088 734884726 476395130 476395125 582412262 476395118 655182285 445716721 717446182 823685682#0 582412290#0 190451325 620745573 717446180 391007732#0 32776560 349416402 476708352 476692300 74957629 717470516 717470515 476708349 476708350 445716748 718229612 476689637 476705431 718229611 445716694 627983391 627937587 22652564 623713563#0 479337786 623715810#0 624291892 624291891#0 581565350 537979489#0 623353012 383281870 22651486 528461110 632378379#0 479747060 630097526 445716682 445716683 476703993 476703994 628706178 512918178#0 75070576 512918179 794628388 651065194 512918192#0 512918201#0 652009599 628501871 445716686 74668469 631742210 475156716 475156717 448937650 533055054 1122289596 74869296 475157992 34905413 475158000 475158907 633197069 475159368 475159371 539671030 175959568 630829769 475163615 475163616 475163617 325024345 22325259 383365020 632203646 634184990 634794777 479079789 655137145 463995441 22293549 655137684 630854648 667699977 33264691#0 633809926 445716790 74671097 445716788#0 538260866 633299924 474929430 538761283#0 538761282 631844130 649405237 539638976 476753248#0 75516211 630855998 500368905 661665982 795505748 795505747 632497914 173961732 630419696#0 632512661 639549066 655655597 445282960 74484458 587050477#0 654859628 654859626 632569391 585706001 632561159 655143897 585646211#0 585646209#0 661670601 234371419 74553768 464289009 652012496 585703842#0 -22810638 746927170 474676253 478313239 536913687 -747299409 536913703 747065113 536913696 655653617 45065636 641071354 652572204 486025333 535665919 535665920 747882605 617923190 22698361 673494267 816753391 467731257#0 649368017 74685970#0 474427034 673460196 474427035 630414222 22698756 22698751#0 761157096 174023709 474428337 74518787 538754961 633826997 474210631 474428340 464288956 74527435 474431399 474446520 474446528 474446530 722315777 538417614 474446533 474446536 474446538 474471903 473393255 585984921 585984927 585984926 585984914 585984913 585984909 585984907 585984904 639626490 758858115 769243289 539497793 617971449 617971450 412280872 528461109" >
+        <stop busStop="1847853709" duration="20" until="62.0"/> <!-- Punggol Temporary Interchange -->
+        <stop busStop="7314770844" duration="20" until="93.0"/> <!-- Punggol Station/Interchange -->
+        <stop busStop="3865151058" duration="20" until="156.0"/> <!-- Before Blk 264 -->
+        <stop busStop="1849631331" duration="20" until="222.0"/> <!-- After Soo Teck Station -->
+        <stop busStop="3737148763" duration="20" until="288.0"/> <!-- Twin Waterfalls -->
+        <stop busStop="8926967788" duration="20" until="362.0"/> <!-- Blk 286B -->
+        <stop busStop="410474760" duration="20" until="425.0"/> <!-- Opposite Sengkang General Hospital -->
+        <stop busStop="410474348" duration="20" until="479.0"/> <!-- Sengkang Community Hub -->
+        <stop busStop="1849631269" duration="20" until="566.0"/> <!-- Blk 204C -->
+        <stop busStop="2429952037" duration="20" until="625.0"/> <!-- Buangkok Station Exit B -->
+        <stop busStop="1849631273" duration="20" until="725.0"/> <!-- Blk 557 -->
+        <stop busStop="410462266" duration="20" until="806.0"/> <!-- Blk 565 -->
+        <stop busStop="410462293" duration="20" until="852.0"/> <!-- Blk 579 -->
+        <stop busStop="410462211" duration="20" until="920.0"/> <!-- Blk 911 -->
+        <stop busStop="410462291" duration="20" until="981.0"/> <!-- Blk 969 -->
+        <stop busStop="410486991" duration="20" until="1070.0"/> <!-- Blk 953 -->
+        <stop busStop="410486955" duration="20" until="1142.0"/> <!-- Gracehaven S Army -->
+        <stop busStop="4430976208" duration="20" until="1209.0"/> <!-- Before Yio Chu Kang Chapel -->
+        <stop busStop="410486969" duration="20" until="1268.0"/> <!-- Toho Green -->
+        <stop busStop="1855320978" duration="20" until="1339.0"/> <!-- After Phillips Avenue -->
+        <stop busStop="410486966" duration="20" until="1393.0"/> <!-- After Serangoon Garden Way -->
+        <stop busStop="410486516" duration="20" until="1424.0"/> <!-- Before Tai Seng Christian Church -->
+        <stop busStop="410486293" duration="20" until="1500.0"/> <!-- Serangoon Sports Complex -->
+        <stop busStop="410475114" duration="20" until="1587.0"/> <!-- Blk 206 -->
+        <stop busStop="1531005322" duration="20" until="1648.0"/> <!-- Serangoon Station Exit C/Blk 201 -->
+        <stop busStop="410483103" duration="20" until="1710.0"/> <!-- Opposite Blk 1 -->
+        <stop busStop="410482520" duration="20" until="1768.0"/> <!-- Blk 161 -->
+        <stop busStop="410482572" duration="20" until="1844.0"/> <!-- After Paya Lebar Cresent -->
+        <stop busStop="410482568" duration="20" until="1898.0"/> <!-- Raya Garden -->
+        <stop busStop="410482491" duration="20" until="1968.0"/> <!-- Paya Lebar Gardens -->
+        <stop busStop="410482562" duration="20" until="2014.0"/> <!-- After Rochdale Road -->
+        <stop busStop="410482564" duration="20" until="2096.0"/> <!-- Opposite Paya Lebar Street -->
+        <stop busStop="410482570" duration="20" until="2156.0"/> <!-- Opposite Asiawide Industrial Building -->
+        <stop busStop="410482551" duration="20" until="2207.0"/> <!-- After Tai Seng Station Exit C -->
+        <stop busStop="410471081" duration="20" until="2270.0"/> <!-- Opposite Trinity @ Paya Lebar -->
+        <stop busStop="410471030" duration="20" until="2336.0"/> <!-- Citipoint Industrial Complex -->
+        <stop busStop="410470959" duration="20" until="2470.0"/> <!-- MacPherson Station Exit B -->
+        <stop busStop="410471005" duration="20" until="2543.0"/> <!-- CISCO Centre -->
+        <stop busStop="410464255" duration="20" until="2599.0"/> <!-- Paya Lebar Station Exit B -->
+        <stop busStop="410478275" duration="20" until="2685.0"/> <!-- Tanjong Katong Complex -->
+        <stop busStop="-410478274" duration="20" until="2754.0"/> <!-- CDAC Building -->
+        <stop busStop="-410478273" duration="20" until="2796.0"/> <!-- After Ipoh Lane -->
+        <stop busStop="-1849457018" duration="20" until="2873.0"/> <!-- Tanjong Katong Girls' School -->
+        <stop busStop="410478271" duration="20" until="2944.0"/> <!-- Before Katong Post Office -->
+        <stop busStop="410459494" duration="20" until="3050.0"/> <!-- Opposite Amber Gardens -->
+        <stop busStop="4623289717" duration="20" until="3147.0"/> <!-- Opposite Parkway Parade -->
+        <stop busStop="410467553" duration="20" until="3210.0"/> <!-- Opposite Blk 72 -->
+        <stop busStop="410467566" duration="20" until="3268.0"/> <!-- CHIJ Katong Convent (Primary) -->
+        <stop busStop="410467564" duration="20" until="3338.0"/> <!-- Opposite Blk 57 -->
+        <stop busStop="1268343846" duration="20" until="3369.0"/> <!-- Saint Patrick's Secondary School -->
+        <stop busStop="410467574" duration="20" until="3463.0"/> <!-- Opposite Neptune Court -->
+        <stop busStop="410467562" duration="20" until="3526.0"/> <!-- Opposite Mandarin Gardens -->
+        <stop busStop="410467567" duration="20" until="3590.0"/> <!-- Opposite Victoria School -->
+        <stop busStop="410467571" duration="20" until="3677.0"/> <!-- Hua Xin Court -->
+        <stop busStop="410461658" duration="20" until="3711.0"/> <!-- Eastern Lagoon II -->
+        <stop busStop="410481810" duration="20" until="3782.0"/> <!-- Evergreen Garden -->
+        <stop busStop="410481815" duration="20" until="3813.0"/> <!-- Before Sennett Road -->
+        <stop busStop="410481781" duration="20" until="3844.0"/> <!-- The Summit -->
+        <stop busStop="410481783" duration="20" until="3875.0"/> <!-- After Parbury Avenue -->
+        <stop busStop="410482047" duration="20" until="4018.0"/> <!-- Opposite Temasek Secondary School -->
+        <stop busStop="410482019" duration="20" until="4108.0"/> <!-- Kew Green Condominium -->
+        <stop busStop="1847713996" duration="20" until="4177.0"/> <!-- Upper East Coast Terminal -->
+    </route>
+    <route id="bus_43:1" edges="528461109 539493196 473887259 639626489 769243288 175959563 538007788 464205497 174281657 445716787 473888861 284167586 478162426 22699682 538417615#0 633800167 22698750 726602325 174281633 585985522#0 661351281 744580202 74527434 661351279 131891597 131891598 649078302#0 74518780 761157094 74527426 585646225#0 22698755 585646226#0 22698333 646693374#0 585646223#0 470118588 465123975 661340996 661340995 654766089 391007728 45065755 651144349 194761557 22698325 476752807 476752808 74729031 467689356 74518112 536913705 651916279 536913699 536913690 536913684 536913683 464289006 536913673 536913672 708802890 464981417#0 74680083 475134293 172065637#0 74914974 22291137#0 661670905 747402010 585646214 634806490 465461960#0 465461961 585646212#0 476112155 820408640 476112157 33793689 476112159 476112161#0 587050475#0 476374559#0 639549065 649924884 476374560 795505751 630419697 22291132 476374561#0 33264343 655041207 476377509 33264605 633245786 628515049 634102357 74553758 539638975 358645124 476380447 476380451 474929433 539379658 476381191 74769762 630866045 631722832 305935886 74553749 475116737 475116738 475116739 478881770 448937598 633397743 824411067 479080151 479083903 448937581 448937648 479083905 758639272 174765849 478126342 478126343 478930899 633146417 655041844 537579061 633804506 173792008 445283015 475171828 475171829 649626423 533055058 533055059 630417422 475171826 628485342 447713253#0 445716684#0 628511633 651180186 512918198 512918195#0 650919577 794631148 512918180 174886239 512918181#0 476716878 175959440 476440462 445716678#0 623353016 623353013 383281888 624291909 537979490 624291908#0 581565348 624291888#0 626538765 623713564 623713566 536039211 74549015#0 627937588 445716732 174281625 476705430 445716692#0 445716691 74962078 445716747#0 627686931 174886203 476689629 649386685 445716745 445716751 756108190 476692298 756107569 476692295 74957634 799571432 476692302 391007733#0 717440786 476693038 582412289#0 582412286#0 717446183 476389378 445716719 445716717 33194100 476389380 476389381 476389382 582412260 711645501 476389383 476389388 445282966 74953808 173767826 652306771 173768002 1111008092 631887962#0 631887962#1" >
+        <stop busStop="1847713996@6623041" duration="20" until="31.0"/> <!-- Upper East Coast Terminal -->
+        <stop busStop="410481823" duration="20" until="133.0"/> <!-- Opposite Kew Green Condominium -->
+        <stop busStop="410481904" duration="20" until="199.0"/> <!-- Temasek Secondary School -->
+        <stop busStop="410481816" duration="20" until="267.0"/> <!-- After Bedok South Avenue 3 -->
+        <stop busStop="410481787" duration="20" until="298.0"/> <!-- Calvary Ably Of God Church -->
+        <stop busStop="410481813" duration="20" until="329.0"/> <!-- Opposite The Summit -->
+        <stop busStop="410481986" duration="20" until="360.0"/> <!-- After Sennet Road -->
+        <stop busStop="410481966" duration="20" until="391.0"/> <!-- Opposite Evergreen Avenue -->
+        <stop busStop="410461660" duration="20" until="537.0"/> <!-- Opposite Eastern Lagoon II -->
+        <stop busStop="410467577" duration="20" until="589.0"/> <!-- Lagoon View -->
+        <stop busStop="410467572" duration="20" until="644.0"/> <!-- Laguna Park -->
+        <stop busStop="410467565" duration="20" until="675.0"/> <!-- Victoria School -->
+        <stop busStop="410467569" duration="20" until="770.0"/> <!-- Mandarin Gardens -->
+        <stop busStop="410467570" duration="20" until="835.0"/> <!-- Neptune Court -->
+        <stop busStop="410467563" duration="20" until="906.0"/> <!-- CHIJ Katong Convent -->
+        <stop busStop="410467568" duration="20" until="953.0"/> <!-- Blk 57 -->
+        <stop busStop="410467552" duration="20" until="1037.0"/> <!-- Tao Nan School -->
+        <stop busStop="410467573" duration="20" until="1098.0"/> <!-- Between Blks 72/74 -->
+        <stop busStop="410467559" duration="20" until="1155.0"/> <!-- Parkway Parade -->
+        <stop busStop="410459493" duration="20" until="1252.0"/> <!-- Amber Gardens -->
+        <stop busStop="410478270" duration="20" until="1352.0"/> <!-- After Katong Post Office -->
+        <stop busStop="1849457004" duration="20" until="1426.0"/> <!-- Opposite Tanjong Katong Girls' School -->
+        <stop busStop="410478269" duration="20" until="1505.0"/> <!-- After Dunman Road -->
+        <stop busStop="410478280" duration="20" until="1536.0"/> <!-- After Queen Of Peace Church -->
+        <stop busStop="1849631261" duration="20" until="1650.0"/> <!-- Paya Lebar Station Exit D -->
+        <stop busStop="410470849" duration="20" until="1697.0"/> <!-- Paya Lebar Station Exit C -->
+        <stop busStop="410470932" duration="20" until="1759.0"/> <!-- Opposite CISCO Centre -->
+        <stop busStop="410470905" duration="20" until="1824.0"/> <!-- MacPherson Station Exit C -->
+        <stop busStop="410470989" duration="20" until="1943.0"/> <!-- Opposite Orion @ Paya Lebar -->
+        <stop busStop="410470884" duration="20" until="2018.0"/> <!-- Le Crescendo -->
+        <stop busStop="410482569" duration="20" until="2097.0"/> <!-- After Tai Seng Station -->
+        <stop busStop="410482563" duration="20" until="2163.0"/> <!-- Asiawide Industrial Building -->
+        <stop busStop="410482567" duration="20" until="2207.0"/> <!-- After Paya Lebar Street -->
+        <stop busStop="410482565" duration="20" until="2290.0"/> <!-- After Bartley Road -->
+        <stop busStop="3865151080" duration="20" until="2343.0"/> <!-- Wisma AUPE -->
+        <stop busStop="1847940083" duration="20" until="2392.0"/> <!-- Before How Sun Road -->
+        <stop busStop="410482566" duration="20" until="2457.0"/> <!-- Opposite Bethany Presbyterian Church -->
+        <stop busStop="410482462" duration="20" until="2531.0"/> <!-- After Jalan Chermat -->
+        <stop busStop="410483065" duration="20" until="2595.0"/> <!-- Forest Woods -->
+        <stop busStop="410475111" duration="20" until="2662.0"/> <!-- Serangoon Station Exit B -->
+        <stop busStop="410475115" duration="20" until="2693.0"/> <!-- Blk 261 -->
+        <stop busStop="410486292" duration="20" until="2781.0"/> <!-- Opposite Serangoon Sports Complex -->
+        <stop busStop="1854311858" duration="20" until="2840.0"/> <!-- Before Saint Helier's Avenue -->
+        <stop busStop="410486964" duration="20" until="2921.0"/> <!-- After Serangoon North Avenue 1 -->
+        <stop busStop="410486828" duration="20" until="2968.0"/> <!-- Blk 133 -->
+        <stop busStop="410486963" duration="20" until="3033.0"/> <!-- Blk 138 -->
+        <stop busStop="410486295" duration="20" until="3104.0"/> <!-- Opposite Gracehaven S Army -->
+        <stop busStop="410486421" duration="20" until="3167.0"/> <!-- Opposite Blk 953 -->
+        <stop busStop="410462187" duration="20" until="3234.0"/> <!-- Opposite Blk 968 -->
+        <stop busStop="410462238" duration="20" until="3310.0"/> <!-- Opposite Blk 910 -->
+        <stop busStop="410462292" duration="20" until="3372.0"/> <!-- Opposite Blk 579 -->
+        <stop busStop="410462285" duration="20" until="3438.0"/> <!-- Opposite Blk 565 -->
+        <stop busStop="1849631298" duration="20" until="3493.0"/> <!-- Opposite Blk 558 -->
+        <stop busStop="1848076678" duration="20" until="3579.0"/> <!-- Buangkok Station Exit A -->
+        <stop busStop="1849631267" duration="20" until="3664.0"/> <!-- Blk 201C -->
+        <stop busStop="410474384" duration="20" until="3762.0"/> <!-- Blk 323B -->
+        <stop busStop="410474619" duration="20" until="3814.0"/> <!-- Sengkang General Hospital -->
+        <stop busStop="8926967789" duration="20" until="3876.0"/> <!-- Opposite Blk 293D -->
+        <stop busStop="3737158812" duration="20" until="3948.0"/> <!-- Blk 220C -->
+        <stop busStop="1849631343" duration="20" until="4010.0"/> <!-- Before Soo Teck Station -->
+        <stop busStop="3865151068" duration="20" until="4086.0"/> <!-- Opposite Blk 264A -->
+        <stop busStop="1847853709@6623041" duration="20" until="4218.0"/> <!-- Punggol Temporary Interchange -->
+    </route>
+    <flow id="bus_22:1" type="bus" route="bus_22:1" begin="0.0" end="3600.0" period="300" line="22:1" >
+        <param key="name" value="Svc 22 (Eunos Interchange → Ang Mo Kio Interchange)"/>
+        <param key="completeness" value="1.00"/>
+    </flow>
+    <flow id="bus_22:0" type="bus" route="bus_22:0" begin="0.0" end="3600.0" period="300" line="22:0" >
+        <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
+        <param key="completeness" value="0.97"/>
+    </flow>
+    <flow id="bus_43:0" type="bus" route="bus_43:0" begin="0.0" end="3600.0" period="300" line="43:0" >
+        <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
+        <param key="completeness" value="1.00"/>
+    </flow>
+    <flow id="bus_43:1" type="bus" route="bus_43:1" begin="0.0" end="3600.0" period="300" line="43:1" >
+        <param key="name" value="Svc 43 (Upper East Coast Terminal → Punggol Temporary Interchange)"/>
+        <param key="completeness" value="1.00"/>
+    </flow>
+</routes>

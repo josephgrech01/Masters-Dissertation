@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-01-25 19:52:50 by Eclipse SUMO netconvert Version 1.14.1
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <osm-files value="singapore.osm"/>
+    </input>
+
+    <output>
+        <output-file value="singapore.net.xml"/>
+        <ptstop-output value="busstops.xml"/>
+        <ptline-output value="buslines.xml"/>
+    </output>
+
+    <projection>
+        <proj.utm value="true"/>
+    </projection>
+
+    <processing>
+        <geometry.remove value="true"/>
+        <roundabouts.guess value="true"/>
+    </processing>
+
+    <tls_building>
+        <tls.discard-simple value="true"/>
+        <tls.join value="true"/>
+        <tls.guess-signals value="true"/>
+    </tls_building>
+
+    <ramp_guessing>
+        <ramps.guess value="true"/>
+    </ramp_guessing>
+
+    <junctions>
+        <junctions.join value="true"/>
+    </junctions>
+
+    <formats>
+        <osm.stop-output.length value="10"/>
+    </formats>
+
+</configuration>
+-->
+
+<ptLines xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/ptlines_file.xsd">
+    <ptLine id="1147889" name="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)" line="22" type="bus" vClass="bus" completeness="0.97">
+        <route edges="543768663 736482787 576773653 464288938 174041987#0 22719967 630171311 482256070 652293278 635112968 652558527 464008725 634469471 479764655 479764653 480275410 630160531 479124342 630163199 74902653 532977598 661628136 479754537 22325259 383365020 632203646 634184990 634794777 479079789 655137145 463995441 22293549 655137684 630854648 667699977 33264691#0 633809926 445716790 74671097 445716788#0 538260866 633299924 474929430 538761283#0 538761282 631844130 649405237 539638976 476753248#0 75516211 630855998 500368905 661665982 795505748 795505747 632497914 173961732 630419696#0 632512661 639549066 655655597 443122391 74553771 639916002 655658863 74746296 655144778 477574135 655504834 636737164 74746295 173779734 447712957 476429330 477958806 587048092 476431846 74675111 792764584 473439150 74553776 826116981 473440854 473440856 632474268 655146644#0 74687493 585646221#0 23816952 75511727 -645158440 -464288982 1167108141"/>
+        <busStop id="410460005" name="Ang Mo Kio Interchange"/>
+        <busStop id="410459901" name="Blk 422"/>
+        <busStop id="410459897" name="Blk 420"/>
+        <busStop id="410459904" name="Opposite Christ The King Church"/>
+        <busStop id="410459657" name="After Ang Mo Kio Avenue 10"/>
+        <busStop id="410459651" name="Golden Hill Estate"/>
+        <busStop id="410467153" name="Cardiff Residence"/>
+        <busStop id="410462101" name="Blk 230"/>
+        <busStop id="410462103" name="Opposite Blk 257"/>
+        <busStop id="410475114" name="Blk 206"/>
+        <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201"/>
+        <busStop id="410483103" name="Opposite Blk 1"/>
+        <busStop id="410482520" name="Blk 161"/>
+        <busStop id="410482572" name="After Paya Lebar Cresent"/>
+        <busStop id="410482568" name="Raya Garden"/>
+        <busStop id="410482491" name="Paya Lebar Gardens"/>
+        <busStop id="410482562" name="After Rochdale Road"/>
+        <busStop id="410482564" name="Opposite Paya Lebar Street"/>
+        <busStop id="410482570" name="Opposite Asiawide Industrial Building"/>
+        <busStop id="410482551" name="After Tai Seng Station Exit C"/>
+        <busStop id="410471081" name="Opposite Trinity @ Paya Lebar"/>
+        <busStop id="410471030" name="Citipoint Industrial Complex"/>
+        <busStop id="410480716" name="Blk 3019"/>
+        <busStop id="410480722" name="Blk 3021"/>
+        <busStop id="410480721" name="Blk 3023"/>
+        <busStop id="5701793241" name="Ubi Station Exit B"/>
+        <busStop id="410480724" name="Automobile Megamart"/>
+        <busStop id="410464248" name="Blk 637"/>
+        <busStop id="410465916" name="Opposite Blk 322"/>
+        <busStop id="410465917" name="Opposite Blk 16"/>
+        <busStop id="410465915" name="Opposite Eunos Station"/>
+        <busStop id="410462762" name="After Lorong 106 Changi"/>
+        <busStop id="410466111" name="Blk 3A"/>
+    </ptLine>
+    <ptLine id="1149358" name="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)" line="43" type="bus" vClass="bus" completeness="1.00">
+        <route edges="1111008091 724076802 476395133 708819911 445283029 74962088 734884726 476395130 476395125 582412262 476395118 655182285 445716721 717446182 823685682#0 582412290#0 190451325 620745573 717446180 391007732#0 32776560 349416402 476708352 476692300 74957629 717470516 717470515 476708349 476708350 445716748 718229612 476689637 476705431 718229611 445716694 627983391 627937587 22652564 623713563#0 479337786 623715810#0 624291892 624291891#0 581565350 537979489#0 623353012 383281870 22651486 528461110 632378379#0 479747060 630097526 445716682 445716683 476703993 476703994 628706178 512918178#0 75070576 512918179 794628388 651065194 512918192#0 512918201#0 652009599 628501871 445716686 74668469 631742210 475156716 475156717 448937650 533055054 1122289596 74869296 475157992 34905413 475158000 475158907 633197069 475159368 475159371 539671030 175959568 630829769 475163615 475163616 475163617 325024345 22325259 383365020 632203646 634184990 634794777 479079789 655137145 463995441 22293549 655137684 630854648 667699977 33264691#0 633809926 445716790 74671097 445716788#0 538260866 633299924 474929430 538761283#0 538761282 631844130 649405237 539638976 476753248#0 75516211 630855998 500368905 661665982 795505748 795505747 632497914 173961732 630419696#0 632512661 639549066 655655597 445282960 74484458 587050477#0 654859628 654859626 632569391 585706001 632561159 655143897 585646211#0 585646209#0 661670601 234371419 74553768 464289009 652012496 585703842#0 -22810638 746927170 474676253 478313239 536913687 -747299409 536913703 747065113 536913696 655653617 45065636 641071354 652572204 486025333 535665919 535665920 747882605 617923190 22698361 673494267 816753391 467731257#0 649368017 74685970#0 474427034 673460196 474427035 630414222 22698756 22698751#0 761157096 174023709 474428337 74518787 538754961 633826997 474210631 474428340 464288956 74527435 474431399 474446520 474446528 474446530 722315777 538417614 474446533 474446536 474446538 474471903 473393255 585984921 585984927 585984926 585984914 585984913 585984909 585984907 585984904 639626490 758858115 769243289 539497793 617971449 617971450 412280872 528461109"/>
+        <busStop id="1847853709" name="Punggol Temporary Interchange"/>
+        <busStop id="7314770844" name="Punggol Station/Interchange"/>
+        <busStop id="3865151058" name="Before Blk 264"/>
+        <busStop id="1849631331" name="After Soo Teck Station"/>
+        <busStop id="3737148763" name="Twin Waterfalls"/>
+        <busStop id="8926967788" name="Blk 286B"/>
+        <busStop id="410474760" name="Opposite Sengkang General Hospital"/>
+        <busStop id="410474348" name="Sengkang Community Hub"/>
+        <busStop id="1849631269" name="Blk 204C"/>
+        <busStop id="2429952037" name="Buangkok Station Exit B"/>
+        <busStop id="1849631273" name="Blk 557"/>
+        <busStop id="410462266" name="Blk 565"/>
+        <busStop id="410462293" name="Blk 579"/>
+        <busStop id="410462211" name="Blk 911"/>
+        <busStop id="410462291" name="Blk 969"/>
+        <busStop id="410486991" name="Blk 953"/>
+        <busStop id="410486955" name="Gracehaven S Army"/>
+        <busStop id="4430976208" name="Before Yio Chu Kang Chapel"/>
+        <busStop id="410486969" name="Toho Green"/>
+        <busStop id="1855320978" name="After Phillips Avenue"/>
+        <busStop id="410486966" name="After Serangoon Garden Way"/>
+        <busStop id="410486516" name="Before Tai Seng Christian Church"/>
+        <busStop id="410486293" name="Serangoon Sports Complex"/>
+        <busStop id="410475114" name="Blk 206"/>
+        <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201"/>
+        <busStop id="410483103" name="Opposite Blk 1"/>
+        <busStop id="410482520" name="Blk 161"/>
+        <busStop id="410482572" name="After Paya Lebar Cresent"/>
+        <busStop id="410482568" name="Raya Garden"/>
+        <busStop id="410482491" name="Paya Lebar Gardens"/>
+        <busStop id="410482562" name="After Rochdale Road"/>
+        <busStop id="410482564" name="Opposite Paya Lebar Street"/>
+        <busStop id="410482570" name="Opposite Asiawide Industrial Building"/>
+        <busStop id="410482551" name="After Tai Seng Station Exit C"/>
+        <busStop id="410471081" name="Opposite Trinity @ Paya Lebar"/>
+        <busStop id="410471030" name="Citipoint Industrial Complex"/>
+        <busStop id="410470959" name="MacPherson Station Exit B"/>
+        <busStop id="410471005" name="CISCO Centre"/>
+        <busStop id="410464255" name="Paya Lebar Station Exit B"/>
+        <busStop id="410478275" name="Tanjong Katong Complex"/>
+        <busStop id="-410478274" name="CDAC Building"/>
+        <busStop id="-410478273" name="After Ipoh Lane"/>
+        <busStop id="-1849457018" name="Tanjong Katong Girls&apos; School"/>
+        <busStop id="410478271" name="Before Katong Post Office"/>
+        <busStop id="410459494" name="Opposite Amber Gardens"/>
+        <busStop id="4623289717" name="Opposite Parkway Parade"/>
+        <busStop id="410467553" name="Opposite Blk 72"/>
+        <busStop id="410467566" name="CHIJ Katong Convent (Primary)"/>
+        <busStop id="410467564" name="Opposite Blk 57"/>
+        <busStop id="1268343846" name="Saint Patrick&apos;s Secondary School"/>
+        <busStop id="410467574" name="Opposite Neptune Court"/>
+        <busStop id="410467562" name="Opposite Mandarin Gardens"/>
+        <busStop id="410467567" name="Opposite Victoria School"/>
+        <busStop id="410467571" name="Hua Xin Court"/>
+        <busStop id="410461658" name="Eastern Lagoon II"/>
+        <busStop id="410481810" name="Evergreen Garden"/>
+        <busStop id="410481815" name="Before Sennett Road"/>
+        <busStop id="410481781" name="The Summit"/>
+        <busStop id="410481783" name="After Parbury Avenue"/>
+        <busStop id="410482047" name="Opposite Temasek Secondary School"/>
+        <busStop id="410482019" name="Kew Green Condominium"/>
+        <busStop id="1847713996" name="Upper East Coast Terminal"/>
+    </ptLine>
+    <ptLine id="6623013" name="Svc 22 (Eunos Interchange → Ang Mo Kio Interchange)" line="22" type="bus" vClass="bus" completeness="1.00">
+        <route edges="479169486 479169488 473439152 223671420 632482225 792755656 477711619 21463643 636736093 306116898 636736606 22674809 477557468 74746294 477557471 632953499 632953495 477557470 633788296 74746298 640008546 602479029#0 587050475#0 476374559#0 639549065 649924884 476374560 795505751 630419697 22291132 476374561#0 33264343 655041207 476377509 33264605 633245786 628515049 634102357 74553758 539638975 358645124 476380447 476380451 474929433 539379658 476381191 74769762 630866045 631722832 305935886 74553749 475116737 475116738 475116739 478881770 448937598 633397743 824411067 479080151 479083903 305935878 535604972 652292208 532990228 532977599 174765783 633194212 633194211 174552467 174552465 628222001 630159972 628201210 594262532#0 174402279 22694299 633219124#0 633149548 22650763 634477657 22719965#0 543768663 1167108140 75039128 632562097#0 655145244 666806812 465467899 770367113 475343499 473440857 655147259"/>
+        <busStop id="410464251" name="Eunos Interchange"/>
+        <busStop id="1995038394" name="Eunos Station/ Interchange"/>
+        <busStop id="410465918" name="Eunos Station"/>
+        <busStop id="410465914" name="Blk 17"/>
+        <busStop id="410465913" name="Blk 322"/>
+        <busStop id="410464249" name="Blk 311"/>
+        <busStop id="410480727" name="Blk 302"/>
+        <busStop id="5701411365" name="Ubi Station Exit A"/>
+        <busStop id="410480725" name="Blk 3024"/>
+        <busStop id="410480723" name="Blk 3026"/>
+        <busStop id="410480726" name="Aztech Building"/>
+        <busStop id="410470989" name="Opposite Orion @ Paya Lebar"/>
+        <busStop id="410470884" name="Le Crescendo"/>
+        <busStop id="410482569" name="After Tai Seng Station"/>
+        <busStop id="410482563" name="Asiawide Industrial Building"/>
+        <busStop id="410482567" name="After Paya Lebar Street"/>
+        <busStop id="410482565" name="After Bartley Road"/>
+        <busStop id="3865151080" name="Wisma AUPE"/>
+        <busStop id="1847940083" name="Before How Sun Road"/>
+        <busStop id="410482566" name="Opposite Bethany Presbyterian Church"/>
+        <busStop id="410482462" name="After Jalan Chermat"/>
+        <busStop id="410483065" name="Forest Woods"/>
+        <busStop id="410475111" name="Serangoon Station Exit B"/>
+        <busStop id="410475115" name="Blk 261"/>
+        <busStop id="410462100" name="Blk 257A"/>
+        <busStop id="410462104" name="Blk 233"/>
+        <busStop id="410467145" name="Blk 307"/>
+        <busStop id="410459656" name="Opposite Golden Hill Estate"/>
+        <busStop id="410459648" name="Before Ang Mo Kio Avenue 10"/>
+        <busStop id="410459903" name="Blk 332"/>
+        <busStop id="410459896" name="Blk 354"/>
+        <busStop id="410459898" name="Blk 346"/>
+        <busStop id="410460005@6623013" name="Ang Mo Kio Interchange"/>
+    </ptLine>
+    <ptLine id="6623041" name="Svc 43 (Upper East Coast Terminal → Punggol Temporary Interchange)" line="43" type="bus" vClass="bus" completeness="1.00">
+        <route edges="528461109 539493196 473887259 639626489 769243288 175959563 538007788 464205497 174281657 445716787 473888861 284167586 478162426 22699682 538417615#0 633800167 22698750 726602325 174281633 585985522#0 661351281 744580202 74527434 661351279 131891597 131891598 649078302#0 74518780 761157094 74527426 585646225#0 22698755 585646226#0 22698333 646693374#0 585646223#0 470118588 465123975 661340996 661340995 654766089 391007728 45065755 651144349 194761557 22698325 476752807 476752808 74729031 467689356 74518112 536913705 651916279 536913699 536913690 536913684 536913683 464289006 536913673 536913672 708802890 464981417#0 74680083 475134293 172065637#0 74914974 22291137#0 661670905 747402010 585646214 634806490 465461960#0 465461961 585646212#0 476112155 820408640 476112157 33793689 476112159 476112161#0 587050475#0 476374559#0 639549065 649924884 476374560 795505751 630419697 22291132 476374561#0 33264343 655041207 476377509 33264605 633245786 628515049 634102357 74553758 539638975 358645124 476380447 476380451 474929433 539379658 476381191 74769762 630866045 631722832 305935886 74553749 475116737 475116738 475116739 478881770 448937598 633397743 824411067 479080151 479083903 448937581 448937648 479083905 758639272 174765849 478126342 478126343 478930899 633146417 655041844 537579061 633804506 173792008 445283015 475171828 475171829 649626423 533055058 533055059 630417422 475171826 628485342 447713253#0 445716684#0 628511633 651180186 512918198 512918195#0 650919577 794631148 512918180 174886239 512918181#0 476716878 175959440 476440462 445716678#0 623353016 623353013 383281888 624291909 537979490 624291908#0 581565348 624291888#0 626538765 623713564 623713566 536039211 74549015#0 627937588 445716732 174281625 476705430 445716692#0 445716691 74962078 445716747#0 627686931 174886203 476689629 649386685 445716745 445716751 756108190 476692298 756107569 476692295 74957634 799571432 476692302 391007733#0 717440786 476693038 582412289#0 582412286#0 717446183 476389378 445716719 445716717 33194100 476389380 476389381 476389382 582412260 711645501 476389383 476389388 445282966 74953808 173767826 652306771 173768002 1111008092 631887962#0 631887962#1"/>
+        <busStop id="1847713996@6623041" name="Upper East Coast Terminal"/>
+        <busStop id="410481823" name="Opposite Kew Green Condominium"/>
+        <busStop id="410481904" name="Temasek Secondary School"/>
+        <busStop id="410481816" name="After Bedok South Avenue 3"/>
+        <busStop id="410481787" name="Calvary Ably Of God Church"/>
+        <busStop id="410481813" name="Opposite The Summit"/>
+        <busStop id="410481986" name="After Sennet Road"/>
+        <busStop id="410481966" name="Opposite Evergreen Avenue"/>
+        <busStop id="410461660" name="Opposite Eastern Lagoon II"/>
+        <busStop id="410467577" name="Lagoon View"/>
+        <busStop id="410467572" name="Laguna Park"/>
+        <busStop id="410467565" name="Victoria School"/>
+        <busStop id="410467569" name="Mandarin Gardens"/>
+        <busStop id="410467570" name="Neptune Court"/>
+        <busStop id="410467563" name="CHIJ Katong Convent"/>
+        <busStop id="410467568" name="Blk 57"/>
+        <busStop id="410467552" name="Tao Nan School"/>
+        <busStop id="410467573" name="Between Blks 72/74"/>
+        <busStop id="410467559" name="Parkway Parade"/>
+        <busStop id="410459493" name="Amber Gardens"/>
+        <busStop id="410478270" name="After Katong Post Office"/>
+        <busStop id="1849457004" name="Opposite Tanjong Katong Girls&apos; School"/>
+        <busStop id="410478269" name="After Dunman Road"/>
+        <busStop id="410478280" name="After Queen Of Peace Church"/>
+        <busStop id="1849631261" name="Paya Lebar Station Exit D"/>
+        <busStop id="410470849" name="Paya Lebar Station Exit C"/>
+        <busStop id="410470932" name="Opposite CISCO Centre"/>
+        <busStop id="410470905" name="MacPherson Station Exit C"/>
+        <busStop id="410470989" name="Opposite Orion @ Paya Lebar"/>
+        <busStop id="410470884" name="Le Crescendo"/>
+        <busStop id="410482569" name="After Tai Seng Station"/>
+        <busStop id="410482563" name="Asiawide Industrial Building"/>
+        <busStop id="410482567" name="After Paya Lebar Street"/>
+        <busStop id="410482565" name="After Bartley Road"/>
+        <busStop id="3865151080" name="Wisma AUPE"/>
+        <busStop id="1847940083" name="Before How Sun Road"/>
+        <busStop id="410482566" name="Opposite Bethany Presbyterian Church"/>
+        <busStop id="410482462" name="After Jalan Chermat"/>
+        <busStop id="410483065" name="Forest Woods"/>
+        <busStop id="410475111" name="Serangoon Station Exit B"/>
+        <busStop id="410475115" name="Blk 261"/>
+        <busStop id="410486292" name="Opposite Serangoon Sports Complex"/>
+        <busStop id="1854311858" name="Before Saint Helier&apos;s Avenue"/>
+        <busStop id="410486964" name="After Serangoon North Avenue 1"/>
+        <busStop id="410486828" name="Blk 133"/>
+        <busStop id="410486963" name="Blk 138"/>
+        <busStop id="410486295" name="Opposite Gracehaven S Army"/>
+        <busStop id="410486421" name="Opposite Blk 953"/>
+        <busStop id="410462187" name="Opposite Blk 968"/>
+        <busStop id="410462238" name="Opposite Blk 910"/>
+        <busStop id="410462292" name="Opposite Blk 579"/>
+        <busStop id="410462285" name="Opposite Blk 565"/>
+        <busStop id="1849631298" name="Opposite Blk 558"/>
+        <busStop id="1848076678" name="Buangkok Station Exit A"/>
+        <busStop id="1849631267" name="Blk 201C"/>
+        <busStop id="410474384" name="Blk 323B"/>
+        <busStop id="410474619" name="Sengkang General Hospital"/>
+        <busStop id="8926967789" name="Opposite Blk 293D"/>
+        <busStop id="3737158812" name="Blk 220C"/>
+        <busStop id="1849631343" name="Before Soo Teck Station"/>
+        <busStop id="3865151068" name="Opposite Blk 264A"/>
+        <busStop id="1847853709@6623041" name="Punggol Temporary Interchange"/>
+    </ptLine>
+</ptLines>
