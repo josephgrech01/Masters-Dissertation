@@ -48,7 +48,7 @@
     <busStop id="-410478273" name="After Ipoh Lane" lane="-22810638_0" startPos="57.28" endPos="72.28" friendlyPos="true" lines="43"/>
     <busStop id="-410478274" name="CDAC Building" lane="-22810638_0" startPos="11.15" endPos="26.15" friendlyPos="true" lines="43"/>
     <busStop id="1268343846" name="Saint Patrick&apos;s Secondary School" lane="74518787_0" startPos="54.90" endPos="69.90" friendlyPos="true" lines="43"/>
-    <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_0" startPos="37.13" endPos="44.59" friendlyPos="true" lines="22 43"/>
+    <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_0" startPos="27.13" endPos="49.59" friendlyPos="true" lines="22 43"/>
     <busStop id="1847713996" name="Upper East Coast Terminal" lane="528461109_0" startPos="1.47" endPos="16.47" friendlyPos="true" lines="43"/>
     <busStop id="1847713996@6623041" name="Upper East Coast Terminal" lane="528461109_0" startPos="0.00" endPos="9.15" friendlyPos="true" lines="43"/>
     <busStop id="1847853709" name="Punggol Temporary Interchange" lane="74962088_0" startPos="42.23" endPos="57.23" friendlyPos="true" lines="43"/>
@@ -103,7 +103,8 @@
     <busStop id="410462762" name="After Lorong 106 Changi" lane="585646221#0_0" startPos="0.00" endPos="12.28" friendlyPos="true" lines="22"/>
     <busStop id="410464248" name="Blk 637" lane="447712957_0" startPos="24.64" endPos="39.64" friendlyPos="true" lines="22"/>
     <busStop id="410464249" name="Blk 311" lane="21463643_0" startPos="10.14" endPos="25.14" friendlyPos="true" lines="22"/>
-    <busStop id="410464251" name="Eunos Interchange" lane="632562097#0_0" startPos="0.00" endPos="7.70" friendlyPos="true" lines="22"/>
+    <!-- <busStop id="410464251" name="Eunos Interchange" lane="632562097#0_0" startPos="0.00" endPos="7.70" friendlyPos="true" lines="22"/> -->
+    <busStop id="410464251" name="Eunos Interchange" lane="245934570#2_0" startPos="257.83" endPos="272.83" friendlyPos="true" lines="22"/>
     <busStop id="410464255" name="Paya Lebar Station Exit B" lane="585646209#0_0" startPos="0.00" endPos="9.26" friendlyPos="true" lines="43"/>
     <busStop id="410465913" name="Blk 322" lane="223671420_0" startPos="12.14" endPos="27.14" friendlyPos="true" lines="22"/>
     <busStop id="410465914" name="Blk 17" lane="655147259_0" startPos="55.01" endPos="70.01" friendlyPos="true" lines="22"/>
@@ -212,7 +213,7 @@
     <busStop id="4430976208" name="Before Yio Chu Kang Chapel" lane="34905413_0" startPos="19.61" endPos="34.61" friendlyPos="true" lines="43"/>
     <busStop id="4623289717" name="Opposite Parkway Parade" lane="467731257#0_0" startPos="49.56" endPos="64.56" friendlyPos="true" lines="43"/>
     <busStop id="5701411365" name="Ubi Station Exit A" lane="74746294_0" startPos="119.81" endPos="134.81" friendlyPos="true" lines="22"/>
-    <busStop id="5701793241" name="Ubi Station Exit B" lane="477574135_0" startPos="136.59" endPos="149.89" friendlyPos="true" lines="22"/>
+    <busStop id="5701793241" name="Ubi Station Exit B" lane="477574135_0" startPos="128.59" endPos="149.89" friendlyPos="true" lines="22"/>
     <busStop id="7314770844" name="Punggol Station/Interchange" lane="74962088_0" startPos="42.23" endPos="57.23" friendlyPos="true" lines="43"/>
     <busStop id="8926967788" name="Blk 286B" lane="349416402_0" startPos="125.87" endPos="140.87" friendlyPos="true" lines="43"/>
     <busStop id="8926967789" name="Opposite Blk 293D" lane="74957634_0" startPos="30.13" endPos="45.13" friendlyPos="true" lines="43"/>
