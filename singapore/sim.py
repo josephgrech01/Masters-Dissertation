@@ -23,23 +23,47 @@ def get_options():
 
 def run():
     step = 0
+    currentVehicles = []
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
         print(step)
+
+        newV = traci.simulation.getDepartedIDList()
+        newVehicles = []
+        for v in newV:
+            traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
+            newVehicles.append([v, None])
+            print("New Vehicle: {}".format(v))
+        currentVehicles.extend(newVehicles)
+        
+
+        # create the trip for the newly departed passengers
+        newPersons = traci.simulation.getDepartedPersonIDList()
+        setStop(newPersons)
+        # remove the persons that have arrived from the dictionary
+        arrived = traci.simulation.getArrivedPersonIDList()
+        updateTrips(arrived)
 
 
 
         step += 1
 
     traci.close()
-    sys.stdout.flush()
+
+def setStop(person):
+    pass
+
+def updateTrips(arrived):
+    pass
+
+
 
 if __name__ == "__main__":
     options = get_options()
     if options.nogui:
         sumoBinary = checkBinary('sumo')
     else:
-        sumoBinary = checkBinary('sumo-gui')
+        sumoBinary = checkBinary('sumo')#-gui')
 
     traci.start([sumoBinary, "-c", "singapore/singapore.sumo.cfg"])
     run()
