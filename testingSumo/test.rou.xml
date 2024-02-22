@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-11-07 14:20:11 by Eclipse SUMO netedit Version 1.14.1
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="vType_0" vClass="bus"/>
+    <flow id="flow_0" type="vType_0" line="0" begin="0.00" end="3600" from="E2" to="E7" period="120">
+        <stop busStop="bs_0" duration="1"/>
+        <stop busStop="bs_4" duration="1"/>
+    </flow>
+
+    <flow id="flow_1" type="vType_0" color="red" line="1" begin="40.00" end="3600" from="E2" to="E7" period="120">
+        <stop busStop="bs_2" duration="1"/>
+        <stop busStop="bs_3" duration="1"/>
+    </flow> 
+
+    <flow id="flow_2" type="vType_0" color="blue" line="2" begin="80.00" end="3600" from="E2" to="E7" period="120">
+        <stop busStop="bs_0" duration="1"/>
+        <stop busStop="bs_1" duration="1"/>
+        <stop busStop="bs_3" duration="1"/>
+        <stop busStop="bs_4" duration="1"/>
+    </flow> 
+
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <personFlow color="black" id="f_0" begin="0.00" end="3600.00" period="exp(0.1)">
+        <walk from="E3" busStop="bs_0"/>
+        <!-- <ride busStop="bs_4" lines="ANY"/>
+        <walk to="E7"/> -->
+    </personFlow>
+
+    <personFlow color="black" id="f_1" begin="0.00" end="3600.00" period="exp(0.1)">
+        <walk from="E4" busStop="bs_1"/>
+        <!-- <ride busStop="bs_3" lines="ANY"/>
+        <walk to="E6"/> -->
+    </personFlow>
+
+    <personFlow color="black" id="f_2" begin="0.00" end="3600.00" period="exp(0.1)">
+        <walk from="E5" busStop="bs_2"/>
+        <!-- <ride busStop="bs_4" lines="ANY"/>
+        <walk to="E7"/> -->
+    </personFlow>
+
+    <personFlow color="black" id="f_3" begin="0.00" end="3600.00" period="exp(0.1)">
+        <walk from="E6" busStop="bs_3"/>
+        <!-- <ride busStop="bs_4" lines="ANY"/>
+        <walk to="E7"/> -->
+    </personFlow>
+</routes>
