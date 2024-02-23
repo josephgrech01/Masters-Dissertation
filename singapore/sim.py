@@ -42,11 +42,12 @@ def run():
 
         # create the trip for the newly departed passengers
         newPersons = traci.simulation.getDepartedPersonIDList()
-        setStop(newPersons)
+        setStop(newPersons, {}) ####################### PROVIDE ACTUAL DF #################
         # remove the persons that have arrived from the dictionary
         arrived = traci.simulation.getArrivedPersonIDList()
         updateTrips(arrived)
 
+        #### SET STOP DURATION IN ROUTE FILE TO 1 SECOND AT EACH STOP  ################################
 
 
         step += 1
@@ -57,6 +58,8 @@ def run():
 # person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
 # df contains the probabilities of the alighting bus stops 
 def setStop(persons, df):
+    route22 = [] ##################### NEED TO MOVE THESE OUT FROM THE FUNCTION
+    route43 = [] ##################### NEED TO MOVE THESE OUT FROM THE FUNCTION
     for person in persons:
         # extract boarding stop and line from passenger id
         boardingStop = person.split('.')[0] 
@@ -70,18 +73,23 @@ def setStop(persons, df):
         possibleStops.append('other')
         stopWeights.append('0.1')
         
-        # randomly choose alighting bus stop according to the weights
-        alightingStop = random.choices(possibleStops, weights=stopWeights)
+        # randomly select alighting bus stop according to the weights
+        alightingStop = random.choices(possibleStops, weights=stopWeights)[0] # returns a list, so need to select the element
         
-        if alightingStop != 'other':
-            # set the passenger's alighting stop
-            alightLane = traci.busstop.getLaneID(alightingStop)
-            alightEdge = traci.lane.getEdgeID(alightLane)
+        # randomly select a different bus stop that is further downstream the route
+        if alightingStop == 'other':
+            if line == '22':
+                boardingIndex = route22.index(boardingStop)
+                alightingStop = random.choice(route22[boardingIndex + 1:]) # stop must be further downstream
+            else:
+                boardingIndex = route43.index(boardingStop)
+                alightingStop = random.choice(route43[boardingIndex + 1:]) # stop must be further downstream
+        
+        # set the passenger's alighting stop
+        alightLane = traci.busstop.getLaneID(alightingStop)
+        alightEdge = traci.lane.getEdgeID(alightLane)
 
-            traci.person.appendDrivingStage(person, alightEdge, line, stopID=alightingStop)
-        else:
-            # IMPLEMENT CASE WHERE ALIGHTINGSTOP = 'OTHER'
-            pass
+        traci.person.appendDrivingStage(person, alightEdge, line, stopID=alightingStop)
 
         # update the trips dictionary with the new passenger and alighting stop
         trips[person] = alightingStop
