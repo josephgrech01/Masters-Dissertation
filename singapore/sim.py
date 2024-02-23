@@ -12,6 +12,7 @@ else:
 
 from sumolib import checkBinary
 import traci
+import random
 
 def get_options():
     opt_parser = optparse.OptionParser()
@@ -20,6 +21,8 @@ def get_options():
     options, args = opt_parser.parse_args()
     return options
 
+trips = {} # dictionary to store the destination bus stop of a passenger
+lines = {}
 
 def run():
     step = 0
@@ -50,11 +53,42 @@ def run():
 
     traci.close()
 
-def setStop(person):
-    pass
+# function that creates the trip for the newly departed passengers
+# person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
+# df contains the probabilities of the alighting bus stops 
+def setStop(persons, df):
+    for person in persons:
+        # extract boarding stop and line from passenger id
+        boardingStop = person.split('.')[0] 
+        line = person.split('.')[1]
+
+        # extract all records relating to the boarding stop
+        temp = df[df['Boarding Stop'] == boardingStop]
+        possibleStops = temp['Alighting Stop'].tolist()
+        stopWeights = temp['Total'].tolist()
+        # give some small weight to the unmentioned stops
+        possibleStops.append('other')
+        stopWeights.append('0.1')
+        
+        # randomly choose alighting bus stop according to the weights
+        alightingStop = random.choices(possibleStops, weights=stopWeights)
+        
+        if alightingStop != 'other':
+            # set the passenger's alighting stop
+            alightLane = traci.busstop.getLaneID(alightingStop)
+            alightEdge = traci.lane.getEdgeID(alightLane)
+
+            traci.person.appendDrivingStage(person, alightEdge, line, stopID=alightingStop)
+        else:
+            # IMPLEMENT CASE WHERE ALIGHTINGSTOP = 'OTHER'
+            pass
+
+        # update the trips dictionary with the new passenger and alighting stop
+        trips[person] = alightingStop
 
 def updateTrips(arrived):
-    pass
+    for p in arrived:
+        trips.pop(p)
 
 
 
@@ -63,7 +97,7 @@ if __name__ == "__main__":
     if options.nogui:
         sumoBinary = checkBinary('sumo')
     else:
-        sumoBinary = checkBinary('sumo')#-gui')
+        sumoBinary = checkBinary('sumo-gui')
 
     traci.start([sumoBinary, "-c", "singapore/singapore.sumo.cfg"])
     run()
