@@ -13,6 +13,7 @@ else:
 from sumolib import checkBinary
 import traci
 import random
+import pandas as pd
 
 def get_options():
     opt_parser = optparse.OptionParser()
@@ -41,9 +42,19 @@ print('Len route 43: {}'.format(len(route43)))
 def run():
     step = 0
     currentVehicles = []
+    hour = 6
+    df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route22.csv'))
+    df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route43.csv'))
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
-        print(step)
+        print('Step: {}'.format(step))
+        time = traci.simulation.getTime()
+
+        if getHour(time) != hour:
+            hour = getHour(time)
+            df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route22.csv'))
+            df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route43.csv'))
+
 
         newV = traci.simulation.getDepartedIDList()
         newVehicles = []
@@ -56,36 +67,68 @@ def run():
 
         # create the trip for the newly departed passengers
         newPersons = traci.simulation.getDepartedPersonIDList()
-        setStop(newPersons, {}) ####################### PROVIDE ACTUAL DF #################
+        setStop(newPersons, df22, df43)
         # remove the persons that have arrived from the dictionary
         arrived = traci.simulation.getArrivedPersonIDList()
         updateTrips(arrived)
-
-        #### SET STOP DURATION IN ROUTE FILE TO 1 SECOND AT EACH STOP  ################################
-
 
         step += 1
 
     traci.close()
 
+def getHour(time):
+    if time < 1800:
+        return 6
+    elif time < 5400:
+        return 7
+    elif time < 9000:
+        return 8
+    elif time < 12600:
+        return 9
+    elif time < 16200:
+        return 10
+    elif time < 19800:
+        return 11
+    elif time < 23400:
+        return 12
+    elif time < 27000:
+        return 13
+    elif time < 30600:
+        return 14
+    elif time < 34200:
+        return 15
+    elif time < 37800:
+        return 16
+    elif time < 41400:
+        return 17
+    elif time < 45000:
+        return 18
+    elif time < 48600:
+        return 19
+    else:
+        return 20
+
 # function that creates the trip for the newly departed passengers
 # person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
-# df contains the probabilities of the alighting bus stops 
-def setStop(persons, df):
-    # route22 = [] ##################### NEED TO MOVE THESE OUT FROM THE FUNCTION
-    # route43 = [] ##################### NEED TO MOVE THESE OUT FROM THE FUNCTION
+# df22 and df43 contains the probabilities of the alighting bus stops 
+def setStop(persons, df22, df43):
     for person in persons:
         # extract boarding stop and line from passenger id
         boardingStop = person.split('.')[0] 
         line = person.split('.')[1]
 
+        if line == '22':
+            df = df22
+        else:
+            df = df43
+
         # extract all records relating to the boarding stop
         temp = df[df['Boarding Stop'] == boardingStop]
-        possibleStops = temp['Alighting Stop'].tolist()
+        possibleStops = temp['Alighting Stop'].astype(str).tolist() # traci functions require strings for ids
         stopWeights = temp['Total'].tolist()
         # give some small weight to the unmentioned stops
         possibleStops.append('other')
-        stopWeights.append('0.1')
+        stopWeights.append(0.1)
         
         # randomly select alighting bus stop according to the weights
         alightingStop = random.choices(possibleStops, weights=stopWeights)[0] # returns a list, so need to select the element
@@ -110,7 +153,7 @@ def setStop(persons, df):
 
 def updateTrips(arrived):
     for p in arrived:
-        trips.pop(p)
+        trips.pop(p) # remove finished trip from dictionary
 
 
 
