@@ -72,41 +72,36 @@ def run():
         arrived = traci.simulation.getArrivedPersonIDList()
         updateTrips(arrived)
 
+        removeVehicles = []
+        for v in currentVehicles:
+            results = traci.vehicle.getSubscriptionResults(v[0])
+            next_stop = results.get(traci.constants.VAR_NEXT_STOPS, None)
+            
+            if len(next_stop) == 0:
+                # remove bus since it does not have any more stops
+                removeVehicles.append(v[0])
+            else:
+                stopId = next_stop[0][2] # the bus stop ID is the third element in the tuple returned
+
+                if traci.busstop.getLaneID(stopId) == traci.vehicle.getLaneID(v[0]):
+                    if traci.vehicle.getLanePosition(v[0]) >= (traci.busstop.getStartPos(stopId) - 1):
+                        if not traci.vehicle.isStopped(v[0]):
+                            if v[1] != stopId:
+                                v[1] = stopId
+                                # check if the bus should stop
+                                if not shouldStop(v[0], stopId):
+                                    traci.vehicle.setBusStop(v[0], stopId, duration=0)
+                                # else stop normally
+        
+        for v in removeVehicles:
+            for x in currentVehicles:
+                if v == x[0]:
+                    currentVehicles.remove(x)
+
+
         step += 1
 
     traci.close()
-
-def getHour(time):
-    if time < 1800:
-        return 6
-    elif time < 5400:
-        return 7
-    elif time < 9000:
-        return 8
-    elif time < 12600:
-        return 9
-    elif time < 16200:
-        return 10
-    elif time < 19800:
-        return 11
-    elif time < 23400:
-        return 12
-    elif time < 27000:
-        return 13
-    elif time < 30600:
-        return 14
-    elif time < 34200:
-        return 15
-    elif time < 37800:
-        return 16
-    elif time < 41400:
-        return 17
-    elif time < 45000:
-        return 18
-    elif time < 48600:
-        return 19
-    else:
-        return 20
 
 # function that creates the trip for the newly departed passengers
 # person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
@@ -151,9 +146,57 @@ def setStop(persons, df22, df43):
         # update the trips dictionary with the new passenger and alighting stop
         trips[person] = alightingStop
 
+# determines whether a bus should stop given the passengers on board and those waiting at the stop 
+def shouldStop(bus, stop):
+    # check if any of the passengers on the bus want to alight at the stop
+    for p in traci.vehicle.getPersonIDList(bus):
+        if trips[p] == stop:
+            return True
+    # check if any of the persons waiting at the stop want to board this bus line
+    busLine = traci.vehicle.getLine(bus)
+    for p in traci.busstop.getPersonIDs(stop):
+        passengerLine = p.split('.')[1]
+        if passengerLine == busLine:
+            return True
+    # bus does not need to stop
+    return False
+
 def updateTrips(arrived):
     for p in arrived:
         trips.pop(p) # remove finished trip from dictionary
+
+def getHour(time):
+    # simulation starts at 6.30am. Last demand file is at 8pm.
+    if time < 1800:
+        return 6
+    elif time < 5400:
+        return 7
+    elif time < 9000:
+        return 8
+    elif time < 12600:
+        return 9
+    elif time < 16200:
+        return 10
+    elif time < 19800:
+        return 11
+    elif time < 23400:
+        return 12
+    elif time < 27000:
+        return 13
+    elif time < 30600:
+        return 14
+    elif time < 34200:
+        return 15
+    elif time < 37800:
+        return 16
+    elif time < 41400:
+        return 17
+    elif time < 45000:
+        return 18
+    elif time < 48600:
+        return 19
+    else:
+        return 20
 
 
 

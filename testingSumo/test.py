@@ -47,6 +47,8 @@ def run():
         for v in currentVehicles:
             results = traci.vehicle.getSubscriptionResults(v[0])
             next_stop = results.get(traci.constants.VAR_NEXT_STOPS, None)
+            print("Results:\n", results)
+            print("Next_stop:\n", next_stop)
             # bus has no more stops left and should be removed
             if len(next_stop) == 0:
                 removeVehicles.append(v[0])
@@ -131,6 +133,6 @@ if __name__ == "__main__":
     else:
         sumoBinary = checkBinary('sumo-gui')
     
-    traci.start([sumoBinary, "-c", "test.sumocfg", "--tripinfo-output", "testTripInfo.xml"])
+    traci.start([sumoBinary, "-c", "testingSumo/test.sumocfg", "--tripinfo-output", "testTripInfo.xml"])
     run()
 
