@@ -43,18 +43,20 @@ def run():
     step = 0
     currentVehicles = []
     hour = 6
+    
     df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route22.csv'))
     df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route43.csv'))
+    addPassengers(df22, df43, hour)
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
-        print('Step: {}'.format(step))
+        print('Step: {}'.format(step), end="\r")
         time = traci.simulation.getTime()
 
         if getHour(time) != hour:
             hour = getHour(time)
             df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route22.csv'))
             df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route43.csv'))
-
+            addPassengers(df22, df43, hour)
 
         newV = traci.simulation.getDepartedIDList()
         newVehicles = []
@@ -105,23 +107,43 @@ def run():
 
     traci.close()
 
-def addPassengers(df22, df43):
+def addPassengers(df22, df43, hour):
+    print("ENTERED ADDPASSENGERS")
     routes = [route22, route43]
+    currTime = traci.simulation.getTime()
     for index, route in enumerate(routes):
         if index == 0:
             df = df22
+            line = '22'
         else:
             df = df43
+            line = '43'
         for stop in route: 
-            
-            pass
+            temp = df[df['Boarding Stop'] == int(stop)]
+            if len(temp.index) != 0:
+                total = temp['Total'].sum()
+                departures = getDepartures(total, hour)
+                for d in departures:
+                    dep = currTime + d
+                    personId = stop + '.' + line + '.' + str(dep)
+                    stopLane = traci.busstop.getLaneID(stop)
+                    stopEdge = traci.lane.getEdgeID(stopLane)
+                    stopPos = traci.busstop.getStartPos(stop)
+                    traci.person.add(personId, stopEdge, 0, depart=dep)
+                    traci.person.appendWalkingStage(personId, [stopEdge], stopPos, stopID=stop)
+                    print("Person added: {}".format(personId))
+
+
+####################FIRST HOUR IS JUS 30 MINS
     
 
 
 # rate per hour
-def getDepartures(rate):
+def getDepartures(rate, hour):
     lambdaVvalue = rate / 3600
     totalTime = 3600
+    if hour == 6:
+        totalTime = 1800
     departures = []
     currentTime = 0
 
@@ -130,7 +152,8 @@ def getDepartures(rate):
         currentTime += interval
 
         if currentTime < totalTime:
-            departures.append(currentTime)
+            departures.append(int(currentTime))
+
 
     return departures
     

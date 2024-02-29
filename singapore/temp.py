@@ -19,7 +19,7 @@ while current_time < total_time:
 
     # If the next arrival time is within the simulation period, add it to the list
     if current_time < total_time:
-        arrival_times.append(current_time)
+        arrival_times.append(int(current_time))
 
 print(arrival_times)
 
@@ -29,3 +29,6 @@ print(arrival_times)
 # plt.ylabel('Number of passengers')
 # plt.title('Simulated Passenger Arrival at Bus Stop')
 # plt.show()
+
+print('1/3600: ', 1/3600)
+print(int('-410464251'))
