@@ -73,6 +73,7 @@ def run():
         updateTrips(arrived)
 
         removeVehicles = []
+        # checking which buses have arrived at a stop 
         for v in currentVehicles:
             results = traci.vehicle.getSubscriptionResults(v[0])
             next_stop = results.get(traci.constants.VAR_NEXT_STOPS, None)
@@ -83,16 +84,17 @@ def run():
             else:
                 stopId = next_stop[0][2] # the bus stop ID is the third element in the tuple returned
 
-                if traci.busstop.getLaneID(stopId) == traci.vehicle.getLaneID(v[0]):
-                    if traci.vehicle.getLanePosition(v[0]) >= (traci.busstop.getStartPos(stopId) - 1):
-                        if not traci.vehicle.isStopped(v[0]):
-                            if v[1] != stopId:
+                if traci.busstop.getLaneID(stopId) == traci.vehicle.getLaneID(v[0]): # bus is on same lane as its upcoming stop
+                    if traci.vehicle.getLanePosition(v[0]) >= (traci.busstop.getStartPos(stopId) - 1): # bus is approaching the stop
+                        if not traci.vehicle.isStopped(v[0]): # bus is not yet stopped
+                            if v[1] != stopId: # set the vehicle's current stop to the stop ID 
                                 v[1] = stopId
                                 # check if the bus should stop
                                 if not shouldStop(v[0], stopId):
-                                    traci.vehicle.setBusStop(v[0], stopId, duration=0)
+                                    traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
                                 # else stop normally
         
+        # removing the vehicles that have ended their journey
         for v in removeVehicles:
             for x in currentVehicles:
                 if v == x[0]:
@@ -102,6 +104,36 @@ def run():
         step += 1
 
     traci.close()
+
+def addPassengers(df22, df43):
+    routes = [route22, route43]
+    for index, route in enumerate(routes):
+        if index == 0:
+            df = df22
+        else:
+            df = df43
+        for stop in route: 
+            
+            pass
+    
+
+
+# rate per hour
+def getDepartures(rate):
+    lambdaVvalue = rate / 3600
+    totalTime = 3600
+    departures = []
+    currentTime = 0
+
+    while currentTime < totalTime:
+        interval = random.expovariate(lambdaVvalue)
+        currentTime += interval
+
+        if currentTime < totalTime:
+            departures.append(currentTime)
+
+    return departures
+    
 
 # function that creates the trip for the newly departed passengers
 # person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
