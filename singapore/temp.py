@@ -30,5 +30,30 @@ print(arrival_times)
 # plt.title('Simulated Passenger Arrival at Bus Stop')
 # plt.show()
 
-print('1/3600: ', 1/3600)
-print(int('-410464251'))
+# print('1/3600: ', 1/3600)
+# print(int('-410464251'))
+
+test = 'hello'
+s = test.split('.')
+print(s)
+print(s[0])
+# print(s[1])
+
+
+l = ['1','1','2','4','4','4','5','5','6','7','7','7','7']
+
+dups = {x:l.count(x) for x in l if l.count(x) > 1}
+print(dups)
+for key in dups.keys():
+    i = l.index(key)
+    for z in range(dups[key]):
+        l[i+z] = l[i+z] + '.' + str(z)
+    pass
+
+# print(l.index('7'))
+# l[l.index('7')+1] = '10'
+print(l)
+
+print([str(0)])
+
+print([int('0')])

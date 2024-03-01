@@ -123,13 +123,30 @@ def addPassengers(df22, df43, hour):
             if len(temp.index) != 0:
                 total = temp['Total'].sum()
                 departures = getDepartures(total, hour)
+                ##############test to check for duplicates###############
+                dups = [x for x in departures if departures.count(x) > 1]
+                print("dups: {}".format(dups))
+                if len(dups) > 0:
+                    print("DUPLICATES: {}".format(departures))
+                duplicates = {x:departures.count(x) for x in departures if departures.count(x) > 1}
+                for key in duplicates.keys():
+                    i = departures.index(key)
+                    for z in range(duplicates[key]):
+                        departures[i+z] = departures[i+z] + '.' + str(z)
+                #######################################
                 for d in departures:
-                    dep = currTime + d
-                    personId = stop + '.' + line + '.' + str(dep)
+                    temp = d.split('.')
+                    if len(temp) > 1:
+                        print('###########################################################################################')
+                        dep = int(currTime + int(temp[0]))
+                        personId = stop + '.' + line + '.' + str(dep) + '.' +  temp[1]
+                    else:
+                        dep = int(currTime + int(d))
+                        personId = stop + '.' + line + '.' + str(dep)
                     stopLane = traci.busstop.getLaneID(stop)
                     stopEdge = traci.lane.getEdgeID(stopLane)
                     stopPos = traci.busstop.getStartPos(stop)
-                    traci.person.add(personId, stopEdge, 0, depart=dep)
+                    traci.person.add(personId, stopEdge, stopPos - 1, depart=dep)
                     traci.person.appendWalkingStage(personId, [stopEdge], stopPos, stopID=stop)
                     print("Person added: {}".format(personId))
 
@@ -143,7 +160,7 @@ def getDepartures(rate, hour):
     lambdaVvalue = rate / 3600
     totalTime = 3600
     if hour == 6:
-        totalTime = 1800
+        totalTime = 1800 # from 6.30 to 7 am
     departures = []
     currentTime = 0
 
@@ -152,7 +169,7 @@ def getDepartures(rate, hour):
         currentTime += interval
 
         if currentTime < totalTime:
-            departures.append(int(currentTime))
+            departures.append(str(int(currentTime)))
 
 
     return departures
