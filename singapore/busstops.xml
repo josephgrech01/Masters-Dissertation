@@ -48,7 +48,7 @@
     <busStop id="-410478273" name="After Ipoh Lane" lane="-22810638_0" startPos="57.28" endPos="72.28" friendlyPos="true" lines="43"/>
     <busStop id="-410478274" name="CDAC Building" lane="-22810638_0" startPos="11.15" endPos="26.15" friendlyPos="true" lines="43"/>
     <busStop id="1268343846" name="Saint Patrick&apos;s Secondary School" lane="74518787_0" startPos="54.90" endPos="69.90" friendlyPos="true" lines="43"/>
-    <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_0" startPos="27.13" endPos="49.59" friendlyPos="true" lines="22 43"/>
+    <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_0" startPos="13.13" endPos="49.59" friendlyPos="true" lines="22 43"/>
     <busStop id="1847713996" name="Upper East Coast Terminal" lane="528461109_0" startPos="1.47" endPos="16.47" friendlyPos="true" lines="43"/>
     <busStop id="1847713996@6623041" name="Upper East Coast Terminal" lane="528461109_0" startPos="0.00" endPos="9.15" friendlyPos="true" lines="43"/>
     <busStop id="1847853709" name="Punggol Temporary Interchange" lane="74962088_0" startPos="42.23" endPos="57.23" friendlyPos="true" lines="43"/>
@@ -85,7 +85,7 @@
     <busStop id="410459903" name="Blk 332" lane="633149548_0" startPos="22.56" endPos="37.56" friendlyPos="true" lines="22"/>
     <busStop id="410459904" name="Opposite Christ The King Church" lane="652293278_0" startPos="20.22" endPos="35.22" friendlyPos="true" lines="22"/>
     <busStop id="410460005" name="Ang Mo Kio Interchange" lane="543768663_0" startPos="0.00" endPos="7.80" friendlyPos="true" lines="22"/>
-    <busStop id="410460005@6623013" name="Ang Mo Kio Interchange" lane="543768663_0" startPos="0.00" endPos="7.80" friendlyPos="true" lines="22"/>
+    <busStop id="410460005@6623013" name="Ang Mo Kio Interchange" lane="543768663_0" startPos="0.00" endPos="18.80" friendlyPos="true" lines="22"/>
     <busStop id="410461658" name="Eastern Lagoon II" lane="474446538_0" startPos="47.16" endPos="62.16" friendlyPos="true" lines="43"/>
     <busStop id="410461660" name="Opposite Eastern Lagoon II" lane="478162426_0" startPos="66.74" endPos="81.74" friendlyPos="true" lines="43"/>
     <busStop id="410462100" name="Blk 257A" lane="535604972_0" startPos="12.41" endPos="27.41" friendlyPos="true" lines="22"/>
