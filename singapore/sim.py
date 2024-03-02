@@ -54,10 +54,13 @@ def run():
 
         if getHour(time) != hour:
             hour = getHour(time)
+            # load the demand data for the current hour
             df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route22.csv'))
             df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(hour),'route43.csv'))
+            # add the passengers for the coming hour
             addPassengers(df22, df43, hour)
 
+        # keep track of vehicles active in the simulation
         newV = traci.simulation.getDepartedIDList()
         newVehicles = []
         for v in newV:
@@ -102,13 +105,12 @@ def run():
                 if v == x[0]:
                     currentVehicles.remove(x)
 
-
         step += 1
 
     traci.close()
 
+# function that adds the passengers into the simulation for the coming hour
 def addPassengers(df22, df43, hour):
-    print("ENTERED ADDPASSENGERS")
     routes = [route22, route43]
     currTime = traci.simulation.getTime()
     for index, route in enumerate(routes):
@@ -118,62 +120,60 @@ def addPassengers(df22, df43, hour):
         else:
             df = df43
             line = '43'
+
+        # iterate over each route's bus stop
         for stop in route: 
             temp = df[df['Boarding Stop'] == int(stop)]
             if len(temp.index) != 0:
-                total = temp['Total'].sum()
+                total = temp['Total'].sum() # total number of persons that arrive at this stop in the hour
                 departures = getDepartures(total, hour)
-                ##############test to check for duplicates###############
-                dups = [x for x in departures if departures.count(x) > 1]
-                print("dups: {}".format(dups))
-                if len(dups) > 0:
-                    print("DUPLICATES: {}".format(departures))
+
+                # checking for passengers that enter the simulation at the same time, since persons cannot have the same ID in SUMO
                 duplicates = {x:departures.count(x) for x in departures if departures.count(x) > 1}
                 for key in duplicates.keys():
                     i = departures.index(key)
                     for z in range(duplicates[key]):
-                        departures[i+z] = departures[i+z] + '.' + str(z)
-                #######################################
+                        departures[i+z] = departures[i+z] + '.' + str(z) # add an index at the end to avoid having the same ID
+
                 for d in departures:
                     temp = d.split('.')
                     if len(temp) > 1:
-                        print('###########################################################################################')
-                        dep = int(currTime + int(temp[0]))
-                        personId = stop + '.' + line + '.' + str(dep) + '.' +  temp[1]
+                        dep = int(currTime + int(temp[0])) # calculate the time step when the passenger will depart
+                        personId = stop + '.' + line + '.' + str(dep) + '.' +  temp[1] # create the passenger ID
                     else:
-                        dep = int(currTime + int(d))
-                        personId = stop + '.' + line + '.' + str(dep)
+                        dep = int(currTime + int(d)) # calculate the time step when the passenger will depart
+                        personId = stop + '.' + line + '.' + str(dep) # create the passenger ID
+
                     stopLane = traci.busstop.getLaneID(stop)
                     stopEdge = traci.lane.getEdgeID(stopLane)
                     stopPos = traci.busstop.getStartPos(stop)
+
+                    # add the person on the edge of the stop, departing at the calculated time
                     traci.person.add(personId, stopEdge, stopPos - 1, depart=dep)
+                    # walk to the bus stop
                     traci.person.appendWalkingStage(personId, [stopEdge], stopPos, stopID=stop)
-                    print("Person added: {}".format(personId))
 
 
-####################FIRST HOUR IS JUS 30 MINS
-    
-
-
-# rate per hour
+# function that returns the upcoming passenger departure time, according to the given rate, and governed by a Poisson distribution
+# rate is per hour
+# hour of the simulation
 def getDepartures(rate, hour):
-    lambdaVvalue = rate / 3600
+    lambdaVvalue = rate / 3600 # per second
     totalTime = 3600
     if hour == 6:
-        totalTime = 1800 # from 6.30 to 7 am
+        totalTime = 1800 # from 6.30 to 7 am, simulation starts at 6.30 and not 6.00
     departures = []
     currentTime = 0
 
+    # keem adding passengers until the last departure that does not exceed an hour 
     while currentTime < totalTime:
-        interval = random.expovariate(lambdaVvalue)
+        interval = random.expovariate(lambdaVvalue) # Poisson distribution
         currentTime += interval
 
         if currentTime < totalTime:
             departures.append(str(int(currentTime)))
 
-
-    return departures
-    
+    return departures # return as a list of strings, as required by the 'addPassengers' function
 
 # function that creates the trip for the newly departed passengers
 # person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
