@@ -105,6 +105,28 @@ def run():
                 if v == x[0]:
                     currentVehicles.remove(x)
 
+        if step % 1000 == 0 and step != 0:
+            veh1 = currentVehicles[1][0]
+            lane1 = traci.vehicle.getLaneID(veh1)
+            edge1 = traci.lane.getEdgeID(lane1)
+            lanePos1 = traci.vehicle.getLanePosition(veh1)
+            
+            veh2 = currentVehicles[0][0]
+            lane2 = traci.vehicle.getLaneID(veh2)
+            edge2 = traci.lane.getEdgeID(lane2)
+            lanePos2 = traci.vehicle.getLanePosition(veh2)
+
+            headway = traci.simulation.getDistanceRoad(edge1, lanePos1, edge2, lanePos2, isDriving=True)
+            print('curreVehicles: {}'.format(currentVehicles))
+            print('veh1: {}'.format(veh1))
+            print('veh2: {}'.format(veh2))
+            print('HEADWAY: {}'.format(headway))
+
+            route = traci.simulation.findRoute(edge1, edge2)
+            print('ROUTE: {}'.format(route))
+
+
+
         step += 1
 
     traci.close()
