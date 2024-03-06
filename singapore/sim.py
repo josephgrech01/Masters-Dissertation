@@ -60,6 +60,24 @@ def run():
             # add the passengers for the coming hour
             addPassengers(df22, df43, hour)
 
+        #################################################################
+        # TEST
+        ####
+        
+        route1 = traci.simulation.findRoute('543768663', '245934570#2', vType='bus')
+        print('ROUTE 1: {}'.format(route1))
+        print('')
+        route2 = traci.simulation.findRoute('631887962#0', '528461109', vType='bus')
+        print('ROUTE 2: {}'.format(route2))
+        print('')
+        route3 = traci.simulation.findRoute('543768663', '528461109', vType='bus')
+        print('ROUTE 3: {}'.format(route3))
+        print('')
+        route4 = traci.simulation.findRoute('631887962#0', '245934570#2', vType='bus')
+        print('ROUTE 4: {}'.format(route4))
+
+        #################################################################
+
         # keep track of vehicles active in the simulation
         newV = traci.simulation.getDepartedIDList()
         newVehicles = []
@@ -106,25 +124,41 @@ def run():
                     currentVehicles.remove(x)
 
         if step % 1000 == 0 and step != 0:
-            veh1 = currentVehicles[1][0]
-            lane1 = traci.vehicle.getLaneID(veh1)
-            edge1 = traci.lane.getEdgeID(lane1)
-            lanePos1 = traci.vehicle.getLanePosition(veh1)
-            
-            veh2 = currentVehicles[0][0]
-            lane2 = traci.vehicle.getLaneID(veh2)
-            edge2 = traci.lane.getEdgeID(lane2)
-            lanePos2 = traci.vehicle.getLanePosition(veh2)
+            if len(currentVehicles) > 1:
+                print('curreVehicles: {}'.format(currentVehicles))
+                veh1 = currentVehicles[1][0]
+                lane1 = traci.vehicle.getLaneID(veh1)
+                edge1 = traci.lane.getEdgeID(lane1)
+                # len1 = traci.lane.getLength(lane1)
+                lanePos1 = traci.vehicle.getLanePosition(veh1)
+                
+                veh2 = currentVehicles[0][0]
+                lane2 = traci.vehicle.getLaneID(veh2)
+                edge2 = traci.lane.getEdgeID(lane2)
+                len2 = traci.lane.getLength(lane2)
+                lanePos2 = traci.vehicle.getLanePosition(veh2)
 
-            headway = traci.simulation.getDistanceRoad(edge1, lanePos1, edge2, lanePos2, isDriving=True)
-            print('curreVehicles: {}'.format(currentVehicles))
-            print('veh1: {}'.format(veh1))
-            print('veh2: {}'.format(veh2))
-            print('HEADWAY: {}'.format(headway))
+                headway = traci.simulation.getDistanceRoad(edge1, lanePos1, edge2, lanePos2, isDriving=True)
+                
+                print('veh1: {}'.format(veh1))
+                print('edge1: {}'.format(edge1))
+                print('veh2: {}'.format(veh2))
+                print('edge2: {}'.format(edge2))
+                print('HEADWAY: {}'.format(headway))
 
-            route = traci.simulation.findRoute(edge1, edge2)
-            print('ROUTE: {}'.format(route))
+                route = traci.simulation.findRoute(edge1, edge2, vType='bus')
+                actual = route.length - lanePos1 - (len2 - lanePos2)
 
+                # print('ROUTE: {}'.format(route))
+                print('LENGTH: {}'.format(route.length))
+
+                print("speed 1: {}".format(traci.vehicle.getSpeed(veh1)))
+                print("speed 2: {}".format(traci.vehicle.getSpeed(veh2)))
+                print('ACTUAL LENGTH: {}'.format(actual))
+
+                print('USING FUNCTION: {}'.format(getForwardHeadway(veh1, veh2)))
+            else:
+                print("CURRENTLY ONLY 1 VEHICLES IN SIM")
 
 
         step += 1
@@ -258,6 +292,22 @@ def shouldStop(bus, stop):
 def updateTrips(arrived):
     for p in arrived:
         trips.pop(p) # remove finished trip from dictionary
+
+def getForwardHeadway(follower, leader):
+
+    followerLane = traci.vehicle.getLaneID(follower)
+    followerPosition = traci.vehicle.getLanePosition(follower)
+    followerEdge = traci.lane.getEdgeID(followerLane)
+    
+    leaderLane = traci.vehicle.getLaneID(leader)
+    leaderPosition = traci.vehicle.getLanePosition(leader)
+    leaderLaneLength = traci.lane.getLength(leaderLane)
+    leaderEdge = traci.lane.getEdgeID(leaderLane)
+
+    route = traci.simulation.findRoute(followerEdge, leaderEdge, vType='bus')
+    headway = route.length - followerPosition - (leaderLaneLength - leaderPosition)
+
+    return headway
 
 def getHour(time):
     # simulation starts at 6.30am. Last demand file is at 8pm.
