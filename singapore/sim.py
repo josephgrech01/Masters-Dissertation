@@ -23,7 +23,6 @@ def get_options():
     return options
 
 trips = {} # dictionary to store the destination bus stop of a passenger
-lines = {}
 route22 = ['410460005', '410459901', '410459897', '410459904', '410459657', '410459651', '410467153', '410462101', '410462103',
            '410475114', '1531005322', '410483103', '410482520', '410482572', '410482568', '410482491', '410482562', '410482564',
            '410482570', '410482551', '410471081', '410471030', '410480716', '410480722', '410480721', '5701793241', '410480724',
@@ -64,17 +63,17 @@ def run():
         # TEST
         ####
         
-        route1 = traci.simulation.findRoute('543768663', '245934570#2', vType='bus')
-        print('ROUTE 1: {}'.format(route1))
-        print('')
-        route2 = traci.simulation.findRoute('631887962#0', '528461109', vType='bus')
-        print('ROUTE 2: {}'.format(route2))
-        print('')
-        route3 = traci.simulation.findRoute('543768663', '528461109', vType='bus')
-        print('ROUTE 3: {}'.format(route3))
-        print('')
-        route4 = traci.simulation.findRoute('631887962#0', '245934570#2', vType='bus')
-        print('ROUTE 4: {}'.format(route4))
+        # route1 = traci.simulation.findRoute('543768663', '245934570#2', vType='bus')
+        # print('ROUTE 1: {}'.format(route1))
+        # print('')
+        # route2 = traci.simulation.findRoute('631887962#0', '528461109', vType='bus')
+        # print('ROUTE 2: {}'.format(route2))
+        # print('')
+        # route3 = traci.simulation.findRoute('543768663', '528461109', vType='bus')
+        # print('ROUTE 3: {}'.format(route3))
+        # print('')
+        # route4 = traci.simulation.findRoute('631887962#0', '245934570#2', vType='bus')
+        # print('ROUTE 4: {}'.format(route4))
 
         #################################################################
 
@@ -294,7 +293,10 @@ def updateTrips(arrived):
         trips.pop(p) # remove finished trip from dictionary
 
 def getForwardHeadway(follower, leader):
-
+    ##### CHECK #####################################################################
+    ##### IF BUS IS ARRIVING AT TERMINAL, IT WILL NOT HAVE A FORWARD HEADWAY
+    ##### IF BUS IS LEAVING FROM TERMINAL, IT WILL NOT HAVE A BACKWARD HEADYWA
+    #################################################################################
     followerLane = traci.vehicle.getLaneID(follower)
     followerPosition = traci.vehicle.getLanePosition(follower)
     followerEdge = traci.lane.getEdgeID(followerLane)
