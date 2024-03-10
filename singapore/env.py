@@ -33,14 +33,6 @@ class sumoMultiLine(AECEnv):
         self.agent_states =  {} # dictionary to store the state of each agent
         self.actionBuses = []
 
-        # self.envStep = 0
-        self.currentVehicles = []
-        self.hour = 6
-        
-        self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
-        self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
-        self.addPassengers()#self.df22, self.df43, self.hour)
-
         if gui:
             self.sumoBinary = checkBinary('sumo-gui')
         else:
@@ -50,88 +42,161 @@ class sumoMultiLine(AECEnv):
 
         traci.start(self.sumoCmd)
 
+        # self.envStep = 0
+        self.currentVehicles = []
+        self.hour = 6
+        
+        self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
+        self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
+        self.addPassengers()#self.df22, self.df43, self.hour)
+
 
     def step(self, actions):
         for agent in self.agents:
-            pass
-            # IMPLEMENT APPLICATION OF ACTION
-
+            if agent in self.actionBuses:
+                action = actions[agent]
+                self.executeAction(agent, action)
 
         ######################################
         ### SET ACTION BUSES TO EMPTY LIST ###
         ######################################
+        self.actionBuses = []
+
+        done = self.sumoStep()
+
+        observations = {agent: self.observe(agent) for agent in self.agents}
+        rewards = {agent: self.calculateReward(agent) for agent in self.agents}
+        # dones = {}
+        # done = False
+        # if len(self.agents) < 1:
+        #     done = True
+
+        return observations, rewards, done #, dones, {}
 
 
+    def addAgent(self, agent):
+        self.agents.append(agent)
+        self.agent_states[agent] = {}
 
+    def removeAgent(self, agent):
+        if agent in self.agents:
+            self.agents.remove(agent)
+            del self.agent_states[agent]
+
+    def observe(self, agent):
+        return {}
+
+    def calculateReward(self, agent):
+        pass
+    
+    def reset(self):
+        self.close()
+
+        self.agents = []
+        self.agent_states =  {} # dictionary to store the state of each agent
+        self.actionBuses = []
+
+        traci.start(self.sumoCmd)
+
+        # self.envStep = 0
+        self.currentVehicles = []
+        self.hour = 6
+        
+        self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
+        self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
+        self.addPassengers()#self.df22, self.df43, self.hour)
+
+        return {agent: self.observe(agent) for agent in self.agents}
+
+    def close(self):
+        traci.close()
+        ##############################################
+        ### NOT SURE IF SHOULD ADDED ANYTHING ELSE ###
+        ##############################################
+
+    def executeAction(self, agent, action):
+        pass
 
     def sumoStep(self):
-        traci.simulationStep()
-        time = traci.simulation.getTime()
+        while len(self.actionBuses) == 0:
+            traci.simulationStep()
+            time = traci.simulation.getTime()
 
-        if self.getHour(time) != self.hour:
-            self.hour = self.getHour(time)
-            # load the demand data for the current hour
-            self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
-            self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
-            # add the passengers for the coming hour
-            self.addPassengers()#self.df22, self.df43, self.hour)
-        
-        # keep track of vehicles active in the simulation
-        newV = traci.simulation.getDepartedIDList()
-        newVehicles = []
-        for v in newV:
-            traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
-            newVehicles.append([v, None])
-            print("New Vehicle: {}".format(v))
-        self.currentVehicles.extend(newVehicles)
-        #########################################################################
-        ###################### ADD AGENTS #######################################
-        #########################################################################
-        # create the trip for the newly departed passengers
-        newPersons = traci.simulation.getDepartedPersonIDList()
-        self.setStop(newPersons)#, self.df22, self.df43)
-        # remove the persons that have arrived from the dictionary
-        arrived = traci.simulation.getArrivedPersonIDList()
-        self.updateTrips(arrived)
-
-        removeVehicles = []
-        # checking which buses have arrived at a stop 
-        for v in self.currentVehicles:
-            results = traci.vehicle.getSubscriptionResults(v[0])
-            next_stop = results.get(traci.constants.VAR_NEXT_STOPS, None)
+            # start of a new hour
+            if self.getHour(time) != self.hour:
+                self.hour = self.getHour(time)
+                # load the demand data for the current hour
+                self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
+                self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
+                # add the passengers for the coming hour
+                self.addPassengers()#self.df22, self.df43, self.hour)
             
-            if len(next_stop) == 0:
-                # remove bus since it does not have any more stops
-                removeVehicles.append(v[0])
-            else:
-                stopId = next_stop[0][2] # the bus stop ID is the third element in the tuple returned
+            # keep track of vehicles active in the simulation
+            newV = traci.simulation.getDepartedIDList()
+            newVehicles = []
+            for v in newV:
+                traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
+                newVehicles.append([v, None])
+                self.addAgent(v)
+                print("New Vehicle, Agent Added: {}".format(v))
+            self.currentVehicles.extend(newVehicles)
+            #########################################################################
+            ###################### ADD AGENTS #######################################
+            #########################################################################
+            # create the trip for the newly departed passengers
+            newPersons = traci.simulation.getDepartedPersonIDList()
+            self.setStop(newPersons)#, self.df22, self.df43)
+            # remove the persons that have arrived from the dictionary
+            arrived = traci.simulation.getArrivedPersonIDList()
+            self.updateTrips(arrived)
 
-                if traci.busstop.getLaneID(stopId) == traci.vehicle.getLaneID(v[0]): # bus is on same lane as its upcoming stop
-                    if traci.vehicle.getLanePosition(v[0]) >= (traci.busstop.getStartPos(stopId) - 1): # bus is approaching the stop
-                        if not traci.vehicle.isStopped(v[0]): # bus is not yet stopped
-                            if v[1] != stopId: # set the vehicle's current stop to the stop ID 
-                                v[1] = stopId
-                                # check if the bus should stop
-                                if not self.shouldStop(v[0], stopId):
-                                    traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
-                                # else stop normally
-                                else:
-                                    self.actionBuses.append(v[0])
+            removeVehicles = []
+            # checking which buses have arrived at a stop 
+            for v in self.currentVehicles:
+                results = traci.vehicle.getSubscriptionResults(v[0])
+                next_stop = results.get(traci.constants.VAR_NEXT_STOPS, None)
+                
+                if len(next_stop) == 0:
+                    # remove bus since it does not have any more stops
+                    removeVehicles.append(v[0])
+                else:
+                    stopId = next_stop[0][2] # the bus stop ID is the third element in the tuple returned
 
-        ############################################################################################################
-        ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
-        ############################################################################################################
-        
-        # removing the vehicles that have ended their journey
-        for v in removeVehicles:
-            for x in self.currentVehicles:
-                if v == x[0]:
-                    self.currentVehicles.remove(x)
+                    if traci.busstop.getLaneID(stopId) == traci.vehicle.getLaneID(v[0]): # bus is on same lane as its upcoming stop
+                        if traci.vehicle.getLanePosition(v[0]) >= (traci.busstop.getStartPos(stopId) - 1): # bus is approaching the stop
+                            if not traci.vehicle.isStopped(v[0]): # bus is not yet stopped
+                                if v[1] != stopId: # set the vehicle's current stop to the stop ID 
+                                    v[1] = stopId
+                                    # check if the bus should stop
+                                    if not self.shouldStop(v[0], stopId):
+                                        traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
+                                    # else stop normally
+                                    else:
+                                        # an action should be taken for this bus
+                                        self.actionBuses.append(v[0])
 
-        #########################################################################
-        ###################### REMOVE AGENTS #######################################
-        #########################################################################
-    
+            ############################################################################################################
+            ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
+            ############################################################################################################
+            
+            # removing the vehicles that have ended their journey
+            for v in removeVehicles:
+                for x in self.currentVehicles:
+                    if v == x[0]:
+                        self.currentVehicles.remove(x)
+                        self.removeAgent(v)
+
+            #########################################################################
+            ###################### REMOVE AGENTS ####################################
+            #########################################################################
+
+
+            #########################################################################
+            ###################### RETURN TRUE IF NO MORE BUSES ####################
+            #########################################################################
+            if len(self.agents) < 1:
+                return True
+            return False
     
     # function that adds the passengers into the simulation for the coming hour
     def addPassengers(self): #df22, df43, hour):
@@ -242,7 +307,7 @@ class sumoMultiLine(AECEnv):
             trips[person] = alightingStop
 
     # determines whether a bus should stop given the passengers on board and those waiting at the stop 
-    def shouldStop(bus, stop):
+    def shouldStop(self, bus, stop):
         # check if any of the passengers on the bus want to alight at the stop
         for p in traci.vehicle.getPersonIDList(bus):
             if trips[p] == stop:
@@ -256,11 +321,11 @@ class sumoMultiLine(AECEnv):
         # bus does not need to stop
         return False
 
-    def updateTrips(arrived):
+    def updateTrips(self, arrived):
         for p in arrived:
             trips.pop(p) # remove finished trip from dictionary
 
-    def getForwardHeadway(follower, leader):
+    def getForwardHeadway(self, follower, leader):
         ##### CHECK #####################################################################
         ##### IF BUS IS ARRIVING AT TERMINAL, IT WILL NOT HAVE A FORWARD HEADWAY
         ##### IF BUS IS LEAVING FROM TERMINAL, IT WILL NOT HAVE A BACKWARD HEADYWA
@@ -279,7 +344,7 @@ class sumoMultiLine(AECEnv):
 
         return headway
 
-    def getHour(time):
+    def getHour(self, time):
         # simulation starts at 6.30am. Last demand file is at 8pm.
         if time < 1800:
             return 6
