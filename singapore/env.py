@@ -31,20 +31,22 @@ class sumoMultiLine(AECEnv):
         super().__init__()
         self.agents = []
         self.agent_states =  {} # dictionary to store the state of each agent
+        self.actionBuses = []
+
         # self.envStep = 0
         self.currentVehicles = []
         self.hour = 6
         
         self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
-        self.addPassengers(self.df22, self.df43, self.hour)
+        self.addPassengers()#self.df22, self.df43, self.hour)
 
         if gui:
             self.sumoBinary = checkBinary('sumo-gui')
         else:
             self.sumoBinary = checkBinary('sumo')
 
-        self.sumoCmd = [self.sumoBinary, '-c', 'singapore/singapore.sumo.cfg', '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'false', '--lanechange.overtake-right', 'true']
+        self.sumoCmd = [self.sumoBinary, '-c', 'singapore/singapore.sumo.cfg', '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true']#, '--lanechange.overtake-right', 'true']
 
         traci.start(self.sumoCmd)
 
@@ -53,6 +55,11 @@ class sumoMultiLine(AECEnv):
         for agent in self.agents:
             pass
             # IMPLEMENT APPLICATION OF ACTION
+
+
+        ######################################
+        ### SET ACTION BUSES TO EMPTY LIST ###
+        ######################################
 
 
 
@@ -67,7 +74,7 @@ class sumoMultiLine(AECEnv):
             self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
             self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
             # add the passengers for the coming hour
-            self.addPassengers(self.df22, self.df43, self.hour)
+            self.addPassengers()#self.df22, self.df43, self.hour)
         
         # keep track of vehicles active in the simulation
         newV = traci.simulation.getDepartedIDList()
@@ -82,7 +89,7 @@ class sumoMultiLine(AECEnv):
         #########################################################################
         # create the trip for the newly departed passengers
         newPersons = traci.simulation.getDepartedPersonIDList()
-        self.setStop(newPersons, self.df22, self.df43)
+        self.setStop(newPersons)#, self.df22, self.df43)
         # remove the persons that have arrived from the dictionary
         arrived = traci.simulation.getArrivedPersonIDList()
         self.updateTrips(arrived)
@@ -108,6 +115,8 @@ class sumoMultiLine(AECEnv):
                                 if not self.shouldStop(v[0], stopId):
                                     traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
                                 # else stop normally
+                                else:
+                                    self.actionBuses.append(v[0])
 
         ############################################################################################################
         ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
@@ -122,7 +131,153 @@ class sumoMultiLine(AECEnv):
         #########################################################################
         ###################### REMOVE AGENTS #######################################
         #########################################################################
+    
+    
+    # function that adds the passengers into the simulation for the coming hour
+    def addPassengers(self): #df22, df43, hour):
+        routes = [route22, route43]
+        currTime = traci.simulation.getTime()
+        for index, route in enumerate(routes):
+            if index == 0:
+                df = self.df22
+                line = '22'
+            else:
+                df = self.df43
+                line = '43'
 
+            # iterate over each route's bus stop
+            for stop in route: 
+                temp = df[df['Boarding Stop'] == int(stop)]
+                if len(temp.index) != 0:
+                    total = temp['Total'].sum() # total number of persons that arrive at this stop in the hour
+                    departures = self.getDepartures(total)
+
+                    # checking for passengers that enter the simulation at the same time, since persons cannot have the same ID in SUMO
+                    duplicates = {x:departures.count(x) for x in departures if departures.count(x) > 1}
+                    for key in duplicates.keys():
+                        i = departures.index(key)
+                        for z in range(duplicates[key]):
+                            departures[i+z] = departures[i+z] + '.' + str(z) # add an index at the end to avoid having the same ID
+
+                    for d in departures:
+                        temp = d.split('.')
+                        if len(temp) > 1:
+                            dep = int(currTime + int(temp[0])) # calculate the time step when the passenger will depart
+                            personId = stop + '.' + line + '.' + str(dep) + '.' +  temp[1] # create the passenger ID
+                        else:
+                            dep = int(currTime + int(d)) # calculate the time step when the passenger will depart
+                            personId = stop + '.' + line + '.' + str(dep) # create the passenger ID
+
+                        stopLane = traci.busstop.getLaneID(stop)
+                        stopEdge = traci.lane.getEdgeID(stopLane)
+                        stopPos = traci.busstop.getStartPos(stop)
+
+                        # add the person on the edge of the stop, departing at the calculated time
+                        traci.person.add(personId, stopEdge, stopPos - 1, depart=dep)
+                        # walk to the bus stop
+                        traci.person.appendWalkingStage(personId, [stopEdge], stopPos, stopID=stop)
+
+    # function that returns the upcoming passenger departure time, according to the given rate, and governed by a Poisson distribution
+    # rate is per hour
+    # hour of the simulation
+    def getDepartures(self, rate):
+        lambdaValue = rate / 3600 # per second
+        totalTime = 3600
+        if self.hour == 6:
+            totalTime = 1800 # from 6.30 to 7 am, simulation starts at 6.30 and not 6.00
+        departures = []
+        currentTime = 0
+
+        # keem adding passengers until the last departure that does not exceed an hour 
+        while currentTime < totalTime:
+            interval = random.expovariate(lambdaValue) # Poisson distribution
+            currentTime += interval
+
+            if currentTime < totalTime:
+                departures.append(str(int(currentTime)))
+
+        return departures # return as a list of strings, as required by the 'addPassengers' function
+
+    # function that creates the trip for the newly departed passengers
+    # person ids must be in the form 'BOARDINGSTOP.BUSLINE.TIMESTEP'
+    # df22 and df43 contains the probabilities of the alighting bus stops 
+    def setStop(self, persons): #, df22, df43):
+        for person in persons:
+            # extract boarding stop and line from passenger id
+            boardingStop = person.split('.')[0] 
+            line = person.split('.')[1]
+
+            if line == '22':
+                df = self.df22
+            else:
+                df = self.df43
+
+            # extract all records relating to the boarding stop
+            temp = df[df['Boarding Stop'] == boardingStop]
+            possibleStops = temp['Alighting Stop'].astype(str).tolist() # traci functions require strings for ids
+            stopWeights = temp['Total'].tolist()
+            # give some small weight to the unmentioned stops
+            possibleStops.append('other')
+            stopWeights.append(0.1)
+            
+            # randomly select alighting bus stop according to the weights
+            alightingStop = random.choices(possibleStops, weights=stopWeights)[0] # returns a list, so need to select the element
+            
+            # randomly select a different bus stop that is further downstream the route
+            if alightingStop == 'other':
+                if line == '22':
+                    boardingIndex = route22.index(boardingStop)
+                    alightingStop = random.choice(route22[boardingIndex + 1:]) # stop must be further downstream
+                else:
+                    boardingIndex = route43.index(boardingStop)
+                    alightingStop = random.choice(route43[boardingIndex + 1:]) # stop must be further downstream
+            
+            # set the passenger's alighting stop
+            alightLane = traci.busstop.getLaneID(alightingStop)
+            alightEdge = traci.lane.getEdgeID(alightLane)
+
+            traci.person.appendDrivingStage(person, alightEdge, line, stopID=alightingStop)
+
+            # update the trips dictionary with the new passenger and alighting stop
+            trips[person] = alightingStop
+
+    # determines whether a bus should stop given the passengers on board and those waiting at the stop 
+    def shouldStop(bus, stop):
+        # check if any of the passengers on the bus want to alight at the stop
+        for p in traci.vehicle.getPersonIDList(bus):
+            if trips[p] == stop:
+                return True
+        # check if any of the persons waiting at the stop want to board this bus line
+        busLine = traci.vehicle.getLine(bus)
+        for p in traci.busstop.getPersonIDs(stop):
+            passengerLine = p.split('.')[1]
+            if passengerLine == busLine:
+                return True
+        # bus does not need to stop
+        return False
+
+    def updateTrips(arrived):
+        for p in arrived:
+            trips.pop(p) # remove finished trip from dictionary
+
+    def getForwardHeadway(follower, leader):
+        ##### CHECK #####################################################################
+        ##### IF BUS IS ARRIVING AT TERMINAL, IT WILL NOT HAVE A FORWARD HEADWAY
+        ##### IF BUS IS LEAVING FROM TERMINAL, IT WILL NOT HAVE A BACKWARD HEADYWA
+        #################################################################################
+        followerLane = traci.vehicle.getLaneID(follower)
+        followerPosition = traci.vehicle.getLanePosition(follower)
+        followerEdge = traci.lane.getEdgeID(followerLane)
+        
+        leaderLane = traci.vehicle.getLaneID(leader)
+        leaderPosition = traci.vehicle.getLanePosition(leader)
+        leaderLaneLength = traci.lane.getLength(leaderLane)
+        leaderEdge = traci.lane.getEdgeID(leaderLane)
+
+        route = traci.simulation.findRoute(followerEdge, leaderEdge, vType='bus')
+        headway = route.length - followerPosition - (leaderLaneLength - leaderPosition)
+
+        return headway
 
     def getHour(time):
         # simulation starts at 6.30am. Last demand file is at 8pm.
