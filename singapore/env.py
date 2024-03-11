@@ -70,6 +70,7 @@ class sumoMultiLine(AECEnv):
         # done = False
         # if len(self.agents) < 1:
         #     done = True
+        # print('ACTION BUSES SHOULD NOT BE EMPTY: {}'.format(self.actionBuses))
 
         return observations, rewards, done #, dones, {}
 
@@ -115,6 +116,10 @@ class sumoMultiLine(AECEnv):
         ##############################################
 
     def executeAction(self, agent, action):
+        # # just a test, check if stop can be skipped
+        # print('Bus {} skipping stop'.format(agent))
+        # stopData = traci.vehicle.getStops(agent, 1)
+        # traci.vehicle.setBusStop(agent, stopData[0].stoppingPlaceID, duration=0)
         pass
 
     def sumoStep(self):
@@ -190,13 +195,14 @@ class sumoMultiLine(AECEnv):
             ###################### REMOVE AGENTS ####################################
             #########################################################################
 
-
-            #########################################################################
-            ###################### RETURN TRUE IF NO MORE BUSES ####################
-            #########################################################################
             if len(self.agents) < 1:
                 return True
-            return False
+        #########################################################################
+        ###################### RETURN TRUE IF NO MORE BUSES ####################
+        #########################################################################
+        # if len(self.agents) < 1:
+        #     return True
+        return False
     
     # function that adds the passengers into the simulation for the coming hour
     def addPassengers(self): #df22, df43, hour):
