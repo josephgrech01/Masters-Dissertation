@@ -25,6 +25,7 @@ route43 = ['1847853709', '7314770844', '3865151058', '1849631331', '3737148763',
            '410470959', '410471005', '410464255', '410478275', '-410478274', '-410478273', '-1849457018', '410478271', '410459494',
            '4623289717', '410467553', '410467566', '410467564', '1268343846', '410467574', '410467562', '410467567', '410467571',
            '410461658', '410481810', '410481815', '410481781', '410481783', '410482047', '410482019', '1847713996']
+shared = ['410475114', ['410480716', '410470959']]
 
 class sumoMultiLine(AECEnv):
     def __init__(self, gui=False):
@@ -32,6 +33,10 @@ class sumoMultiLine(AECEnv):
         self.agents = []
         self.agent_states =  {} # dictionary to store the state of each agent
         self.actionBuses = []
+        self.total22 = 0
+        self.total43 = 0
+
+        self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
 
         if gui:
             self.sumoBinary = checkBinary('sumo-gui')
@@ -141,10 +146,17 @@ class sumoMultiLine(AECEnv):
             newVehicles = []
             for v in newV:
                 traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
-                newVehicles.append([v, None])
+                newVehicles.append([v, None, -1]) # [bus id, current stop, journey section] , journey section -> -1: before shared corridor, 0: in shared corridor, 1: after shared corridor
                 self.addAgent(v)
                 print("New Vehicle, Agent Added: {}".format(v))
+                if traci.vehicle.getLine(v) == '22':
+                    self.total22 += 1
+                    # print('total22: {}'.format(self.total22))
+                else:
+                    self.total43 += 1
+                    # print('total43: {}'.format(self.total43))
             self.currentVehicles.extend(newVehicles)
+            print('Current Vehicles: {}'.format(self.currentVehicles))
             #########################################################################
             ###################### ADD AGENTS #######################################
             #########################################################################
@@ -172,6 +184,12 @@ class sumoMultiLine(AECEnv):
                             if not traci.vehicle.isStopped(v[0]): # bus is not yet stopped
                                 if v[1] != stopId: # set the vehicle's current stop to the stop ID 
                                     v[1] = stopId
+                                    if stopId == shared[0]: # update journey section to 'reached shared corridor'
+                                        v[2] = 0
+                                        self.reachedSharedCorridor.append(v[0])
+                                    elif stopId in shared[1]: # update journey section to 'after shared corridor'
+                                        v[2] = 1 
+
                                     # check if the bus should stop
                                     if not self.shouldStop(v[0], stopId):
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
@@ -188,6 +206,7 @@ class sumoMultiLine(AECEnv):
             for v in removeVehicles:
                 for x in self.currentVehicles:
                     if v == x[0]:
+                        self.reachedSharedCorridor.remove(v)
                         self.currentVehicles.remove(x)
                         self.removeAgent(v)
 
@@ -330,6 +349,62 @@ class sumoMultiLine(AECEnv):
     def updateTrips(self, arrived):
         for p in arrived:
             trips.pop(p) # remove finished trip from dictionary
+
+    # function that returns the forward and backward headways of the provided bus
+    def getHeadways(self, bus, sameRoute=True):
+        follower = self.getFollower(bus, sameRoute=sameRoute)
+        leader = self.getLeader(bus, sameRoute=sameRoute)
+
+        #################################################################
+        ###### CHECK FOR NONE HEADWAYS ##################################
+        #################################################################
+
+        backwardHeadway = self.getForwardHeadway(follower, bus)
+        forwardHeadway = self.getForwardHeadway(bus, leader)
+
+        return backwardHeadway, forwardHeadway
+
+    # function that determines the follower bus of the provided bus
+    def getFollower(self, bus, sameRoute=True):
+        # follower bus with same route
+        if sameRoute: 
+            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2] == traci.vehicle.getLine(bus)]
+            i = buses.index(bus) # index of bus in currentVehicles
+            if i + 1 == len(buses): # bus is the current last of the route, therefore it has no follower
+                return None
+            else: # follower is the next element of list since all buses keep their order as no overtaking is possible
+                return buses[i + 1]
+        # follower bus with different route
+        else: 
+            i = self.reachedSharedCorridor.index(bus) # reachedSharedCorridor is in order of travelling, thus use it instead of currentVehicles
+            for b in self.reachedSharedCorridor[i:]:
+                if b.split(':')[0][-2] != traci.vehicle.getLine(bus): # follower is most next element of the other route
+                    return b
+            # check if follower may have not yet reached the shared corridor (by checking journey section)
+            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2] != traci.vehicle.getLine(bus) and v[2] == -1]
+            if len(buses) != 0: # follower is the first element
+                return buses[0]
+            # there is no follower
+            return None
+            
+    # function that determines the leader bus of the provided bus
+    def getLeader(self, bus, sameRoute=True):
+        # leader bus with same route
+        if sameRoute: 
+            # get all active buses of route
+            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2] == traci.vehicle.getLine(bus)]
+            i = buses.index(bus) # index of bus in currentVehicles
+            if i == 0: # bus is the leader of the route, therefore it has no leader
+                return None
+            else: # leader is the previous element of list since all buses keep their order as no overtaking is possible 
+                return buses[i - 1]
+        # leader bus with different route
+        else: 
+            i = self.reachedSharedCorridor.index(bus) # reachedSharedCorridor is in order of travelling, thus use it instead of currentVehicles
+            for b in reversed(self.reachedSharedCorridor[:i]):
+                if b.split(':')[0][-2] != traci.vehicle.getLine(bus): # leader is the most previous element of the other route
+                    return b 
+            return None # there is no active leader from the other route
 
     def getForwardHeadway(self, follower, leader):
         ##### CHECK #####################################################################

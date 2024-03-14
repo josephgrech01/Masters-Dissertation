@@ -26,7 +26,7 @@
         <stop busStop="410467153" duration="1" /> <!-- until="514.0"/>  Cardiff Residence -->
         <stop busStop="410462101" duration="1" /> <!-- until="588.0"/>  Blk 230 -->
         <stop busStop="410462103" duration="1" /> <!-- until="619.0"/>  Opposite Blk 257 -->
-        <stop busStop="410475114" duration="1" /> <!-- until="741.0"/>  Blk 206 -->
+        <stop busStop="410475114" duration="1" /> <!-- until="741.0"/>  Blk 206 --> <!-- start of shared corridor -->
         <stop busStop="1531005322" duration="1" /> <!-- until="803.0"/>  Serangoon Station Exit C/Blk 201 -->
         <stop busStop="410483103" duration="1" /> <!-- until="867.0"/>  Opposite Blk 1 -->
         <stop busStop="410482520" duration="1" /> <!-- until="926.0"/>  Blk 161 -->
@@ -38,7 +38,7 @@
         <stop busStop="410482570" duration="1" /> <!-- until="1312.0"/>  Opposite Asiawide Industrial Building -->
         <stop busStop="410482551" duration="1" /> <!-- until="1363.0"/>  After Tai Seng Station Exit C -->
         <stop busStop="410471081" duration="1" /> <!-- until="1427.0"/>  Opposite Trinity @ Paya Lebar -->
-        <stop busStop="410471030" duration="1" /> <!-- until="1493.0"/>  Citipoint Industrial Complex -->
+        <stop busStop="410471030" duration="1" /> <!-- until="1493.0"/>  Citipoint Industrial Complex --> <!-- end of shared corridor -->
         <stop busStop="410480716" duration="1" /> <!-- until="1581.0"/>  Blk 3019 -->
         <stop busStop="410480722" duration="1" /> <!-- until="1644.0"/>  Blk 3021 -->
         <stop busStop="410480721" duration="1" /> <!-- until="1694.0"/>  Blk 3023 -->
