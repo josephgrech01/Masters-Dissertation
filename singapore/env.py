@@ -26,6 +26,8 @@ route43 = ['1847853709', '7314770844', '3865151058', '1849631331', '3737148763',
            '4623289717', '410467553', '410467566', '410467564', '1268343846', '410467574', '410467562', '410467567', '410467571',
            '410461658', '410481810', '410481815', '410481781', '410481783', '410482047', '410482019', '1847713996']
 shared = ['410475114', ['410480716', '410470959']]
+firstStopsEdges = ['543768663', '631887962#0']
+finalStopsEdges = ['245934570#2', '528461109']
 
 class sumoMultiLine(AECEnv):
     def __init__(self, gui=False):
@@ -193,8 +195,8 @@ class sumoMultiLine(AECEnv):
                                     # check if the bus should stop
                                     if not self.shouldStop(v[0], stopId):
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
-                                    # else stop normally
-                                    else:
+                                    # else add bus to actionBuses only if the stop is not the final one in the route (since it should always stop at the final stop)
+                                    elif stopId not in finalStopsEdges:
                                         # an action should be taken for this bus
                                         self.actionBuses.append(v[0])
 
@@ -406,11 +408,68 @@ class sumoMultiLine(AECEnv):
                     return b 
             return None # there is no active leader from the other route
 
-    def getForwardHeadway(self, follower, leader):
+    def getForwardHeadway(self, follower, leader, sameRoute=True):
         ##### CHECK #####################################################################
-        ##### IF BUS IS ARRIVING AT TERMINAL, IT WILL NOT HAVE A FORWARD HEADWAY
-        ##### IF BUS IS LEAVING FROM TERMINAL, IT WILL NOT HAVE A BACKWARD HEADYWA
+        ##### IF BUS IS ARRIVING AT TERMINAL, IT WILL NOT HAVE A FORWARD HEADWAY ########
+        ##### IF BUS IS LEAVING FROM TERMINAL, IT WILL NOT HAVE A BACKWARD HEADWAY ######
         #################################################################################
+
+        if follower is None:
+            if leader == 'bus_22:3.6' or leader == 'bus_43:3.7': # last bus of service, therefore return zero
+                return 0
+            # else, following bus has not yet left initial terminus
+            # calculate distance along route that the leader has travelled
+            line = traci.vehicle.getLine(leader)
+            # get the first bus stop, depending on whether sameRoute is True or False
+            if sameRoute:
+                startTerminus = firstStopsEdges[0]
+                if line == '43':
+                    startTerminus = firstStopsEdges[1]
+            else:
+                startTerminus = firstStopsEdges[1]
+                if line == '43':
+                    startTerminus = firstStopsEdges[0]
+
+            # get Leader lane, edge and position
+            leaderLane = traci.vehicle.getLaneID(leader)
+            leaderPosition = traci.vehicle.getLanePosition(leader)
+            leaderLaneLength = traci.lane.getLength(leaderLane)
+            leaderEdge = traci.lane.getEdgeID(leaderLane)
+
+            route = traci.simulation.findRoute(startTerminus, leaderEdge, vType='bus')
+            # headway is distance from first bus stop to leader position
+            headway = route.length - (leaderLaneLength - leaderPosition)
+
+            return headway            
+        
+        if leader is None:
+            if follower == 'bus22:0.0' or follower == 'bus_43:0.0': # first bus of service, therefore return 0
+                return 0
+            # else, leader bus has already arrived at final terminus
+            # calculate distance remaining along route
+            line = traci.vehicle.getLine(follower)
+            # get final bus stop, depending on whether sameRoute is True or False
+            if sameRoute:
+                finalTerminus = finalStopsEdges[0]
+                if line == '43':
+                    finalTerminus = finalStopsEdges[1]
+            else:
+                finalTerminus = finalStopsEdges[1]
+                if line == '43':
+                    finalTerminus = finalStopsEdges[0]
+
+            # get follower lane, edge and position
+            followerLane = traci.vehicle.getLaneID(follower)
+            followerPosition = traci.vehicle.getLanePosition(follower)
+            followerEdge = traci.lane.getEdgeID(followerLane)
+
+            route = traci.simulation.findRoute(followerEdge, finalTerminus, vType='bus')
+            # headway is distance from follower position to last bus stop
+            headway = route.length - followerPosition
+
+            return headway
+
+        # get follower and leader lane, edge and position
         followerLane = traci.vehicle.getLaneID(follower)
         followerPosition = traci.vehicle.getLanePosition(follower)
         followerEdge = traci.lane.getEdgeID(followerLane)
@@ -421,6 +480,7 @@ class sumoMultiLine(AECEnv):
         leaderEdge = traci.lane.getEdgeID(leaderLane)
 
         route = traci.simulation.findRoute(followerEdge, leaderEdge, vType='bus')
+        # headway is distance from position of follower to position of leader
         headway = route.length - followerPosition - (leaderLaneLength - leaderPosition)
 
         return headway
