@@ -5,7 +5,7 @@ from sumolib import checkBinary
 import traci
 import random
 import pandas as pd
-
+import math
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -84,7 +84,8 @@ class sumoMultiLine(AECEnv):
 
     def addAgent(self, agent):
         self.agents.append(agent)
-        self.agent_states[agent] = {}
+        self.agent_states[agent] = {'journeySection': -1, 'route': agent.split(':')[0][-2]}
+        
 
     def removeAgent(self, agent):
         if agent in self.agents:
@@ -92,7 +93,32 @@ class sumoMultiLine(AECEnv):
             del self.agent_states[agent]
 
     def observe(self, agent):
-        return {}
+        state = []
+
+        # encode bus route
+        if self.agent_states[agent]['route'] == '22':
+            state += [0, 1]
+        else:
+            state += [1, 0]
+
+        # headways with same route
+        bh, fh = self.getHeadways(agent, sameRoute=True)
+        state += [fh, bh]
+
+        # encode total on board passengers and total persons waiting at stop 
+        onBoardTotal = traci.vehicle.getPersonNumber(agent)
+        atStopTotal = traci.busstop.getPersonCount(self.agent_states[agent['stop']])
+        busCapacity = traci.vehicle.getPersonCapacity(agent)
+        state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
+
+        # if bus is in shared corridor, include headways with other route
+        if self.agent_states[agent]['journeySection'] == 0:
+            bh_other, fh_other = self.getHeadways(agent, sameRoute=False)
+            state += [fh_other, bh_other]
+        else: # bus is not in shared corridor
+            state += [0, 0]
+
+        return state
 
     def calculateReward(self, agent):
         pass
@@ -122,12 +148,20 @@ class sumoMultiLine(AECEnv):
         ### NOT SURE IF SHOULD ADDED ANYTHING ELSE ###
         ##############################################
 
+    # executes the given action to the agent
     def executeAction(self, agent, action):
-        # # just a test, check if stop can be skipped
-        # print('Bus {} skipping stop'.format(agent))
-        # stopData = traci.vehicle.getStops(agent, 1)
-        # traci.vehicle.setBusStop(agent, stopData[0].stoppingPlaceID, duration=0)
-        pass
+        # get number of alighting and boarding passengers at this stop
+        alight = self.agent_states[agent]['alight_board'][0]
+        board = self.agent_states[agent]['alight_board'][1]
+        # calculate dwell time required according to boarding and alighting rates in the paper by Wang and Sun 2020
+        time = max(math.ceil(board / 3), math.ceil(alight / 1.8))
+
+        # caluclate holding time according to the action given
+        holdingTime = math.ceil(action * 90)
+
+        stopData = traci.vehicle.getStops(agent, 1)
+        # set the stopping duration by adding the calculated holding time to the already required time 
+        traci.vehicle.setBusStop(agent, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
 
     def sumoStep(self):
         while len(self.actionBuses) == 0:
@@ -186,19 +220,25 @@ class sumoMultiLine(AECEnv):
                             if not traci.vehicle.isStopped(v[0]): # bus is not yet stopped
                                 if v[1] != stopId: # set the vehicle's current stop to the stop ID 
                                     v[1] = stopId
+                                    self.agent_states[v[0]]['stop'] = stopId
                                     if stopId == shared[0]: # update journey section to 'reached shared corridor'
                                         v[2] = 0
+                                        self.agent_states[v[0]]['journeySection'] = 0
                                         self.reachedSharedCorridor.append(v[0])
                                     elif stopId in shared[1]: # update journey section to 'after shared corridor'
                                         v[2] = 1 
+                                        self.agent_states[v[0]]['journeySection'] = 1
 
                                     # check if the bus should stop
-                                    if not self.shouldStop(v[0], stopId):
+                                    # if not self.shouldStop(v[0], stopId):
+                                    persons = self.shouldStop(v[0], stopId)
+                                    if persons is None:
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
                                     # else add bus to actionBuses only if the stop is not the final one in the route (since it should always stop at the final stop)
                                     elif stopId not in finalStopsEdges:
                                         # an action should be taken for this bus
                                         self.actionBuses.append(v[0])
+                                        self.agent_states['alight_board'] = persons # keep track of number of people that want to alight and board                                    
 
             ############################################################################################################
             ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
@@ -335,18 +375,26 @@ class sumoMultiLine(AECEnv):
 
     # determines whether a bus should stop given the passengers on board and those waiting at the stop 
     def shouldStop(self, bus, stop):
+        alight = 0
+        board = 0
         # check if any of the passengers on the bus want to alight at the stop
         for p in traci.vehicle.getPersonIDList(bus):
             if trips[p] == stop:
-                return True
+                # return True
+                alight += 1
         # check if any of the persons waiting at the stop want to board this bus line
         busLine = traci.vehicle.getLine(bus)
         for p in traci.busstop.getPersonIDs(stop):
             passengerLine = p.split('.')[1]
             if passengerLine == busLine:
-                return True
+                # return True
+                board += 1
         # bus does not need to stop
-        return False
+        # return False
+        if alight == 0 and board == 0:
+            return None
+        
+        return [alight, board]
 
     def updateTrips(self, arrived):
         for p in arrived:
