@@ -6,6 +6,7 @@ import traci
 import random
 import pandas as pd
 import math
+import numpy as np
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -28,6 +29,8 @@ route43 = ['1847853709', '7314770844', '3865151058', '1849631331', '3737148763',
 shared = ['410475114', ['410480716', '410470959']]
 firstStopsEdges = ['543768663', '631887962#0']
 finalStopsEdges = ['245934570#2', '528461109']
+
+w = [0.4, 0.5, 0.1]
 
 class sumoMultiLine(AECEnv):
     def __init__(self, gui=False):
@@ -59,10 +62,8 @@ class sumoMultiLine(AECEnv):
 
 
     def step(self, actions):
-        for agent in self.agents:
-            if agent in self.actionBuses:
-                action = actions[agent]
-                self.executeAction(agent, action)
+        for bus in self.actionBuses:
+            self.executeAction(bus, actions[bus])
 
         ######################################
         ### SET ACTION BUSES TO EMPTY LIST ###
@@ -71,15 +72,15 @@ class sumoMultiLine(AECEnv):
 
         done = self.sumoStep()
 
-        observations = {agent: self.observe(agent) for agent in self.agents}
-        rewards = {agent: self.calculateReward(agent) for agent in self.agents}
+        observations = {agent: self.observe(agent) for agent in self.actionBuses}
+        rewards = {agent: self.calculateReward(agent, actions[agent]) for agent in self.actionBuses}
         # dones = {}
         # done = False
         # if len(self.agents) < 1:
         #     done = True
         # print('ACTION BUSES SHOULD NOT BE EMPTY: {}'.format(self.actionBuses))
 
-        return observations, rewards, done #, dones, {}
+        return observations, rewards, done, {} #, dones, {}
 
 
     def addAgent(self, agent):
@@ -120,8 +121,30 @@ class sumoMultiLine(AECEnv):
 
         return state
 
-    def calculateReward(self, agent):
-        pass
+    def calculateReward(self, agent, action):
+        r1 = self.getCVsquared(self.agent_states[agent]['route'])
+        if self.agent_states[agent]['journeySection'] == 0:
+            other_bh, other_fh = self.getHeadways(agent, sameRoute=False)
+            r3 = np.exp(-abs(other_fh - other_bh))
+
+            reward = - w[0] * r1 - w[1] * action + w[2] * r3
+        else:
+            reward = - w[0] * r1 - (w[1] + w[2]) * action
+
+        return reward
+
+    def getCVsquared(self, route):
+        forwardHeadways = []
+        for agent in reversed(self.agents):
+            if self.agent_states[agent]['route'] == route:
+                _, fh = self.getHeadways(agent, sameRoute = True)
+                forwardHeadways.append(fh)
+        variance = np.var(forwardHeadways)
+        mean = np.mean(forwardHeadways)
+
+        cvSquared = variance / mean / mean
+
+        return cvSquared
     
     def reset(self):
         self.close()
@@ -140,7 +163,7 @@ class sumoMultiLine(AECEnv):
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
-        return {agent: self.observe(agent) for agent in self.agents}
+        return {agent: self.observe(agent) for agent in self.actionBuses}
 
     def close(self):
         traci.close()
