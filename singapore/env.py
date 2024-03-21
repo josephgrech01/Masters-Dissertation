@@ -73,6 +73,8 @@ class sumoMultiLine(AECEnv):
         done = self.sumoStep()
 
         observations = {agent: self.observe(agent) for agent in self.actionBuses}
+        print('ACTION BUSES: {}'.format(self.actionBuses))
+        print('ACTIONS: {}'.format(actions))
         rewards = {agent: self.calculateReward(agent, actions[agent]) for agent in self.actionBuses}
         # dones = {}
         # done = False
@@ -85,7 +87,7 @@ class sumoMultiLine(AECEnv):
 
     def addAgent(self, agent):
         self.agents.append(agent)
-        self.agent_states[agent] = {'journeySection': -1, 'route': agent.split(':')[0][-2]}
+        self.agent_states[agent] = {'journeySection': -1, 'route': agent.split(':')[0][-2:]}
         
 
     def removeAgent(self, agent):
@@ -108,7 +110,7 @@ class sumoMultiLine(AECEnv):
 
         # encode total on board passengers and total persons waiting at stop 
         onBoardTotal = traci.vehicle.getPersonNumber(agent)
-        atStopTotal = traci.busstop.getPersonCount(self.agent_states[agent['stop']])
+        atStopTotal = traci.busstop.getPersonCount(self.agent_states[agent]['stop'])
         busCapacity = traci.vehicle.getPersonCapacity(agent)
         state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
 
@@ -441,7 +443,8 @@ class sumoMultiLine(AECEnv):
     def getFollower(self, bus, sameRoute=True):
         # follower bus with same route
         if sameRoute: 
-            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2] == traci.vehicle.getLine(bus)]
+            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2:] == traci.vehicle.getLine(bus)]
+            print("BUSES: {}".format(buses))
             i = buses.index(bus) # index of bus in currentVehicles
             if i + 1 == len(buses): # bus is the current last of the route, therefore it has no follower
                 return None
@@ -451,10 +454,10 @@ class sumoMultiLine(AECEnv):
         else: 
             i = self.reachedSharedCorridor.index(bus) # reachedSharedCorridor is in order of travelling, thus use it instead of currentVehicles
             for b in self.reachedSharedCorridor[i:]:
-                if b.split(':')[0][-2] != traci.vehicle.getLine(bus): # follower is most next element of the other route
+                if b.split(':')[0][-2:] != traci.vehicle.getLine(bus): # follower is most next element of the other route
                     return b
             # check if follower may have not yet reached the shared corridor (by checking journey section)
-            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2] != traci.vehicle.getLine(bus) and v[2] == -1]
+            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2:] != traci.vehicle.getLine(bus) and v[2] == -1]
             if len(buses) != 0: # follower is the first element
                 return buses[0]
             # there is no follower
@@ -465,7 +468,7 @@ class sumoMultiLine(AECEnv):
         # leader bus with same route
         if sameRoute: 
             # get all active buses of route
-            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2] == traci.vehicle.getLine(bus)]
+            buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2:] == traci.vehicle.getLine(bus)]
             i = buses.index(bus) # index of bus in currentVehicles
             if i == 0: # bus is the leader of the route, therefore it has no leader
                 return None
@@ -475,7 +478,7 @@ class sumoMultiLine(AECEnv):
         else: 
             i = self.reachedSharedCorridor.index(bus) # reachedSharedCorridor is in order of travelling, thus use it instead of currentVehicles
             for b in reversed(self.reachedSharedCorridor[:i]):
-                if b.split(':')[0][-2] != traci.vehicle.getLine(bus): # leader is the most previous element of the other route
+                if b.split(':')[0][-2:] != traci.vehicle.getLine(bus): # leader is the most previous element of the other route
                     return b 
             return None # there is no active leader from the other route
 
