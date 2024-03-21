@@ -35,8 +35,8 @@ w = [0.4, 0.5, 0.1]
 class sumoMultiLine(AECEnv):
     def __init__(self, gui=False):
         super().__init__()
-        # self.agents = []
-        self.bus_states =  {} # dictionary to store the state of each bus
+        self.agents = []
+        self.agent_states =  {} # dictionary to store the state of each agent
         self.actionBuses = []
         self.total22 = 0
         self.total43 = 0
@@ -61,9 +61,9 @@ class sumoMultiLine(AECEnv):
         self.addPassengers()#self.df22, self.df43, self.hour)
 
 
-    def step(self, action):
+    def step(self, actions):
         for bus in self.actionBuses:
-            self.executeAction(bus, action)
+            self.executeAction(bus, actions[bus])
 
         ######################################
         ### SET ACTION BUSES TO EMPTY LIST ###
@@ -72,68 +72,61 @@ class sumoMultiLine(AECEnv):
 
         done = self.sumoStep()
 
-        # observations = {bus: self.observe(bus) for bus in self.actionBuses}
-        if len(self.actionBuses) > 0:
-            observation = self.observe(self.actionBuses[0])
-            reward = self.calculateReward(self.actionBuses[0], action)
-        else: # when last bus exits in the final step
-            observation = []
-            reward = 0
+        observations = {agent: self.observe(agent) for agent in self.actionBuses}
         print('ACTION BUSES: {}'.format(self.actionBuses))
-        print('ACTION: {}'.format(action))
-        # rewards = {agent: self.calculateReward(agent, actions[agent]) for agent in self.actionBuses}
-        
+        print('ACTIONS: {}'.format(actions))
+        rewards = {agent: self.calculateReward(agent, actions[agent]) for agent in self.actionBuses}
         # dones = {}
         # done = False
         # if len(self.agents) < 1:
         #     done = True
         # print('ACTION BUSES SHOULD NOT BE EMPTY: {}'.format(self.actionBuses))
 
-        return observation, reward, done, {} #, dones, {}
+        return observations, rewards, done, {} #, dones, {}
 
 
-    # def addAgent(self, agent):
-    #     self.agents.append(agent)
-    #     self.agent_states[agent] = {'journeySection': -1, 'route': agent.split(':')[0][-2:]}
+    def addAgent(self, agent):
+        self.agents.append(agent)
+        self.agent_states[agent] = {'journeySection': -1, 'route': agent.split(':')[0][-2:]}
         
 
-    # def removeAgent(self, agent):
-    #     if agent in self.agents:
-    #         self.agents.remove(agent)
-    #         del self.bus_states[agent]
+    def removeAgent(self, agent):
+        if agent in self.agents:
+            self.agents.remove(agent)
+            del self.agent_states[agent]
 
-    def observe(self, bus):
+    def observe(self, agent):
         state = []
 
         # encode bus route
-        if self.bus_states[bus]['route'] == '22':
+        if self.agent_states[agent]['route'] == '22':
             state += [0, 1]
         else:
             state += [1, 0]
 
         # headways with same route
-        bh, fh = self.getHeadways(bus, sameRoute=True)
+        bh, fh = self.getHeadways(agent, sameRoute=True)
         state += [fh, bh]
 
         # encode total on board passengers and total persons waiting at stop 
-        onBoardTotal = traci.vehicle.getPersonNumber(bus)
-        atStopTotal = traci.busstop.getPersonCount(self.bus_states[bus]['stop'])
-        busCapacity = traci.vehicle.getPersonCapacity(bus)
+        onBoardTotal = traci.vehicle.getPersonNumber(agent)
+        atStopTotal = traci.busstop.getPersonCount(self.agent_states[agent]['stop'])
+        busCapacity = traci.vehicle.getPersonCapacity(agent)
         state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
 
         # if bus is in shared corridor, include headways with other route
-        if self.bus_states[bus]['journeySection'] == 0:
-            bh_other, fh_other = self.getHeadways(bus, sameRoute=False)
+        if self.agent_states[agent]['journeySection'] == 0:
+            bh_other, fh_other = self.getHeadways(agent, sameRoute=False)
             state += [fh_other, bh_other]
         else: # bus is not in shared corridor
             state += [0, 0]
 
         return state
 
-    def calculateReward(self, bus, action):
-        r1 = self.getCVsquared(self.bus_states[bus]['route'])
-        if self.bus_states[bus]['journeySection'] == 0:
-            other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
+    def calculateReward(self, agent, action):
+        r1 = self.getCVsquared(self.agent_states[agent]['route'])
+        if self.agent_states[agent]['journeySection'] == 0:
+            other_bh, other_fh = self.getHeadways(agent, sameRoute=False)
             r3 = np.exp(-abs(other_fh - other_bh))
 
             reward = - w[0] * r1 - w[1] * action + w[2] * r3
@@ -144,10 +137,9 @@ class sumoMultiLine(AECEnv):
 
     def getCVsquared(self, route):
         forwardHeadways = []
-        # for agent in reversed(self.agents):
-        for bus in reversed(self.currentVehicles):
-            if self.bus_states[bus[0]]['route'] == route:
-                _, fh = self.getHeadways(bus[0], sameRoute = True)
+        for agent in reversed(self.agents):
+            if self.agent_states[agent]['route'] == route:
+                _, fh = self.getHeadways(agent, sameRoute = True)
                 forwardHeadways.append(fh)
         variance = np.var(forwardHeadways)
         mean = np.mean(forwardHeadways)
@@ -159,8 +151,8 @@ class sumoMultiLine(AECEnv):
     def reset(self):
         self.close()
 
-        # self.agents = []
-        self.bus_states =  {} # dictionary to store the state of each bus
+        self.agents = []
+        self.agent_states =  {} # dictionary to store the state of each agent
         self.actionBuses = []
 
         traci.start(self.sumoCmd)
@@ -173,16 +165,7 @@ class sumoMultiLine(AECEnv):
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
-        # return {agent: self.observe(agent) for agent in self.actionBuses}
-        
-
-
-
-
-        self.sumoStep()
-        
-        observation = self.observe(self.actionBuses[0])
-        return observation
+        return {agent: self.observe(agent) for agent in self.actionBuses}
 
     def close(self):
         traci.close()
@@ -190,21 +173,20 @@ class sumoMultiLine(AECEnv):
         ### NOT SURE IF SHOULD ADDED ANYTHING ELSE ###
         ##############################################
 
-    # executes the given action to the bus
-    def executeAction(self, bus, action):
+    # executes the given action to the agent
+    def executeAction(self, agent, action):
         # get number of alighting and boarding passengers at this stop
-        # print('BUS STATES: {}'.format(self.bus_states))
-        alight = self.bus_states[bus]['alight_board'][0]
-        board = self.bus_states[bus]['alight_board'][1]
+        alight = self.agent_states[agent]['alight_board'][0]
+        board = self.agent_states[agent]['alight_board'][1]
         # calculate dwell time required according to boarding and alighting rates in the paper by Wang and Sun 2020
         time = max(math.ceil(board / 3), math.ceil(alight / 1.8))
 
         # caluclate holding time according to the action given
         holdingTime = math.ceil(action * 90)
 
-        stopData = traci.vehicle.getStops(bus, 1)
+        stopData = traci.vehicle.getStops(agent, 1)
         # set the stopping duration by adding the calculated holding time to the already required time 
-        traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
+        traci.vehicle.setBusStop(agent, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
 
     def sumoStep(self):
         while len(self.actionBuses) == 0:
@@ -226,9 +208,8 @@ class sumoMultiLine(AECEnv):
             for v in newV:
                 traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
                 newVehicles.append([v, None, -1]) # [bus id, current stop, journey section] , journey section -> -1: before shared corridor, 0: in shared corridor, 1: after shared corridor
-                self.bus_states[v] = {'journeySection': -1, 'route': v.split(':')[0][-2:]}
-                # self.addAgent(v)
-                # print("New Vehicle, Agent Added: {}".format(v))
+                self.addAgent(v)
+                print("New Vehicle, Agent Added: {}".format(v))
                 if traci.vehicle.getLine(v) == '22':
                     self.total22 += 1
                     # print('total22: {}'.format(self.total22))
@@ -264,14 +245,14 @@ class sumoMultiLine(AECEnv):
                             if not traci.vehicle.isStopped(v[0]): # bus is not yet stopped
                                 if v[1] != stopId: # set the vehicle's current stop to the stop ID 
                                     v[1] = stopId
-                                    self.bus_states[v[0]]['stop'] = stopId
+                                    self.agent_states[v[0]]['stop'] = stopId
                                     if stopId == shared[0]: # update journey section to 'reached shared corridor'
                                         v[2] = 0
-                                        self.bus_states[v[0]]['journeySection'] = 0
+                                        self.agent_states[v[0]]['journeySection'] = 0
                                         self.reachedSharedCorridor.append(v[0])
                                     elif stopId in shared[1]: # update journey section to 'after shared corridor'
                                         v[2] = 1 
-                                        self.bus_states[v[0]]['journeySection'] = 1
+                                        self.agent_states[v[0]]['journeySection'] = 1
 
                                     # check if the bus should stop
                                     # if not self.shouldStop(v[0], stopId):
@@ -282,7 +263,7 @@ class sumoMultiLine(AECEnv):
                                     elif stopId not in finalStopsEdges:
                                         # an action should be taken for this bus
                                         self.actionBuses.append(v[0])
-                                        self.bus_states[v[0]]['alight_board'] = persons # keep track of number of people that want to alight and board                                    
+                                        self.agent_states['alight_board'] = persons # keep track of number of people that want to alight and board                                    
 
             ############################################################################################################
             ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
@@ -294,14 +275,13 @@ class sumoMultiLine(AECEnv):
                     if v == x[0]:
                         self.reachedSharedCorridor.remove(v)
                         self.currentVehicles.remove(x)
-                        # self.removeAgent(v)
+                        self.removeAgent(v)
 
             #########################################################################
             ###################### REMOVE AGENTS ####################################
             #########################################################################
 
-            # if len(self.agents) < 1:
-            if len(self.currentVehicles) < 1:
+            if len(self.agents) < 1:
                 return True
         #########################################################################
         ###################### RETURN TRUE IF NO MORE BUSES ####################

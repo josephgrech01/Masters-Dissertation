@@ -6,9 +6,10 @@ obs = env.reset()
 done = False
 
 while not done:
-    actions = {agent: 0 for agent in env.agents if agent in env.actionBuses}
-    obs, rewards, done = env.step(actions)
-    print('STEP')
+    # actions = {agent: 0 for agent in env.agents if agent in env.actionBuses}
+    action = 0
+    obs, reward, done, info = env.step(action)
+    # print('STEP')
     #############################
     # TEST IF ACTION IS APPLIED #
     #############################
