@@ -41,6 +41,11 @@ class sumoMultiLine(AECEnv):
         self.total22 = 0
         self.total43 = 0
 
+        self.travelTimes22 = {}
+        self.travelTimes43 = {}
+
+        self.df = pd.DataFrame(columns=['time', 'meanWaitTime'])
+
         self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
 
         if gui:
@@ -79,8 +84,8 @@ class sumoMultiLine(AECEnv):
         else: # when last bus exits in the final step
             observation = []
             reward = 0
-        print('ACTION BUSES: {}'.format(self.actionBuses))
-        print('ACTION: {}'.format(action))
+        # print('ACTION BUSES: {}'.format(self.actionBuses))
+        # print('ACTION: {}'.format(action))
         # rewards = {agent: self.calculateReward(agent, actions[agent]) for agent in self.actionBuses}
         
         # dones = {}
@@ -88,6 +93,34 @@ class sumoMultiLine(AECEnv):
         # if len(self.agents) < 1:
         #     done = True
         # print('ACTION BUSES SHOULD NOT BE EMPTY: {}'.format(self.actionBuses))
+        self.logValues()
+
+        if done:
+            total22 = 0
+            print("ROUTE 22:")
+            for _, v in self.travelTimes22.items():
+                total22 += v
+                # print(v)
+
+            avg22 = total22 / len(self.travelTimes22)
+
+            print("ROUTE 22 AVERAGE: {}".format(avg22))
+ 
+            total43 = 0
+            print("ROUTE 43:")
+            for _, v in self.travelTimes43.items():
+                total43 += v
+                # print(v)
+
+            avg43 = total43 / len(self.travelTimes43)
+
+            print("ROUTE 43 AVERAGE: {}".format(avg43))
+
+            self.df.to_csv('log.csv')
+
+            
+            
+
 
         return observation, reward, done, {} #, dones, {}
 
@@ -227,6 +260,12 @@ class sumoMultiLine(AECEnv):
                 traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
                 newVehicles.append([v, None, -1]) # [bus id, current stop, journey section] , journey section -> -1: before shared corridor, 0: in shared corridor, 1: after shared corridor
                 self.bus_states[v] = {'journeySection': -1, 'route': v.split(':')[0][-2:]}
+                
+                if self.bus_states[v]['route'] == '22':
+                    self.travelTimes22[v] = time
+                else:
+                    self.travelTimes43[v] = time
+                
                 # self.addAgent(v)
                 # print("New Vehicle, Agent Added: {}".format(v))
                 if traci.vehicle.getLine(v) == '22':
@@ -236,7 +275,7 @@ class sumoMultiLine(AECEnv):
                     self.total43 += 1
                     # print('total43: {}'.format(self.total43))
             self.currentVehicles.extend(newVehicles)
-            print('Current Vehicles: {}'.format(self.currentVehicles))
+            # print('Current Vehicles: {}'.format(self.currentVehicles))
             #########################################################################
             ###################### ADD AGENTS #######################################
             #########################################################################
@@ -295,6 +334,11 @@ class sumoMultiLine(AECEnv):
                         self.reachedSharedCorridor.remove(v)
                         self.currentVehicles.remove(x)
                         # self.removeAgent(v)
+
+                        if self.bus_states[v]['route'] == '22':
+                            self.travelTimes22[v] = (time - self.travelTimes22[v]) / 60
+                        else:
+                            self.travelTimes43[v] = (time - self.travelTimes43[v]) / 60
 
             #########################################################################
             ###################### REMOVE AGENTS ####################################
@@ -413,7 +457,7 @@ class sumoMultiLine(AECEnv):
             alightLane = traci.busstop.getLaneID(alightingStop)
             alightEdge = traci.lane.getEdgeID(alightLane)
 
-            traci.person.appendDrivingStage(person, alightEdge, line, stopID=alightingStop)
+            traci.person.appendDrivingStage(person, alightEdge, "ANY", stopID=alightingStop)
 
             # update the trips dictionary with the new passenger and alighting stop
             trips[person] = alightingStop
@@ -464,7 +508,7 @@ class sumoMultiLine(AECEnv):
         # follower bus with same route
         if sameRoute: 
             buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2:] == traci.vehicle.getLine(bus)]
-            print("BUSES: {}".format(buses))
+            # print("BUSES: {}".format(buses))
             i = buses.index(bus) # index of bus in currentVehicles
             if i + 1 == len(buses): # bus is the current last of the route, therefore it has no follower
                 return None
@@ -530,7 +574,7 @@ class sumoMultiLine(AECEnv):
             leaderLaneLength = traci.lane.getLength(leaderLane)
             leaderEdge = traci.lane.getEdgeID(leaderLane)
 
-            route = traci.simulation.findRoute(startTerminus, leaderEdge, vType='bus')
+            route = traci.simulation.findRoute(startTerminus, leaderEdge, vType='bus22')
             # headway is distance from first bus stop to leader position
             headway = route.length - (leaderLaneLength - leaderPosition)
 
@@ -557,7 +601,7 @@ class sumoMultiLine(AECEnv):
             followerPosition = traci.vehicle.getLanePosition(follower)
             followerEdge = traci.lane.getEdgeID(followerLane)
 
-            route = traci.simulation.findRoute(followerEdge, finalTerminus, vType='bus')
+            route = traci.simulation.findRoute(followerEdge, finalTerminus, vType='bus22')
             # headway is distance from follower position to last bus stop
             headway = route.length - followerPosition
 
@@ -573,7 +617,7 @@ class sumoMultiLine(AECEnv):
         leaderLaneLength = traci.lane.getLength(leaderLane)
         leaderEdge = traci.lane.getEdgeID(leaderLane)
 
-        route = traci.simulation.findRoute(followerEdge, leaderEdge, vType='bus')
+        route = traci.simulation.findRoute(followerEdge, leaderEdge, vType='bus22')
         # headway is distance from position of follower to position of leader
         headway = route.length - followerPosition - (leaderLaneLength - leaderPosition)
 
@@ -611,3 +655,30 @@ class sumoMultiLine(AECEnv):
             return 19
         else:
             return 20
+
+    def logValues(self):
+        time = traci.simulation.getTime()
+
+        maxWaitTimes = self.getMaxWaitTimeOnStops()
+        mean = sum(maxWaitTimes)/len(maxWaitTimes)
+
+        self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
+        
+
+    def getMaxWaitTimeOnStops(self):
+        maxWaitTimes = []
+        routes = [route22, route43]
+        for index, route in enumerate(routes):
+            for stop in route:
+                if index == 1 and stop in route22:
+                    pass
+                else:
+                    personsOnStop = traci.busstop.getPersonIDs(stop)
+                    waitTimes = [traci.person.getWaitingTime(person) for person in personsOnStop]
+                    if len(waitTimes) > 0:
+                        maxWaitTimes.append(max(waitTimes))
+                    else:
+                        maxWaitTimes.append(0)
+
+        return maxWaitTimes
+

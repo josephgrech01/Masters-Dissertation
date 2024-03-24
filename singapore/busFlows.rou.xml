@@ -5,7 +5,8 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="bus" vClass="bus"/>
+    <vType id="bus22" vClass="bus" maxSpeed="4.1" color="yellow"/>
+    <vType id="bus43" vClass="bus" maxSpeed="4.1" color="white"/>
     <!-- <vType id="tram" vClass="tram"/>
     <vType id="train" vClass="rail"/>
     <vType id="subway" vClass="rail_urban"/>
@@ -119,44 +120,44 @@
     
     <!-- bus route 22 -->
     <!-- 6.30 to 8.30 - every 10 mins -->
-    <flow id="bus_22:0" type="bus" route="bus_22:0" begin="0.0" end="7201" period="600" line="22" >
+    <flow id="bus_22:0" type="bus22" route="bus_22:0" begin="0.0" end="7201" period="600" line="22" >
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
     </flow>
     <!-- 8.31 to 16.59 - every 13 mins -->
-    <flow id="bus_22:1" type="bus" route="bus_22:0" begin="7980" end="38401" period="780" line="22" >
+    <flow id="bus_22:1" type="bus22" route="bus_22:0" begin="7980" end="38401" period="780" line="22" >
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
     </flow>
     <!-- 17.00 to 19.00 - every 11 mins -->
-    <flow id="bus_22:2" type="bus" route="bus_22:0" begin="39000" end="45001" period="660" line="22" >
+    <flow id="bus_22:2" type="bus22" route="bus_22:0" begin="39000" end="45001" period="660" line="22" >
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
     </flow>
     <!-- 19.00 to 21.00 - every 16 mins, demand data provided passengers until only 21.00, instead of 22.00   -->
-    <flow id="bus_22:3" type="bus" route="bus_22:0" begin="45960" end="52200" period="960" line="22" > <!-- last bus index 6 -->
+    <flow id="bus_22:3" type="bus22" route="bus_22:0" begin="45960" end="52200" period="960" line="22" > <!-- last bus index 6 -->
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
     </flow>
 
     <!-- bus route 43 -->
     <!-- 6.30 to 8.30 - every 10 mins -->
-    <flow id="bus_43:0" type="bus" route="bus_43:0" begin="0.0" end="7201" period="600" line="43" >
+    <flow id="bus_43:0" type="bus43" route="bus_43:0" begin="0.0" end="7201" period="600" line="43" >
         <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
         <param key="completeness" value="1.00"/>
     </flow>
     <!-- 8.31 to 16.59 - every 15 mins -->
-    <flow id="bus_43:1" type="bus" route="bus_43:0" begin="8100" end="37801" period="900" line="43" >
+    <flow id="bus_43:1" type="bus43" route="bus_43:0" begin="8100" end="37801" period="900" line="43" >
         <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
         <param key="completeness" value="1.00"/>
     </flow> 
     <!-- 17.00 to 19.00 - every 14 mins -->
-    <flow id="bus_43:2" type="bus" route="bus_43:0" begin="38640" end="45000" period="840" line="43" >
+    <flow id="bus_43:2" type="bus43" route="bus_43:0" begin="38640" end="45000" period="840" line="43" >
         <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
         <param key="completeness" value="1.00"/>
     </flow>
     <!-- 19.00 to 21.00 - every 16 mins, demand data  provided passengers until only 21.00, instead of 22.00 -->
-    <flow id="bus_43:3" type="bus" route="bus_43:0" begin="45480" end="52201" period="960" line="43" > <!-- last bus index 7 -->
+    <flow id="bus_43:3" type="bus43" route="bus_43:0" begin="45480" end="52201" period="960" line="43" > <!-- last bus index 7 -->
         <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
         <param key="completeness" value="1.00"/>
     </flow>
