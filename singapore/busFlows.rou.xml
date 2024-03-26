@@ -5,8 +5,8 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="bus22" vClass="bus" maxSpeed="4.1" color="yellow"/>
-    <vType id="bus43" vClass="bus" maxSpeed="4.1" color="white"/>
+    <vType id="bus22" vClass="bus" maxSpeed="3.9" color="yellow"/>
+    <vType id="bus43" vClass="bus" maxSpeed="3.9" color="white"/>
     <!-- <vType id="tram" vClass="tram"/>
     <vType id="train" vClass="rail"/>
     <vType id="subway" vClass="rail_urban"/>
@@ -135,8 +135,8 @@
         <param key="completeness" value="0.97"/>
     </flow>
     <!-- 19.00 to 21.00 - every 16 mins, demand data provided passengers until only 21.00, instead of 22.00   -->
-    <flow id="bus_22:3" type="bus22" route="bus_22:0" begin="45960" end="52200" period="960" line="22" > <!-- last bus index 6 -->
-        <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
+    <flow id="bus_22:3" type="bus22" route="bus_22:0" begin="45960" end="52681" period="960" line="22" > <!-- last bus index 7 (added extra bus since people were still at stop) -->
+         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
     </flow>
 
@@ -160,5 +160,18 @@
     <flow id="bus_43:3" type="bus43" route="bus_43:0" begin="45480" end="52201" period="960" line="43" > <!-- last bus index 7 -->
         <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
         <param key="completeness" value="1.00"/>
+    </flow> 
+
+
+
+
+    <!-- <flow id="bus_22:0" type="bus22" route="bus_22:0" begin="0.0" end="52201" period="900" line="22" >
+        <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
+        <param key="completeness" value="0.97"/>
     </flow>
+
+    <flow id="bus_43:0" type="bus43" route="bus_43:0" begin="0.0" end="52201" period="900" line="43" >
+        <param key="name" value="Svc 43 (Punggol Temporary Interchange → Upper East Coast Terminal)"/>
+        <param key="completeness" value="1.00"/>
+    </flow> -->
 </routes>

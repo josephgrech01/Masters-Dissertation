@@ -116,7 +116,7 @@ class sumoMultiLine(AECEnv):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            self.df.to_csv('log.csv')
+            self.df.to_csv('results/log.csv')
 
             
             
@@ -553,8 +553,9 @@ class sumoMultiLine(AECEnv):
         #################################################################################
 
         if follower is None:
-            if leader == 'bus_22:3.6' or leader == 'bus_43:3.7': # last bus of service, therefore return zero
+            if leader == 'bus_22:3.7' or leader == 'bus_43:3.7': # last bus of service, therefore return zero
                 return 0
+
             # else, following bus has not yet left initial terminus
             # calculate distance along route that the leader has travelled
             line = traci.vehicle.getLine(leader)
@@ -660,9 +661,13 @@ class sumoMultiLine(AECEnv):
         time = traci.simulation.getTime()
 
         maxWaitTimes = self.getMaxWaitTimeOnStops()
-        mean = sum(maxWaitTimes)/len(maxWaitTimes)
+        if maxWaitTimes is not None:
+            mean = sum(maxWaitTimes)/len(maxWaitTimes)
+            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
+        # else:
+        #     mean = 0
 
-        self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
+        # self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
         
 
     def getMaxWaitTimeOnStops(self):
@@ -677,8 +682,11 @@ class sumoMultiLine(AECEnv):
                     waitTimes = [traci.person.getWaitingTime(person) for person in personsOnStop]
                     if len(waitTimes) > 0:
                         maxWaitTimes.append(max(waitTimes))
-                    else:
-                        maxWaitTimes.append(0)
+                    # else:
+                    #     maxWaitTimes.append(0)
 
-        return maxWaitTimes
+        if len(maxWaitTimes) != 0:
+            return maxWaitTimes
+        else:
+            return None
 
