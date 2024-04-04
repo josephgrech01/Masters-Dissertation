@@ -5,8 +5,8 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="bus22" vClass="bus" maxSpeed="3.9" color="yellow"/>
-    <vType id="bus43" vClass="bus" maxSpeed="3.9" color="white"/>
+    <vType id="bus22" vClass="bus" maxSpeed="4.1" color="yellow"/>
+    <vType id="bus43" vClass="bus" maxSpeed="4.1" color="white"/>
     <!-- <vType id="tram" vClass="tram"/>
     <vType id="train" vClass="rail"/>
     <vType id="subway" vClass="rail_urban"/>

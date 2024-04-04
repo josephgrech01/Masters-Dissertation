@@ -7,6 +7,7 @@ import random
 import pandas as pd
 import math
 import numpy as np
+from gym.spaces import Box
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -45,6 +46,7 @@ class sumoMultiLine(AECEnv):
         self.travelTimes43 = {}
 
         self.df = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.rates = pd.DataFrame(columns=['rate'])
 
         self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
 
@@ -64,6 +66,8 @@ class sumoMultiLine(AECEnv):
         self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
+
+        self.action_space = Box(low=0, high=1, dtype=np.float32)
 
 
     def step(self, action):
@@ -116,7 +120,9 @@ class sumoMultiLine(AECEnv):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            self.df.to_csv('results/log.csv')
+            self.df.to_csv('results/test/log3by10num1.csv')
+
+            self.rates.to_csv('results/test/rates3by10num1.csv')
 
             
             
@@ -402,7 +408,15 @@ class sumoMultiLine(AECEnv):
     # rate is per hour
     # hour of the simulation
     def getDepartures(self, rate):
+        ##########################
+        # TEST ###################
+        if rate < 3:
+            rate *= 10
+        ##########################
         lambdaValue = rate / 3600 # per second
+
+        self.rates = pd.concat([self.rates, pd.DataFrame.from_records([{'rate':rate}])])
+
         totalTime = 3600
         if self.hour == 6:
             totalTime = 1800 # from 6.30 to 7 am, simulation starts at 6.30 and not 6.00
