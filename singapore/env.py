@@ -7,7 +7,7 @@ import random
 import pandas as pd
 import math
 import numpy as np
-from gym.spaces import Box
+from gym.spaces import Box, Dict
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -34,6 +34,9 @@ finalStopsEdges = ['245934570#2', '528461109']
 w = [0.4, 0.5, 0.1]
 
 class sumoMultiLine(AECEnv):
+
+    metadata = {}
+    
     def __init__(self, gui=False):
         super().__init__()
         # self.agents = []
@@ -67,7 +70,16 @@ class sumoMultiLine(AECEnv):
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
-        self.action_space = Box(low=0, high=1, dtype=np.float32)
+        self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
+
+        self.observation_space = Dict(
+            {
+                'route': Box(low=np.array([0,0]), high=np.array([1,1]), dtype=np.float32),
+                'sameRouteHeadways': Box(low=np.array([0,0]), high=np.array([float('inf'),float('inf')]), dtype=np.float32),
+                'onBoard_atStop': Box(low=np.array([0,0]), high=np.array([float('inf'),float('inf')]), dtype=np.float32),
+                'diffRouteHeadways': Box(low=np.array([0,0]), high=np.array([float('inf'),float('inf')]), dtype=np.float32)
+            }
+        )
 
 
     def step(self, action):
@@ -142,30 +154,37 @@ class sumoMultiLine(AECEnv):
     #         del self.bus_states[agent]
 
     def observe(self, bus):
-        state = []
+        # state = []
+        state = {}
 
         # encode bus route
         if self.bus_states[bus]['route'] == '22':
-            state += [0, 1]
+            # state += [0, 1]
+            state['route'] = [0,1]
         else:
-            state += [1, 0]
+            # state += [1, 0]
+            state['route'] = [1,0]
 
         # headways with same route
         bh, fh = self.getHeadways(bus, sameRoute=True)
-        state += [fh, bh]
+        # state += [fh, bh]
+        state['sameRouteHeadways'] = [fh, bh]
 
         # encode total on board passengers and total persons waiting at stop 
         onBoardTotal = traci.vehicle.getPersonNumber(bus)
         atStopTotal = traci.busstop.getPersonCount(self.bus_states[bus]['stop'])
         busCapacity = traci.vehicle.getPersonCapacity(bus)
-        state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
+        # state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
+        state['onBoard_atStop'] = [onBoardTotal/busCapacity, atStopTotal/busCapacity]
 
         # if bus is in shared corridor, include headways with other route
         if self.bus_states[bus]['journeySection'] == 0:
             bh_other, fh_other = self.getHeadways(bus, sameRoute=False)
-            state += [fh_other, bh_other]
+            # state += [fh_other, bh_other]
+            state['diffRouteHeadways'] = [fh_other, bh_other]
         else: # bus is not in shared corridor
-            state += [0, 0]
+            # state += [0, 0]
+            state['diffRouteHeadways'] = [0, 0]
 
         return state
 
