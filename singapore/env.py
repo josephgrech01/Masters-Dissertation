@@ -1,4 +1,5 @@
 from pettingzoo import AECEnv
+import gymnasium as gym
 import os
 import sys
 from sumolib import checkBinary
@@ -33,12 +34,12 @@ finalStopsEdges = ['245934570#2', '528461109']
 
 w = [0.4, 0.5, 0.1]
 
-class sumoMultiLine(AECEnv):
+class sumoMultiLine(gym.Env):
 
     metadata = {}
-    
+
     def __init__(self, gui=False):
-        super().__init__()
+        # super().__init__()
         # self.agents = []
         self.bus_states =  {} # dictionary to store the state of each bus
         self.actionBuses = []
@@ -72,14 +73,23 @@ class sumoMultiLine(AECEnv):
 
         self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
 
-        self.observation_space = Dict(
-            {
-                'route': Box(low=np.array([0,0]), high=np.array([1,1]), dtype=np.float32),
-                'sameRouteHeadways': Box(low=np.array([0,0]), high=np.array([float('inf'),float('inf')]), dtype=np.float32),
-                'onBoard_atStop': Box(low=np.array([0,0]), high=np.array([float('inf'),float('inf')]), dtype=np.float32),
-                'diffRouteHeadways': Box(low=np.array([0,0]), high=np.array([float('inf'),float('inf')]), dtype=np.float32)
-            }
-        )
+        # self.observation_space = Dict(
+        #     {
+        #         'route': Box(low=np.array([0,0], dtype=np.float32), high=np.array([1,1], dtype=np.float32), dtype=np.float32),
+        #         'sameRouteHeadways': Box(low=np.array([0,0], dtype=np.float32), high=np.array([float('inf'),float('inf')], dtype=np.float32), dtype=np.float32),
+        #         'onBoard_atStop': Box(low=np.array([0,0], dtype=np.float32), high=np.array([float('inf'),float('inf')], dtype=np.float32), dtype=np.float32),
+        #         'diffRouteHeadways': Box(low=np.array([0,0], dtype=np.float32), high=np.array([float('inf'),float('inf')], dtype=np.float32), dtype=np.float32)
+        #     }
+        # )
+
+        self.low = np.array([0,0] + [0,0] + [0,0] + [0,0], dtype='float32')
+        self.high = np.array([1,1] + [float('inf'),float('inf')] + [float('inf'),float('inf')] + [float('inf'),float('inf')], dtype='float32')
+
+        self.observation_space = Box(self.low, self.high, dtype='float32')
+
+        self.d = False
+
+        self.episodes = 0
 
 
     def step(self, action):
@@ -132,9 +142,9 @@ class sumoMultiLine(AECEnv):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            self.df.to_csv('results/test/log3by10num1.csv')
+            self.df.to_csv('singapore/results/ddpg100000.csv')
 
-            self.rates.to_csv('results/test/rates3by10num1.csv')
+            # self.rates.to_csv('results/test/rates3by10num1.csv')
 
             
             
@@ -154,50 +164,56 @@ class sumoMultiLine(AECEnv):
     #         del self.bus_states[agent]
 
     def observe(self, bus):
-        # state = []
-        state = {}
+        state = []
+        # state = {}
 
         # encode bus route
         if self.bus_states[bus]['route'] == '22':
-            # state += [0, 1]
-            state['route'] = [0,1]
+            state += [0, 1]
+            # state['route'] = [0,1]
         else:
-            # state += [1, 0]
-            state['route'] = [1,0]
+            state += [1, 0]
+            # state['route'] = [1,0]
 
         # headways with same route
         bh, fh = self.getHeadways(bus, sameRoute=True)
-        # state += [fh, bh]
-        state['sameRouteHeadways'] = [fh, bh]
+        state += [fh, bh]
+        # state['sameRouteHeadways'] = [fh, bh]
 
         # encode total on board passengers and total persons waiting at stop 
         onBoardTotal = traci.vehicle.getPersonNumber(bus)
         atStopTotal = traci.busstop.getPersonCount(self.bus_states[bus]['stop'])
         busCapacity = traci.vehicle.getPersonCapacity(bus)
-        # state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
-        state['onBoard_atStop'] = [onBoardTotal/busCapacity, atStopTotal/busCapacity]
+        state += [onBoardTotal/busCapacity, atStopTotal/busCapacity]
+        # state['onBoard_atStop'] = [onBoardTotal/busCapacity, atStopTotal/busCapacity]
 
         # if bus is in shared corridor, include headways with other route
         if self.bus_states[bus]['journeySection'] == 0:
             bh_other, fh_other = self.getHeadways(bus, sameRoute=False)
-            # state += [fh_other, bh_other]
-            state['diffRouteHeadways'] = [fh_other, bh_other]
+            state += [fh_other, bh_other]
+            # state['diffRouteHeadways'] = [fh_other, bh_other]
         else: # bus is not in shared corridor
-            # state += [0, 0]
-            state['diffRouteHeadways'] = [0, 0]
+            state += [0, 0]
+            # state['diffRouteHeadways'] = [0, 0]
 
         return state
 
     def calculateReward(self, bus, action):
+        if math.isnan(action):
+            action = 0
         r1 = self.getCVsquared(self.bus_states[bus]['route'])
         if self.bus_states[bus]['journeySection'] == 0:
             other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
             r3 = np.exp(-abs(other_fh - other_bh))
-
+            # print('fh_other: {}'.format(other_fh))
+            # print('bh_other: {}'.format(other_bh))
             reward = - w[0] * r1 - w[1] * action + w[2] * r3
+            print('r3: {}'.format(r3))
         else:
             reward = - w[0] * r1 - (w[1] + w[2]) * action
 
+        print('r1: {}'.format(r1))
+        
         return reward
 
     def getCVsquared(self, route):
@@ -211,6 +227,9 @@ class sumoMultiLine(AECEnv):
         mean = np.mean(forwardHeadways)
 
         cvSquared = variance / mean / mean
+
+        if math.isnan(cvSquared):
+            cvSquared = 0
 
         return cvSquared
     
@@ -233,7 +252,9 @@ class sumoMultiLine(AECEnv):
 
         # return {agent: self.observe(agent) for agent in self.actionBuses}
         
+        self.episodes += 1
 
+        print("EPISODEEEEEE: {}".format(self.episodes))
 
 
 
@@ -250,6 +271,9 @@ class sumoMultiLine(AECEnv):
 
     # executes the given action to the bus
     def executeAction(self, bus, action):
+        # print("action: {}".format(action))
+        # if action == 1:
+        #     print("HOLDING 90 sec: {}".format(bus))
         # get number of alighting and boarding passengers at this stop
         # print('BUS STATES: {}'.format(self.bus_states))
         alight = self.bus_states[bus]['alight_board'][0]
@@ -257,6 +281,14 @@ class sumoMultiLine(AECEnv):
         # calculate dwell time required according to boarding and alighting rates in the paper by Wang and Sun 2020
         time = max(math.ceil(board / 3), math.ceil(alight / 1.8))
 
+        # TO AVOID NANs
+        # if action < 0.01:
+            # action = 0.01
+        if math.isnan(action):
+            print('action: {}'.format(action))
+            action = 0
+        # print('action: {}'.format(action))
+        # print('action*90: {}'.format(action*90))
         # caluclate holding time according to the action given
         holdingTime = math.ceil(action * 90)
 
@@ -377,6 +409,9 @@ class sumoMultiLine(AECEnv):
         #########################################################################
         # if len(self.agents) < 1:
         #     return True
+
+            # if time == 1000:
+            #     return True
         return False
     
     # function that adds the passengers into the simulation for the coming hour
@@ -429,8 +464,8 @@ class sumoMultiLine(AECEnv):
     def getDepartures(self, rate):
         ##########################
         # TEST ###################
-        if rate < 3:
-            rate *= 10
+        # if rate < 3:
+        #     rate *= 10
         ##########################
         lambdaValue = rate / 3600 # per second
 

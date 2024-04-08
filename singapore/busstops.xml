@@ -48,7 +48,7 @@
     <busStop id="-410478273" name="After Ipoh Lane" lane="-22810638_0" startPos="57.28" endPos="72.28" friendlyPos="true" lines="43"/>
     <busStop id="-410478274" name="CDAC Building" lane="-22810638_0" startPos="11.15" endPos="26.15" friendlyPos="true" lines="43"/>
     <busStop id="1268343846" name="Saint Patrick&apos;s Secondary School" lane="74518787_0" startPos="54.90" endPos="69.90" friendlyPos="true" lines="43"/>
-    <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_0" startPos="13.13" endPos="49.59" friendlyPos="true" lines="22 43"/>
+    <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_1" startPos="13.13" endPos="24.59" friendlyPos="true" lines="22 43"/>
     <busStop id="1847713996" name="Upper East Coast Terminal" lane="528461109_0" startPos="1.47" endPos="16.47" friendlyPos="true" lines="43"/>
     <busStop id="1847713996@6623041" name="Upper East Coast Terminal" lane="528461109_0" startPos="0.00" endPos="9.15" friendlyPos="true" lines="43"/>
     <busStop id="1847853709" name="Punggol Temporary Interchange" lane="74962088_0" startPos="42.23" endPos="57.23" friendlyPos="true" lines="43"/>
