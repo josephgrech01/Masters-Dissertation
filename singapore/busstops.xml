@@ -51,25 +51,25 @@
     <busStop id="1531005322" name="Serangoon Station Exit C/Blk 201" lane="479079789_1" startPos="13.13" endPos="24.59" friendlyPos="true" lines="22 43"/>
     <busStop id="1847713996" name="Upper East Coast Terminal" lane="528461109_0" startPos="1.47" endPos="16.47" friendlyPos="true" lines="43"/>
     <busStop id="1847713996@6623041" name="Upper East Coast Terminal" lane="528461109_0" startPos="0.00" endPos="9.15" friendlyPos="true" lines="43"/>
-    <busStop id="1847853709" name="Punggol Temporary Interchange" lane="74962088_0" startPos="42.23" endPos="57.23" friendlyPos="true" lines="43"/>
-    <busStop id="1847853709@6623041" name="Punggol Temporary Interchange" lane="631887962#0_0" startPos="122.45" endPos="137.45" friendlyPos="true" lines="43"/>
+    <busStop id="1847853709" name="Punggol Temporary Interchange" lane="74962088_1" startPos="17.23" endPos="27.23" friendlyPos="true" lines="43"/>
+    <busStop id="1847853709@6623041" name="Punggol Temporary Interchange" lane="631887962#0_1" startPos="122.45" endPos="132.45" friendlyPos="true" lines="43"/>
     <busStop id="1847940083" name="Before How Sun Road" lane="476380447_0" startPos="34.36" endPos="49.36" friendlyPos="true" lines="22 43"/>
     <busStop id="1848076678" name="Buangkok Station Exit A" lane="624291888#0_0" startPos="0.00" endPos="7.83" friendlyPos="true" lines="43"/>
     <busStop id="1849457004" name="Opposite Tanjong Katong Girls&apos; School" lane="536913690_0" startPos="93.90" endPos="108.90" friendlyPos="true" lines="43"/>
     <busStop id="1849631261" name="Paya Lebar Station Exit D" lane="747402010_0" startPos="12.85" endPos="27.85" friendlyPos="true" lines="43"/>
     <busStop id="1849631267" name="Blk 201C" lane="74549015#0_0" startPos="0.00" endPos="9.08" friendlyPos="true" lines="43"/>
-    <busStop id="1849631269" name="Blk 204C" lane="22652564_0" startPos="0.00" endPos="10.31" friendlyPos="true" lines="43"/>
-    <busStop id="1849631273" name="Blk 557" lane="632378379#0_0" startPos="0.00" endPos="11.66" friendlyPos="true" lines="43"/>
+    <busStop id="1849631269" name="Blk 204C" lane="22652564_1" startPos="0.00" endPos="10.31" friendlyPos="true" lines="43"/>
+    <busStop id="1849631273" name="Blk 557" lane="632378379#0_1" startPos="0.00" endPos="10.66" friendlyPos="true" lines="43"/>
     <busStop id="1849631298" name="Opposite Blk 558" lane="445716678#0_0" startPos="0.00" endPos="9.99" friendlyPos="true" lines="43"/>
-    <busStop id="1849631331" name="After Soo Teck Station" lane="717446182_0" startPos="43.45" endPos="58.45" friendlyPos="true" lines="43"/>
+    <busStop id="1849631331" name="After Soo Teck Station" lane="717446182_1" startPos="43.45" endPos="53.45" friendlyPos="true" lines="43"/>
     <busStop id="1849631343" name="Before Soo Teck Station" lane="582412286#0_0" startPos="0.00" endPos="10.75" friendlyPos="true" lines="43"/>
     <busStop id="1854311858" name="Before Saint Helier&apos;s Avenue" lane="174765849_0" startPos="30.68" endPos="45.68" friendlyPos="true" lines="43"/>
-    <busStop id="1855320978" name="After Phillips Avenue" lane="175959568_0" startPos="30.59" endPos="45.59" friendlyPos="true" lines="43"/>
+    <busStop id="1855320978" name="After Phillips Avenue" lane="175959568_1" startPos="30.59" endPos="40.59" friendlyPos="true" lines="43"/>
     <busStop id="1995038394" name="Eunos Station/ Interchange" lane="655145244_0" startPos="44.68" endPos="59.68" friendlyPos="true" lines="22"/>
-    <busStop id="2429952037" name="Buangkok Station Exit B" lane="623715810#0_0" startPos="0.00" endPos="7.70" friendlyPos="true" lines="43"/>
-    <busStop id="3737148763" name="Twin Waterfalls" lane="190451325_0" startPos="58.90" endPos="73.90" friendlyPos="true" lines="43"/>
+    <busStop id="2429952037" name="Buangkok Station Exit B" lane="623715810#0_1" startPos="0.00" endPos="7.70" friendlyPos="true" lines="43"/>
+    <busStop id="3737148763" name="Twin Waterfalls" lane="190451325_1" startPos="58.90" endPos="68.90" friendlyPos="true" lines="43"/>
     <busStop id="3737158812" name="Blk 220C" lane="391007733#0_0" startPos="0.00" endPos="12.03" friendlyPos="true" lines="43"/>
-    <busStop id="3865151058" name="Before Blk 264" lane="582412262_0" startPos="22.03" endPos="37.03" friendlyPos="true" lines="43"/>
+    <busStop id="3865151058" name="Before Blk 264" lane="582412262_1" startPos="22.03" endPos="32.03" friendlyPos="true" lines="43"/>
     <busStop id="3865151068" name="Opposite Blk 264A" lane="33194100_0" startPos="57.18" endPos="72.18" friendlyPos="true" lines="43"/>
     <busStop id="3865151080" name="Wisma AUPE" lane="358645124_0" startPos="191.37" endPos="206.37" friendlyPos="true" lines="22 43"/>
     <busStop id="410459493" name="Amber Gardens" lane="45065755_0" startPos="96.05" endPos="111.05" friendlyPos="true" lines="43"/>
@@ -93,13 +93,13 @@
     <busStop id="410462103" name="Opposite Blk 257" lane="661628136_1" startPos="52.46" endPos="62.46" friendlyPos="true" lines="22"/>
     <busStop id="410462104" name="Blk 233" lane="535604972_0" startPos="12.41" endPos="27.41" friendlyPos="true" lines="22"/>
     <busStop id="410462187" name="Opposite Blk 968" lane="445716684#0_0" startPos="0.00" endPos="12.22" friendlyPos="true" lines="43"/>
-    <busStop id="410462211" name="Blk 911" lane="512918179_0" startPos="19.63" endPos="34.63" friendlyPos="true" lines="43"/>
+    <busStop id="410462211" name="Blk 911" lane="512918179_1" startPos="19.63" endPos="29.63" friendlyPos="true" lines="43"/>
     <busStop id="410462238" name="Opposite Blk 910" lane="512918195#0_0" startPos="0.00" endPos="13.42" friendlyPos="true" lines="43"/>
-    <busStop id="410462266" name="Blk 565" lane="445716683_0" startPos="51.19" endPos="66.19" friendlyPos="true" lines="43"/>
+    <busStop id="410462266" name="Blk 565" lane="445716683_1" startPos="51.19" endPos="61.19" friendlyPos="true" lines="43"/>
     <busStop id="410462285" name="Opposite Blk 565" lane="175959440_0" startPos="34.70" endPos="49.70" friendlyPos="true" lines="43"/>
-    <busStop id="410462291" name="Blk 969" lane="512918201#0_0" startPos="0.00" endPos="11.16" friendlyPos="true" lines="43"/>
+    <busStop id="410462291" name="Blk 969" lane="512918201#0_1" startPos="0.00" endPos="10.16" friendlyPos="true" lines="43"/>
     <busStop id="410462292" name="Opposite Blk 579" lane="512918181#0_0" startPos="0.00" endPos="7.63" friendlyPos="true" lines="43"/>
-    <busStop id="410462293" name="Blk 579" lane="476703994_0" startPos="11.48" endPos="26.48" friendlyPos="true" lines="43"/>
+    <busStop id="410462293" name="Blk 579" lane="476703994_1" startPos="11.48" endPos="21.48" friendlyPos="true" lines="43"/>
     <busStop id="410462762" name="After Lorong 106 Changi" lane="585646221#0_1" startPos="0.00" endPos="10.28" friendlyPos="true" lines="22"/>
     <busStop id="410464248" name="Blk 637" lane="447712957_1" startPos="24.64" endPos="34.64" friendlyPos="true" lines="22"/>
     <busStop id="410464249" name="Blk 311" lane="21463643_0" startPos="10.14" endPos="25.14" friendlyPos="true" lines="22"/>
@@ -149,10 +149,10 @@
     <busStop id="410471005" name="CISCO Centre" lane="585706001_0" startPos="78.53" endPos="93.53" friendlyPos="true" lines="43"/>
     <busStop id="410471030" name="Citipoint Industrial Complex" lane="639549066_1" startPos="19.18" endPos="29.18" friendlyPos="true" lines="22 43"/>
     <busStop id="410471081" name="Opposite Trinity @ Paya Lebar" lane="630419696#0_1" startPos="0.00" endPos="10.12" friendlyPos="true" lines="22 43"/>
-    <busStop id="410474348" name="Sengkang Community Hub" lane="445716748_0" startPos="26.59" endPos="41.59" friendlyPos="true" lines="43"/>
+    <busStop id="410474348" name="Sengkang Community Hub" lane="445716748_1" startPos="26.59" endPos="36.59" friendlyPos="true" lines="43"/>
     <busStop id="410474384" name="Blk 323B" lane="174886203_0" startPos="79.50" endPos="93.85" friendlyPos="true" lines="43"/>
     <busStop id="410474619" name="Sengkang General Hospital" lane="445716751_0" startPos="24.52" endPos="39.52" friendlyPos="true" lines="43"/>
-    <busStop id="410474760" name="Opposite Sengkang General Hospital" lane="717470516_0" startPos="39.27" endPos="47.22" friendlyPos="true" lines="43"/>
+    <busStop id="410474760" name="Opposite Sengkang General Hospital" lane="717470516_1" startPos="39.27" endPos="47.22" friendlyPos="true" lines="43"/>
     <busStop id="410475111" name="Serangoon Station Exit B" lane="633397743_0" startPos="9.88" endPos="24.88" friendlyPos="true" lines="22 43"/>
     <busStop id="410475114" name="Blk 206" lane="632203646_1" startPos="85.99" endPos="95.99" friendlyPos="true" lines="22 43"/>
     <busStop id="410475115" name="Blk 261" lane="633397743_0" startPos="9.88" endPos="24.88" friendlyPos="true" lines="22 43"/>
@@ -199,22 +199,22 @@
     <busStop id="410483065" name="Forest Woods" lane="74553749_0" startPos="46.35" endPos="61.35" friendlyPos="true" lines="22 43"/>
     <busStop id="410483103" name="Opposite Blk 1" lane="22293549_1" startPos="166.36" endPos="176.36" friendlyPos="true" lines="22 43"/>
     <busStop id="410486292" name="Opposite Serangoon Sports Complex" lane="448937648_0" startPos="41.44" endPos="56.44" friendlyPos="true" lines="43"/>
-    <busStop id="410486293" name="Serangoon Sports Complex" lane="475163615_0" startPos="23.16" endPos="38.16" friendlyPos="true" lines="43"/>
+    <busStop id="410486293" name="Serangoon Sports Complex" lane="475163615_1" startPos="23.16" endPos="33.16" friendlyPos="true" lines="43"/>
     <busStop id="410486295" name="Opposite Gracehaven S Army" lane="475171829_0" startPos="49.23" endPos="64.23" friendlyPos="true" lines="43"/>
     <busStop id="410486421" name="Opposite Blk 953" lane="630417422_0" startPos="34.32" endPos="49.32" friendlyPos="true" lines="43"/>
-    <busStop id="410486516" name="Before Tai Seng Christian Church" lane="630829769_0" startPos="58.30" endPos="73.30" friendlyPos="true" lines="43"/>
+    <busStop id="410486516" name="Before Tai Seng Christian Church" lane="630829769_1" startPos="98.30" endPos="108.30" friendlyPos="true" lines="43"/>
     <busStop id="410486828" name="Blk 133" lane="633146417_0" startPos="149.86" endPos="164.86" friendlyPos="true" lines="43"/>
-    <busStop id="410486955" name="Gracehaven S Army" lane="74869296_0" startPos="50.88" endPos="65.88" friendlyPos="true" lines="43"/>
+    <busStop id="410486955" name="Gracehaven S Army" lane="74869296_1" startPos="50.88" endPos="60.88" friendlyPos="true" lines="43"/>
     <busStop id="410486963" name="Blk 138" lane="537579061_0" startPos="11.43" endPos="26.43" friendlyPos="true" lines="43"/>
     <busStop id="410486964" name="After Serangoon North Avenue 1" lane="633146417_0" startPos="43.02" endPos="58.02" friendlyPos="true" lines="43"/>
-    <busStop id="410486966" name="After Serangoon Garden Way" lane="630829769_0" startPos="58.30" endPos="73.30" friendlyPos="true" lines="43"/>
-    <busStop id="410486969" name="Toho Green" lane="633197069_0" startPos="1.12" endPos="16.12" friendlyPos="true" lines="43"/>
-    <busStop id="410486991" name="Blk 953" lane="74668469_0" startPos="195.33" endPos="210.33" friendlyPos="true" lines="43"/>
-    <busStop id="4430976208" name="Before Yio Chu Kang Chapel" lane="34905413_0" startPos="19.61" endPos="34.61" friendlyPos="true" lines="43"/>
+    <busStop id="410486966" name="After Serangoon Garden Way" lane="630829769_1" startPos="58.30" endPos="68.30" friendlyPos="true" lines="43"/>
+    <busStop id="410486969" name="Toho Green" lane="633197069_1" startPos="1.12" endPos="11.12" friendlyPos="true" lines="43"/>
+    <busStop id="410486991" name="Blk 953" lane="74668469_1" startPos="195.33" endPos="205.33" friendlyPos="true" lines="43"/>
+    <busStop id="4430976208" name="Before Yio Chu Kang Chapel" lane="34905413_1" startPos="19.61" endPos="29.61" friendlyPos="true" lines="43"/>
     <busStop id="4623289717" name="Opposite Parkway Parade" lane="467731257#0_0" startPos="49.56" endPos="64.56" friendlyPos="true" lines="43"/>
     <busStop id="5701411365" name="Ubi Station Exit A" lane="74746294_0" startPos="119.81" endPos="134.81" friendlyPos="true" lines="22"/>
     <busStop id="5701793241" name="Ubi Station Exit B" lane="477574135_1" startPos="128.59" endPos="138.89" friendlyPos="true" lines="22"/>
-    <busStop id="7314770844" name="Punggol Station/Interchange" lane="74962088_0" startPos="42.23" endPos="57.23" friendlyPos="true" lines="43"/>
-    <busStop id="8926967788" name="Blk 286B" lane="349416402_0" startPos="125.87" endPos="140.87" friendlyPos="true" lines="43"/>
+    <busStop id="7314770844" name="Punggol Station/Interchange" lane="74962088_1" startPos="102.23" endPos="112.23" friendlyPos="true" lines="43"/>
+    <busStop id="8926967788" name="Blk 286B" lane="349416402_1" startPos="125.87" endPos="135.87" friendlyPos="true" lines="43"/>
     <busStop id="8926967789" name="Opposite Blk 293D" lane="74957634_0" startPos="30.13" endPos="45.13" friendlyPos="true" lines="43"/>
 </additional>

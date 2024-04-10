@@ -142,7 +142,7 @@ class sumoMultiLine(gym.Env):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            self.df.to_csv('singapore/results/ddpg100000.csv')
+            self.df.to_csv('singapore/results/sidewalks/ppo.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
