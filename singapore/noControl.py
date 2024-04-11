@@ -15,7 +15,7 @@ while not done:
     # TEST IF ACTION IS APPLIED #
     #############################
 print('DONE')
-print('total22: {}'.format(env.total22))
+print('total22: {}'.format(env.total22)) 
 print('total43: {}'.format(env.total43))
 env.close()
 print(step)

@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-log = pd.read_csv('singapore/results/sidewalks/noControl.csv')
+log = pd.read_csv('singapore/results/sidewalks/ppo200000.csv')
 
 time = log['time'].tolist()
 meanWaitTime = log['meanWaitTime'].tolist()
@@ -14,7 +14,7 @@ ax1.set_xlabel('Time of day')
 ax1.set_ylabel('Mean Waiting Time')
 ax1.plot([(t/3600) + 6.5 for t in time][350:4850], meanWaitTime[350:4850], linewidth=1.5)
 ax1.grid()
-# plt.savefig('singapore/results/sidewalks/noControl.jpg')
+plt.savefig('singapore/results/sidewalks/ppo200000.jpg')
 plt.show()
 
 print('Average: {}'.format(sum(meanWaitTime[350:4850])/len(meanWaitTime[350:4850])))

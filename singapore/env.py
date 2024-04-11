@@ -142,7 +142,7 @@ class sumoMultiLine(gym.Env):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            self.df.to_csv('singapore/results/sidewalks/ppo.csv')
+            # self.df.to_csv('singapore/results/sidewalks/tempRewardFunctionPPO.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
@@ -204,7 +204,12 @@ class sumoMultiLine(gym.Env):
         r1 = self.getCVsquared(self.bus_states[bus]['route'])
         if self.bus_states[bus]['journeySection'] == 0:
             other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
-            r3 = np.exp(-abs(other_fh - other_bh))
+            # r3 = np.exp(-abs(other_fh - other_bh))
+            if other_bh < other_fh:
+                rTemp = other_bh / other_fh
+            else:
+                rTemp = other_fh / other_bh
+            r3 = -np.exp(-rTemp)
             # print('fh_other: {}'.format(other_fh))
             # print('bh_other: {}'.format(other_bh))
             reward = - w[0] * r1 - w[1] * action + w[2] * r3
