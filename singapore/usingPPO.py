@@ -3,7 +3,7 @@ from env import sumoMultiLine
 
 e = sumoMultiLine(gui=True)
 
-model = PPO.load('singapore/models/ppo200000sidewalks')
+model = PPO.load('singapore/models/sidewalks/ppo500000fypReward')
 
 obs = e.reset()
 while True:

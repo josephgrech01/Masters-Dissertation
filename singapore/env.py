@@ -1,4 +1,3 @@
-from pettingzoo import AECEnv
 import gymnasium as gym
 import os
 import sys
@@ -142,7 +141,7 @@ class sumoMultiLine(gym.Env):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            # self.df.to_csv('singapore/results/sidewalks/tempRewardFunctionPPO.csv')
+            # self.df.to_csv('singapore/results/sidewalks/ppoFYPreward.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
@@ -201,17 +200,41 @@ class sumoMultiLine(gym.Env):
     def calculateReward(self, bus, action):
         if math.isnan(action):
             action = 0
+
+        bh, fh = self.getHeadways(bus, sameRoute=True)
+        # print('bh: {}, fh: {}'.format(bh, fh))
+
+        reward = -abs(fh - bh)
+
+        if self.bus_states[bus]['journeySection'] == 0:
+
+            other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
+            # print('other_bh: {}, other_fh: {}'.format(other_bh, other_fh))
+
+            reward += -abs(other_fh - other_bh)
+
+        return reward
+
+
+
+
+    def calculateRewardInitial(self, bus, action):
+        if math.isnan(action):
+            action = 0
         r1 = self.getCVsquared(self.bus_states[bus]['route'])
         if self.bus_states[bus]['journeySection'] == 0:
             other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
-            # r3 = np.exp(-abs(other_fh - other_bh))
-            if other_bh < other_fh:
-                rTemp = other_bh / other_fh
-            else:
-                rTemp = other_fh / other_bh
-            r3 = -np.exp(-rTemp)
+            r3 = np.exp(-abs(other_fh - other_bh))
+            ##########################################
+            # if other_bh < other_fh:
+            #     rTemp = other_bh / other_fh
+            # else:
+            #     rTemp = other_fh / other_bh
+            # r3 = -np.exp(-rTemp)
             # print('fh_other: {}'.format(other_fh))
             # print('bh_other: {}'.format(other_bh))
+            ###########################################
+            # r3 = -(1-np.exp(-abs(other_fh - other_bh)))
             reward = - w[0] * r1 - w[1] * action + w[2] * r3
             print('r3: {}'.format(r3))
         else:
