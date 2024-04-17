@@ -7,9 +7,9 @@ print(device)
 e = sumoMultiLine(gui=False)
 
 # model = PPO('MlpPolicy', e, verbose=1, tensorboard_log='singapore/tensorboard/sidewalks/ppo1000000fypReward', device=device)
-model = PPO.load('singapore/models/sidewalks/ppo500000fypReward', tensorboard_log='singapore/tensorboard/sidewalks/ppo500000fypReward/', device=device)
+model = PPO.load('singapore/models/sidewalks/ppo1500000fypReward', tensorboard_log='singapore/tensorboard/sidewalks/ppo500000fypReward/', device=device)
 model.set_env(e)
-model.learn(total_timesteps=500000, log_interval=1, reset_num_timesteps=False)
-model.save('singapore/models/sidewalks/ppo1500000fypReward')
+model.learn(total_timesteps=300000, log_interval=1, reset_num_timesteps=False)
+model.save('singapore/models/sidewalks/ppo1800000fypReward')
 
 e.close()
