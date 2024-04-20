@@ -37,7 +37,9 @@ class sumoMultiLine(gym.Env):
 
     metadata = {}
 
-    def __init__(self, gui=False):
+    def __init__(self, gui=False, save=None):
+
+        self.save = str(save)
         # super().__init__()
         # self.agents = []
         self.bus_states =  {} # dictionary to store the state of each bus
@@ -141,7 +143,9 @@ class sumoMultiLine(gym.Env):
 
             print("ROUTE 43 AVERAGE: {}".format(avg43))
 
-            # self.df.to_csv('singapore/results/sidewalks/ppoFYPreward.csv')
+            # self.df.to_csv('singapore/results/sidewalks/test/fypReward/fyp' + self.iteration +  '.csv')
+            if self.save != None:
+                self.df.to_csv(self.save)
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
@@ -310,8 +314,6 @@ class sumoMultiLine(gym.Env):
         time = max(math.ceil(board / 3), math.ceil(alight / 1.8))
 
         # TO AVOID NANs
-        # if action < 0.01:
-            # action = 0.01
         if math.isnan(action):
             print('action: {}'.format(action))
             action = 0
@@ -338,27 +340,28 @@ class sumoMultiLine(gym.Env):
                 # add the passengers for the coming hour
                 self.addPassengers()#self.df22, self.df43, self.hour)
             
-            # keep track of vehicles active in the simulation
+            # keep track of vehicles (buses) active in the simulation
             newV = traci.simulation.getDepartedIDList()
             newVehicles = []
             for v in newV:
-                traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
-                newVehicles.append([v, None, -1]) # [bus id, current stop, journey section] , journey section -> -1: before shared corridor, 0: in shared corridor, 1: after shared corridor
-                self.bus_states[v] = {'journeySection': -1, 'route': v.split(':')[0][-2:]}
-                
-                if self.bus_states[v]['route'] == '22':
-                    self.travelTimes22[v] = time
-                else:
-                    self.travelTimes43[v] = time
-                
-                # self.addAgent(v)
-                # print("New Vehicle, Agent Added: {}".format(v))
-                if traci.vehicle.getLine(v) == '22':
-                    self.total22 += 1
-                    # print('total22: {}'.format(self.total22))
-                else:
-                    self.total43 += 1
-                    # print('total43: {}'.format(self.total43))
+                if v[:3] == 'bus':
+                    traci.vehicle.subscribe(v, [traci.constants.VAR_NEXT_STOPS])
+                    newVehicles.append([v, None, -1]) # [bus id, current stop, journey section] , journey section -> -1: before shared corridor, 0: in shared corridor, 1: after shared corridor
+                    self.bus_states[v] = {'journeySection': -1, 'route': v.split(':')[0][-2:]}
+                    
+                    if self.bus_states[v]['route'] == '22':
+                        self.travelTimes22[v] = time
+                    else:
+                        self.travelTimes43[v] = time
+                    
+                    # self.addAgent(v)
+                    # print("New Vehicle, Agent Added: {}".format(v))
+                    if traci.vehicle.getLine(v) == '22':
+                        self.total22 += 1
+                        # print('total22: {}'.format(self.total22))
+                    else:
+                        self.total43 += 1
+                        # print('total43: {}'.format(self.total43))
             self.currentVehicles.extend(newVehicles)
             # print('Current Vehicles: {}'.format(self.currentVehicles))
             #########################################################################
@@ -492,8 +495,8 @@ class sumoMultiLine(gym.Env):
     def getDepartures(self, rate):
         ##########################
         # TEST ###################
-        # if rate < 3:
-        #     rate *= 10
+        if rate < 3:
+            rate *= 8
         ##########################
         lambdaValue = rate / 3600 # per second
 
