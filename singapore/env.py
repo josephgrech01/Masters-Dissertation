@@ -28,16 +28,18 @@ route43 = ['1847853709', '7314770844', '3865151058', '1849631331', '3737148763',
            '4623289717', '410467553', '410467566', '410467564', '1268343846', '410467574', '410467562', '410467567', '410467571',
            '410461658', '410481810', '410481815', '410481781', '410481783', '410482047', '410482019', '1847713996']
 shared = ['410475114', ['410480716', '410470959']]
+sharedStops = ['410475114', '1531005322', '410483103', '410482520', '410482572', '410482568', '410482491', '410482562', '410482564',
+               '410482570', '410482551', '410471081', '410471030']
 firstStopsEdges = ['543768663', '631887962#0']
 finalStopsEdges = ['245934570#2', '528461109']
 
 w = [0.4, 0.5, 0.1]
-
+ 
 class sumoMultiLine(gym.Env):
 
     metadata = {}
 
-    def __init__(self, gui=False, save=None):
+    def __init__(self, gui=False, traffic=False, save=None):
 
         self.save = str(save)
         # super().__init__()
@@ -51,6 +53,8 @@ class sumoMultiLine(gym.Env):
         self.travelTimes43 = {}
 
         self.df = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.meanShared = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.meanUnshared = pd.DataFrame(columns=['time', 'meanWaitTime'])
         self.rates = pd.DataFrame(columns=['rate'])
 
         self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
@@ -60,7 +64,11 @@ class sumoMultiLine(gym.Env):
         else:
             self.sumoBinary = checkBinary('sumo')
 
-        self.sumoCmd = [self.sumoBinary, '-c', 'singapore/singapore.sumo.cfg', '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true']#, '--lanechange.overtake-right', 'true']
+        cfg = 'singapore/sumo/singapore.sumo.cfg'
+        if traffic:
+            cfg = 'singapore/sumo/singaporeTraffic.sumo.cfg'
+
+        self.sumoCmd = [self.sumoBinary, '-c', cfg, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true']#, '--lanechange.overtake-right', 'true']
 
         traci.start(self.sumoCmd)
 
@@ -145,7 +153,9 @@ class sumoMultiLine(gym.Env):
 
             # self.df.to_csv('singapore/results/sidewalks/test/fypReward/fyp' + self.iteration +  '.csv')
             if self.save != None:
-                self.df.to_csv(self.save)
+                self.df.to_csv(self.save+'meanAll.csv')
+                self.meanShared.to_csv(self.save+'meanShared.csv')
+                self.meanUnshared.to_csv(self.save+'meanUnshared.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
@@ -206,14 +216,14 @@ class sumoMultiLine(gym.Env):
             action = 0
 
         bh, fh = self.getHeadways(bus, sameRoute=True)
-        # print('bh: {}, fh: {}'.format(bh, fh))
+        print('bh: {}, fh: {}'.format(bh, fh))
 
         reward = -abs(fh - bh)
 
         if self.bus_states[bus]['journeySection'] == 0:
 
             other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
-            # print('other_bh: {}, other_fh: {}'.format(other_bh, other_fh))
+            print('other_bh: {}, other_fh: {}'.format(other_bh, other_fh))
 
             reward += -abs(other_fh - other_bh)
 
@@ -277,6 +287,10 @@ class sumoMultiLine(gym.Env):
         # self.envStep = 0
         self.currentVehicles = []
         self.hour = 6
+
+        self.df = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.meanShared = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.meanUnshared = pd.DataFrame(columns=['time', 'meanWaitTime'])
         
         self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
@@ -495,8 +509,8 @@ class sumoMultiLine(gym.Env):
     def getDepartures(self, rate):
         ##########################
         # TEST ###################
-        if rate < 3:
-            rate *= 8
+        # if rate < 3:
+        #     rate *= 8
         ##########################
         lambdaValue = rate / 3600 # per second
 
@@ -759,10 +773,16 @@ class sumoMultiLine(gym.Env):
     def logValues(self):
         time = traci.simulation.getTime()
 
-        maxWaitTimes = self.getMaxWaitTimeOnStops()
+        maxWaitTimes, maxSharedWaitTimes, maxUnsharedWaitTimes = self.getMaxWaitTimeOnStops()
         if maxWaitTimes is not None:
             mean = sum(maxWaitTimes)/len(maxWaitTimes)
             self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
+        if maxSharedWaitTimes is not None:
+            meanShared = sum(maxSharedWaitTimes)/len(maxSharedWaitTimes)
+            self.meanShared = pd.concat([self.meanShared, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':meanShared}])])
+        if maxWaitTimes is not None:
+            meanUnshared = sum(maxUnsharedWaitTimes)/len(maxUnsharedWaitTimes)
+            self.meanUnshared = pd.concat([self.meanUnshared, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':meanUnshared}])])
         # else:
         #     mean = 0
 
@@ -771,6 +791,8 @@ class sumoMultiLine(gym.Env):
 
     def getMaxWaitTimeOnStops(self):
         maxWaitTimes = []
+        maxSharedWaitTimes = []
+        maxUnsharedWaitTimes = []
         routes = [route22, route43]
         for index, route in enumerate(routes):
             for stop in route:
@@ -781,9 +803,24 @@ class sumoMultiLine(gym.Env):
                     waitTimes = [traci.person.getWaitingTime(person) for person in personsOnStop]
                     if len(waitTimes) > 0:
                         maxWaitTimes.append(max(waitTimes))
+                        #####################################
+                        if stop in sharedStops:
+                            maxSharedWaitTimes.append(max(waitTimes))
+                        else:
+                            maxUnsharedWaitTimes.append(max(waitTimes))
+                        ####################################
                     # else:
                     #     maxWaitTimes.append(0)
 
+        if len(maxWaitTimes) == 0:
+            maxWaitTimes = None
+        if len(maxSharedWaitTimes) == 0:
+            maxSharedWaitTimes = None
+        if len(maxUnsharedWaitTimes) == 0:
+            maxUnsharedWaitTimes = None
+        
+        return maxWaitTimes, maxSharedWaitTimes, maxUnsharedWaitTimes
+        ###################################
         if len(maxWaitTimes) != 0:
             return maxWaitTimes
         else:
