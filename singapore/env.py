@@ -8,6 +8,7 @@ import pandas as pd
 import math
 import numpy as np
 from gym.spaces import Box, Dict
+import statistics
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -52,9 +53,9 @@ class sumoMultiLine(gym.Env):
         self.travelTimes22 = {}
         self.travelTimes43 = {}
 
-        self.df = pd.DataFrame(columns=['time', 'meanWaitTime'])
-        self.meanShared = pd.DataFrame(columns=['time', 'meanWaitTime'])
-        self.meanUnshared = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
+        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
+        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
         self.rates = pd.DataFrame(columns=['rate'])
 
         self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
@@ -115,7 +116,7 @@ class sumoMultiLine(gym.Env):
         # observations = {bus: self.observe(bus) for bus in self.actionBuses}
         if len(self.actionBuses) > 0:
             observation = self.observe(self.actionBuses[0])
-            reward = self.calculateReward(self.actionBuses[0], action)
+            reward = self.calculateWeightedReward(self.actionBuses[0], action)
         else: # when last bus exits in the final step
             observation = []
             reward = 0
@@ -153,9 +154,9 @@ class sumoMultiLine(gym.Env):
 
             # self.df.to_csv('singapore/results/sidewalks/test/fypReward/fyp' + self.iteration +  '.csv')
             if self.save != None:
-                self.df.to_csv(self.save+'meanAll.csv')
-                self.meanShared.to_csv(self.save+'meanShared.csv')
-                self.meanUnshared.to_csv(self.save+'meanUnshared.csv')
+                self.df.to_csv(self.save+'all.csv')
+                self.shared.to_csv(self.save+'shared.csv')
+                self.unshared.to_csv(self.save+'unshared.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
@@ -216,18 +217,44 @@ class sumoMultiLine(gym.Env):
             action = 0
 
         bh, fh = self.getHeadways(bus, sameRoute=True)
-        print('bh: {}, fh: {}'.format(bh, fh))
+        # print('bh: {}, fh: {}'.format(bh, fh))
 
         reward = -abs(fh - bh)
 
         if self.bus_states[bus]['journeySection'] == 0:
 
             other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
-            print('other_bh: {}, other_fh: {}'.format(other_bh, other_fh))
+            # print('other_bh: {}, other_fh: {}'.format(other_bh, other_fh))
 
             reward += -abs(other_fh - other_bh)
 
         return reward
+
+    def calculateWeightedReward(self, bus, action):
+        if math.isnan(action):
+            action = 0
+
+        bh, fh = self.getHeadways(bus, sameRoute=True)
+        # print('bh: {}, fh: {}'.format(bh, fh))
+
+        r1 = -abs(fh - bh)
+
+        if self.bus_states[bus]['journeySection'] == 0:
+
+            other_bh, other_fh = self.getHeadways(bus, sameRoute=False)
+            # print('other_bh: {}, other_fh: {}'.format(other_bh, other_fh))
+
+            r2 = -abs(other_fh - other_bh)
+
+            stop = self.bus_states[bus]['stop']
+            w2 = (len(sharedStops) - (sharedStops.index(stop) + 1)) / len(sharedStops)
+            w1 = 1 - w2
+
+            reward = w1*r1 + w2*r2
+
+            return reward
+
+        return r1
 
 
 
@@ -288,9 +315,9 @@ class sumoMultiLine(gym.Env):
         self.currentVehicles = []
         self.hour = 6
 
-        self.df = pd.DataFrame(columns=['time', 'meanWaitTime'])
-        self.meanShared = pd.DataFrame(columns=['time', 'meanWaitTime'])
-        self.meanUnshared = pd.DataFrame(columns=['time', 'meanWaitTime'])
+        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
+        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
+        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
         
         self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
@@ -447,7 +474,7 @@ class sumoMultiLine(gym.Env):
             #########################################################################
 
             # if len(self.agents) < 1:
-            if len(self.currentVehicles) < 1:
+            if len(self.currentVehicles) < 1 or traci.simulation.getTime() == 28000:
                 return True
         #########################################################################
         ###################### RETURN TRUE IF NO MORE BUSES ####################
@@ -770,19 +797,32 @@ class sumoMultiLine(gym.Env):
         else:
             return 20
 
+    def sd(self, l):
+        average = sum(l)/len(l)
+        deviations = [((x - average)**2) for x in l]
+        variance = sum(deviations)/len(l)
+        sd = math.sqrt(variance)
+        return sd
+
+    
     def logValues(self):
         time = traci.simulation.getTime()
 
         maxWaitTimes, maxSharedWaitTimes, maxUnsharedWaitTimes = self.getMaxWaitTimeOnStops()
+        
+        
         if maxWaitTimes is not None:
             mean = sum(maxWaitTimes)/len(maxWaitTimes)
-            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
+            median = statistics.median(maxWaitTimes)
+            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes)}])])
         if maxSharedWaitTimes is not None:
             meanShared = sum(maxSharedWaitTimes)/len(maxSharedWaitTimes)
-            self.meanShared = pd.concat([self.meanShared, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':meanShared}])])
-        if maxWaitTimes is not None:
+            medianShared = statistics.median(maxSharedWaitTimes)
+            self.shared = pd.concat([self.shared, pd.DataFrame.from_records([{'time':time, 'mean':meanShared, 'median':medianShared, 'sd':self.sd(maxSharedWaitTimes)}])])
+        if maxUnsharedWaitTimes is not None:
             meanUnshared = sum(maxUnsharedWaitTimes)/len(maxUnsharedWaitTimes)
-            self.meanUnshared = pd.concat([self.meanUnshared, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':meanUnshared}])])
+            medianUnshared = statistics.median(maxUnsharedWaitTimes)
+            self.unshared = pd.concat([self.unshared, pd.DataFrame.from_records([{'time':time, 'mean':meanUnshared, 'median':medianUnshared, 'sd':self.sd(maxUnsharedWaitTimes)}])])
         # else:
         #     mean = 0
 
