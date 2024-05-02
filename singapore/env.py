@@ -474,7 +474,7 @@ class sumoMultiLine(gym.Env):
             #########################################################################
 
             # if len(self.agents) < 1:
-            if len(self.currentVehicles) < 1 or traci.simulation.getTime() == 28000:
+            if len(self.currentVehicles) < 1:# or traci.simulation.getTime() == 28000:
                 return True
         #########################################################################
         ###################### RETURN TRUE IF NO MORE BUSES ####################
