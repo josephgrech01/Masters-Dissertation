@@ -154,9 +154,9 @@ class sumoMultiLine(gym.Env):
 
             # self.df.to_csv('singapore/results/sidewalks/test/fypReward/fyp' + self.iteration +  '.csv')
             if self.save != None:
-                self.df.to_csv(self.save+'all.csv')
-                self.shared.to_csv(self.save+'shared.csv')
-                self.unshared.to_csv(self.save+'unshared.csv')
+                self.df.to_csv(self.save+'All.csv')
+                self.shared.to_csv(self.save+'Shared.csv')
+                self.unshared.to_csv(self.save+'Unshared.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
