@@ -3248,19 +3248,19 @@
     </edge>
 
     <tlLogic id="3106351930" type="static" programID="0" offset="0">
-        <phase duration="60" state="GGGGG"/>
-        <phase duration="4"  state="yyyyy"/>
-        <phase duration="180"  state="rrrrr"/>
+        <phase duration="120" state="GGGGG"/>
+        <phase duration="8"  state="yyyyy"/>
+        <phase duration="360"  state="rrrrr"/>
     </tlLogic>
     <tlLogic id="4722406691" type="static" programID="0" offset="0">
-        <phase duration="60" state="GGG"/>
-        <phase duration="4"  state="yyy"/>
-        <phase duration="270"  state="rrr"/>
+        <phase duration="120" state="GGG"/>
+        <phase duration="8"  state="yyy"/>
+        <phase duration="540"  state="rrr"/>
     </tlLogic>
     <tlLogic id="4728029764" type="static" programID="0" offset="0">
-        <phase duration="60" state="GGGGG"/>
-        <phase duration="4"  state="yyyyy"/>
-        <phase duration="180"  state="rrrrr"/>
+        <phase duration="120" state="GGGGG"/>
+        <phase duration="8"  state="yyyyy"/>
+        <phase duration="360"  state="rrrrr"/>
     </tlLogic>
 
     <junction id="10264901493" type="priority" x="3216.73" y="8082.99" incLanes="1122289596_0 1122289596_1 1122289596_2 1122289596_3" intLanes="" shape="3210.81,8087.66 3223.53,8086.24 3221.93,8078.25 3210.44,8079.85 3210.68,8082.73 3210.66,8083.75 3210.64,8084.77 3210.67,8086.00">

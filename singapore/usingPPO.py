@@ -1,9 +1,9 @@
 from stable_baselines3 import PPO
 from env import sumoMultiLine
 
-for i in range(0, 4):
+for i in range(0, 1):
     print('ITERATION: {}'.format(i))
-    e = sumoMultiLine(gui=False, traffic=False, save='singapore/results/sidewalks/tls/ppo/run'+str(i+1)+'/')
+    e = sumoMultiLine(gui=False, traffic=False, save='singapore/results/sidewalks/tls/normalFreq/ppo/run'+str(i)+'/')
 
     model = PPO.load('singapore/models/sidewalks/ppo1800000fypReward')
 

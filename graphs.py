@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 l = []
-save = 'singapore/results/sidewalks/tls/ppo/'
+save = 'singapore/results/sidewalks/tls/normalFreq/ppo/graphs/mean/'
 metric = 'Mean'
-for i in range(0,1):
-    log = pd.read_csv('singapore/results/sidewalks/tls/ppoShared.csv')
+for i in range(0,5):
+    log = pd.read_csv('singapore/results/sidewalks/tls/normalFreq/ppo/run'+str(i)+'/Shared.csv')
     # log = pd.read_csv('singapore/results/sidewalks/averages/ppo/run'+str(i)+'/all.csv')
     # log = pd.read_csv('singapore/results/sidewalks/test/traffic/nc.csv')
 
@@ -14,7 +14,7 @@ for i in range(0,1):
     median = log['mean'].tolist()
 
     a = 600
-    b = 4250
+    b = 4000
 
     fig, ax1 = plt.subplots(1, 1)
     ax1.set_xbound(6,23)
@@ -24,9 +24,9 @@ for i in range(0,1):
     ax1.plot([(t/3600) + 6.5 for t in time][a:b], median[a:b], linewidth=0.8)
     ax1.grid()
     # plt.savefig(save+'run'+str(i)+'all.jpg')
-    plt.savefig(save+'sharedMean.jpg')
+    plt.savefig(save+'run'+str(i)+'sharedMean.jpg')
     # plt.show()
-    plt.clf()
+    # plt.clf()
 
     average = sum(median[a:b])/len(median[a:b])
     l.append(average)

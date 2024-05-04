@@ -1,0 +1,21 @@
+                TRAFFIC LIGHT SIGNALS
+
+NO CONTROL
+
+            Mean    Median      Stnadard Deviation
+All         364.4   325.3       251.3
+
+Shared      377.7   348.1       214.9
+
+Unshared    359.6   324.9       241.9
+
+-------------------------------------------------------
+
+PPO
+
+            Mean    Median      Standard Deviation
+All         333.6   303.7       220.7
+
+Shared      351.2   327.6       198.8
+
+Unshared    329.2   302.6       212.9

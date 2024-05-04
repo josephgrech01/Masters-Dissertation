@@ -69,7 +69,7 @@ class sumoMultiLine(gym.Env):
         if traffic:
             cfg = 'singapore/sumo/singaporeTraffic.sumo.cfg'
 
-        self.sumoCmd = [self.sumoBinary, '-c', cfg, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true']#, '--lanechange.overtake-right', 'true']
+        self.sumoCmd = [self.sumoBinary, '-c', cfg, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550']#, '--lanechange.overtake-right', 'true']
 
         traci.start(self.sumoCmd)
 
