@@ -9,6 +9,7 @@ import math
 import numpy as np
 from gym.spaces import Box, Dict
 import statistics
+import pickle
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -43,7 +44,6 @@ class sumoMultiLine(gym.Env):
     def __init__(self, gui=False, traffic=False, save=None):
 
         self.save = str(save)
-        # super().__init__()
         # self.agents = []
         self.bus_states =  {} # dictionary to store the state of each bus
         self.actionBuses = []
@@ -52,6 +52,8 @@ class sumoMultiLine(gym.Env):
 
         self.travelTimes22 = {}
         self.travelTimes43 = {}
+
+        self.bunchingGraphData = {}
 
         self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
         self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
@@ -159,6 +161,9 @@ class sumoMultiLine(gym.Env):
                 self.unshared.to_csv(self.save+'Unshared.csv')
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
+
+            with open('singapore/results/sidewalks/tls/bunchingGraph.pkl', 'wb') as f:
+                pickle.dump(self.bunchingGraphData, f)
 
             
             
@@ -323,6 +328,8 @@ class sumoMultiLine(gym.Env):
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
+        self.bunchingGraphData = {}
+
         # return {agent: self.observe(agent) for agent in self.actionBuses}
         
         self.episodes += 1
@@ -344,9 +351,12 @@ class sumoMultiLine(gym.Env):
 
     # executes the given action to the bus
     def executeAction(self, bus, action):
-        # print("action: {}".format(action))
-        # if action == 1:
-        #     print("HOLDING 90 sec: {}".format(bus))
+        #########################################################################
+        #########################################################################
+        ####### IF OTHER ACTIONS ARE ADDED, #####################################
+        ####### MUST UPDATE BUNCHING GRAPH DATA ACCORDINGLY #####################
+        #########################################################################
+        #########################################################################
         # get number of alighting and boarding passengers at this stop
         # print('BUS STATES: {}'.format(self.bus_states))
         alight = self.bus_states[bus]['alight_board'][0]
@@ -366,6 +376,13 @@ class sumoMultiLine(gym.Env):
         stopData = traci.vehicle.getStops(bus, 1)
         # set the stopping duration by adding the calculated holding time to the already required time 
         traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
+
+        simTime = traci.simulation.getTime()
+        if bus[4:6] == '22':
+            stopIndex = route22.index(stopData[0].stoppingPlaceID)
+        else:
+            stopIndex = route43.index(stopData[0].stoppingPlaceID)
+        self.bunchingGraphData[bus][-1] = (simTime + time + holdingTime, stopIndex)
 
     def sumoStep(self):
         while len(self.actionBuses) == 0:
@@ -390,6 +407,8 @@ class sumoMultiLine(gym.Env):
                     newVehicles.append([v, None, -1]) # [bus id, current stop, journey section] , journey section -> -1: before shared corridor, 0: in shared corridor, 1: after shared corridor
                     self.bus_states[v] = {'journeySection': -1, 'route': v.split(':')[0][-2:]}
                     
+                    self.bunchingGraphData[v] = []
+
                     if self.bus_states[v]['route'] == '22':
                         self.travelTimes22[v] = time
                     else:
@@ -447,10 +466,23 @@ class sumoMultiLine(gym.Env):
                                     if persons is None:
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
                                     # else add bus to actionBuses only if the stop is not the final one in the route (since it should always stop at the final stop)
-                                    elif stopId not in finalStopsEdges:
-                                        # an action should be taken for this bus
-                                        self.actionBuses.append(v[0])
-                                        self.bus_states[v[0]]['alight_board'] = persons # keep track of number of people that want to alight and board                                    
+                                    else:
+                                    # elif stopId not in finalStopsEdges:
+                                        if stopId not in finalStopsEdges:
+                                            # an action should be taken for this bus
+                                            self.actionBuses.append(v[0])
+                                            self.bus_states[v[0]]['alight_board'] = persons # keep track of number of people that want to alight and board                                    
+                                        alight = persons[0]
+                                        board = persons[1]
+
+                                        if v[0][4:6] == '22':
+                                            stopIndex = route22.index(stopId)
+                                        else: 
+                                            stopIndex = route43.index(stopId)
+                                        self.bunchingGraphData[v[0]].append((time, stopIndex))
+
+                                        seconds = max(math.ceil(board / 3), math.ceil(alight / 1.8))
+                                        self.bunchingGraphData[v[0]].append((time + seconds, stopIndex))
 
             ############################################################################################################
             ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
