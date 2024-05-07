@@ -162,7 +162,7 @@ class sumoMultiLine(gym.Env):
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
-            with open('singapore/results/sidewalks/tls/bunchingGraph.pkl', 'wb') as f:
+            with open('singapore/results/sidewalks/tls/normalFreq/ppo/bunchingGraph2.pkl', 'wb') as f:
                 pickle.dump(self.bunchingGraphData, f)
 
             
@@ -382,7 +382,9 @@ class sumoMultiLine(gym.Env):
             stopIndex = route22.index(stopData[0].stoppingPlaceID)
         else:
             stopIndex = route43.index(stopData[0].stoppingPlaceID)
+        print('BEFORE: {}'.format(self.bunchingGraphData[bus]))
         self.bunchingGraphData[bus][-1] = (simTime + time + holdingTime, stopIndex)
+        print('AFTER: {}'.format(self.bunchingGraphData[bus]))
 
     def sumoStep(self):
         while len(self.actionBuses) == 0:
@@ -465,6 +467,13 @@ class sumoMultiLine(gym.Env):
                                     persons = self.shouldStop(v[0], stopId)
                                     if persons is None:
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
+                                        #############################################################
+                                        if v[0][4:6] == '22':
+                                            stopIndex = route22.index(stopId)
+                                        else: 
+                                            stopIndex = route43.index(stopId)
+                                        self.bunchingGraphData[v[0]].append((time, stopIndex))
+                                        #############################################################
                                     # else add bus to actionBuses only if the stop is not the final one in the route (since it should always stop at the final stop)
                                     else:
                                     # elif stopId not in finalStopsEdges:
