@@ -162,7 +162,7 @@ class sumoMultiLine(gym.Env):
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
-            with open('singapore/results/sidewalks/tls/normalFreq/ppo/bunchingGraph2.pkl', 'wb') as f:
+            with open('singapore/results/sidewalks/tls/normalFreq/ppoWeightedReward/bunchingGraph.pkl', 'wb') as f:
                 pickle.dump(self.bunchingGraphData, f)
 
             
@@ -382,9 +382,9 @@ class sumoMultiLine(gym.Env):
             stopIndex = route22.index(stopData[0].stoppingPlaceID)
         else:
             stopIndex = route43.index(stopData[0].stoppingPlaceID)
-        print('BEFORE: {}'.format(self.bunchingGraphData[bus]))
+        # print('BEFORE: {}'.format(self.bunchingGraphData[bus]))
         self.bunchingGraphData[bus][-1] = (simTime + time + holdingTime, stopIndex)
-        print('AFTER: {}'.format(self.bunchingGraphData[bus]))
+        # print('AFTER: {}'.format(self.bunchingGraphData[bus]))
 
     def sumoStep(self):
         while len(self.actionBuses) == 0:

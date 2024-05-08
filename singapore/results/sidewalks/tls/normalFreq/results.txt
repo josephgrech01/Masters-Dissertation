@@ -19,3 +19,14 @@ All         333.6   303.7       220.7
 Shared      351.2   327.6       198.8
 
 Unshared    329.2   302.6       212.9
+
+-------------------------------------------------------
+
+PPO WITH WEIGHTED REWARD
+
+            Mean    Median      Standard Deviation
+All         333.2   304.2       219.7
+
+Shared      355.1   332.7       193.2
+
+Unshared    329.0   303.8       211.7
