@@ -162,7 +162,7 @@ class sumoMultiLine(gym.Env):
 
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
-            with open('singapore/results/sidewalks/tls/normalFreq/ppoWeightedReward/bunchingGraph.pkl', 'wb') as f:
+            with open('singapore/results/sidewalks/tls/normalFreqTraffic/nc/bunchingGraph.pkl', 'wb') as f:
                 pickle.dump(self.bunchingGraphData, f)
 
             

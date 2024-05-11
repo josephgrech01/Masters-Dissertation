@@ -1,10 +1,10 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('singapore/results/sidewalks/tls/normalFreq/ppo/bunchingGraph2.pkl', 'rb') as f:
+with open('singapore/results/sidewalks/tls/normalFreqTraffic/nc/bunchingGraph.pkl', 'rb') as f:
     data = pickle.load(f)
 
-graph = '22'
+graph = 'shared'
 
 if graph == 'shared':
     fig, ax = plt.subplots()
@@ -32,7 +32,7 @@ if graph == 'shared':
             labelled[label] = True
         else:
             plt.plot(x_values, y_values, color=c, linewidth=1)
-    ax.set_xlim(8,12)
+    ax.set_xlim(8,20)
     ax.set_ylim(1,13)
     plt.legend(loc=1)
     plt.title('Shared Corridor Trajectories - No Control')
@@ -88,7 +88,7 @@ else:
         plt.title('Route 43 Trajectories - PPO with Weighted Reward')
     plt.xlabel('Time of Day')
     plt.ylabel('Stop along Route')
-    plt.savefig('singapore/results/sidewalks/tls/normalFreq/ppoWeightedRewardRoute22Bunching.jpg')
+    # plt.savefig('singapore/results/sidewalks/tls/normalFreq/ppoWeightedRewardRoute22Bunching.jpg')
     plt.show()
 
 
