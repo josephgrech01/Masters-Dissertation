@@ -55,13 +55,15 @@ class sumoMultiLine(gym.Env):
 
         self.bunchingGraphData = {}
 
-        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
-        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
-        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
+        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         self.rates = pd.DataFrame(columns=['rate'])
+        self.minmax = pd.DataFrame(columns=['min','max'])
 
         self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
-
+        self.maxTime = [0,0,0]
+        self.minTime = [1000000,1000000,1000000]
         if gui:
             self.sumoBinary = checkBinary('sumo-gui')
         else:
@@ -160,6 +162,8 @@ class sumoMultiLine(gym.Env):
                 self.shared.to_csv(self.save+'Shared.csv')
                 self.unshared.to_csv(self.save+'Unshared.csv')
 
+                # self.minmax = pd.concat([self.minmax, pd.DataFrame.from_records([{'min':self.minTime, 'max':self.maxTime}])])
+                self.minmax.to_csv(self.save+'minmax.csv')
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
             with open('singapore/results/sidewalks/tls/normalFreqTraffic/nc/bunchingGraph.pkl', 'wb') as f:
@@ -320,15 +324,19 @@ class sumoMultiLine(gym.Env):
         self.currentVehicles = []
         self.hour = 6
 
-        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
-        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
-        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd'])
+        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        self.minmax = pd.DataFrame(columns=['min','max'])
         
         self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
         self.bunchingGraphData = {}
+
+        self.maxTime = [0,0,0]
+        self.minTime = [1000000,1000000,1000000]
 
         # return {agent: self.observe(agent) for agent in self.actionBuses}
         
@@ -850,25 +858,77 @@ class sumoMultiLine(gym.Env):
         time = traci.simulation.getTime()
 
         maxWaitTimes, maxSharedWaitTimes, maxUnsharedWaitTimes = self.getMaxWaitTimeOnStops()
-        
+        minAll, minShared, minUnshared = self.getMinWaitTimes()
         
         if maxWaitTimes is not None:
             mean = sum(maxWaitTimes)/len(maxWaitTimes)
             median = statistics.median(maxWaitTimes)
-            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes)}])])
+            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes), 'min':min(minAll), 'max':max(maxWaitTimes)}])])
+            # if max(maxWaitTimes) > self.maxTime[0]:
+            #     self.maxTime[0] = max(maxWaitTimes)
         if maxSharedWaitTimes is not None:
             meanShared = sum(maxSharedWaitTimes)/len(maxSharedWaitTimes)
             medianShared = statistics.median(maxSharedWaitTimes)
-            self.shared = pd.concat([self.shared, pd.DataFrame.from_records([{'time':time, 'mean':meanShared, 'median':medianShared, 'sd':self.sd(maxSharedWaitTimes)}])])
+            self.shared = pd.concat([self.shared, pd.DataFrame.from_records([{'time':time, 'mean':meanShared, 'median':medianShared, 'sd':self.sd(maxSharedWaitTimes), 'min':min(minShared), 'max':max(maxSharedWaitTimes)}])])
+            if max(maxSharedWaitTimes) > self.maxTime[1]:
+                self.maxTime[1] = max(maxSharedWaitTimes)
         if maxUnsharedWaitTimes is not None:
             meanUnshared = sum(maxUnsharedWaitTimes)/len(maxUnsharedWaitTimes)
             medianUnshared = statistics.median(maxUnsharedWaitTimes)
-            self.unshared = pd.concat([self.unshared, pd.DataFrame.from_records([{'time':time, 'mean':meanUnshared, 'median':medianUnshared, 'sd':self.sd(maxUnsharedWaitTimes)}])])
+            self.unshared = pd.concat([self.unshared, pd.DataFrame.from_records([{'time':time, 'mean':meanUnshared, 'median':medianUnshared, 'sd':self.sd(maxUnsharedWaitTimes), 'min':min(minUnshared), 'max':max(maxUnsharedWaitTimes)}])])
+            if max(maxUnsharedWaitTimes) > self.maxTime[2]:
+                self.maxTime[2] = max(maxUnsharedWaitTimes)
         # else:
         #     mean = 0
 
         # self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
+
+        minAll, minShared, minUnshared = self.getMinWaitTimes()
+        if minAll is not None:
+            if min(minAll) < self.minTime[0]:
+                self.minTime[0] = min(minAll)
+
+        if minShared is not None:
+            if min(minShared) < self.minTime[1]:
+                self.minTime[1] = min(minShared)
+
+        if minUnshared is not None:
+            if min(minUnshared) < self.minTime[2]:
+                self.minTime[2] = min(minUnshared)
         
+    def getMinWaitTimes(self):
+        pass
+        minAll = []
+        minShared = []
+        minUnshared = []
+        routes = [route22, route43]
+        for index, route in enumerate(routes):
+            for stop in route:
+                if index == 1 and stop in route22:
+                    pass
+                else:
+                    personsOnStop = traci.busstop.getPersonIDs(stop)
+                    waitTimes = [traci.person.getWaitingTime(person) for person in personsOnStop]
+                    if len(waitTimes) > 0:
+                        minAll.append(min(waitTimes))
+                        #####################################
+                        if stop in sharedStops:
+                            minShared.append(min(waitTimes))
+                        else:
+                            minUnshared.append(min(waitTimes))
+                        ####################################
+                    # else:
+                    #     maxWaitTimes.append(0)
+
+        if len(minAll) == 0:
+            minAll = None
+        if len(minShared) == 0:
+            minShared = None
+        if len(minUnshared) == 0:
+            minUnshared = None
+        
+        return minAll, minShared, minUnshared
+
 
     def getMaxWaitTimeOnStops(self):
         maxWaitTimes = []
