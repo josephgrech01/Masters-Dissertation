@@ -1,0 +1,33 @@
+                WITH STOP SKIPPING, NO TRAFFIC LIGHTS
+
+NO CONTROL
+
+            Mean    Median      Stnadard Deviation  Min     Max
+All         331.8   308.0       211.6               1       963
+
+Shared      321.2   308.3       167.9               1       963
+
+Unshared    334.0   310.5       212.0               1       957
+
+-------------------------------------------------------
+
+PPO
+
+            Mean    Median      Stnadard Deviation  Min     Max
+All         1167.0  514.4       2231.5              1       33759
+
+Shared      529.1   439.8       370.8               1       3654
+
+Unshared    1296.1  551.6       2411.2              1       33759
+
+-------------------------------------------------------
+
+PPO WITH WEIGHTED REWARD
+
+            Mean    Median      Standard Deviation  Min     Max
+All         1004.7  525.0       1361.6              1       11508
+
+Shared      532.8   441.3       373.7               1       11508
+
+Unshared    1098.7  563.4       1452.2              1       11508
+

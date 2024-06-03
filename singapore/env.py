@@ -85,7 +85,7 @@ class sumoMultiLine(gym.Env):
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
-        self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
+        self.action_space = Box(low=-1, high=1, shape=(1,), dtype=np.float32)
 
         # self.observation_space = Dict(
         #     {
@@ -96,8 +96,8 @@ class sumoMultiLine(gym.Env):
         #     }
         # )
 
-        self.low = np.array([0,0] + [0,0] + [0,0] + [0,0], dtype='float32')
-        self.high = np.array([1,1] + [float('inf'),float('inf')] + [float('inf'),float('inf')] + [float('inf'),float('inf')], dtype='float32')
+        self.low = np.array([0,0] + [0,0] + [0,0] + [0,0] + [0], dtype='float32')
+        self.high = np.array([1,1] + [float('inf'),float('inf')] + [float('inf'),float('inf')] + [float('inf'),float('inf')] + [float('inf')], dtype='float32')
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
 
@@ -120,7 +120,8 @@ class sumoMultiLine(gym.Env):
         # observations = {bus: self.observe(bus) for bus in self.actionBuses}
         if len(self.actionBuses) > 0:
             observation = self.observe(self.actionBuses[0])
-            reward = self.calculateWeightedReward(self.actionBuses[0], action)
+            # reward = self.calculateWeightedReward(self.actionBuses[0], action)
+            reward = self.calculateReward(self.actionBuses[0], action)
         else: # when last bus exits in the final step
             observation = []
             reward = 0
@@ -166,7 +167,7 @@ class sumoMultiLine(gym.Env):
                 self.minmax.to_csv(self.save+'minmax.csv')
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
-            with open('singapore/results/sidewalks/tls/normalFreqTraffic/nc/bunchingGraph.pkl', 'wb') as f:
+            with open('singapore/results/skipping/nc/bunchingGraphNC.pkl', 'wb') as f:
                 pickle.dump(self.bunchingGraphData, f)
 
             
@@ -218,6 +219,10 @@ class sumoMultiLine(gym.Env):
         else: # bus is not in shared corridor
             state += [0, 0]
             # state['diffRouteHeadways'] = [0, 0]
+
+        alight = self.bus_states[bus]['alight_board'][0]
+
+        state += [alight]
 
         return state
 
@@ -376,23 +381,35 @@ class sumoMultiLine(gym.Env):
         if math.isnan(action):
             print('action: {}'.format(action))
             action = 0
-        # print('action: {}'.format(action))
-        # print('action*90: {}'.format(action*90))
-        # caluclate holding time according to the action given
-        holdingTime = math.ceil(action * 90)
+        if action >= 0:
+            # print('action: {}'.format(action))
+            # print('action*90: {}'.format(action*90))
+            # caluclate holding time according to the action given
+            holdingTime = math.ceil(action * 90)
 
-        stopData = traci.vehicle.getStops(bus, 1)
-        # set the stopping duration by adding the calculated holding time to the already required time 
-        traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
+            stopData = traci.vehicle.getStops(bus, 1)
+            # set the stopping duration by adding the calculated holding time to the already required time 
+            traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
 
-        simTime = traci.simulation.getTime()
-        if bus[4:6] == '22':
-            stopIndex = route22.index(stopData[0].stoppingPlaceID)
-        else:
-            stopIndex = route43.index(stopData[0].stoppingPlaceID)
-        # print('BEFORE: {}'.format(self.bunchingGraphData[bus]))
-        self.bunchingGraphData[bus][-1] = (simTime + time + holdingTime, stopIndex)
-        # print('AFTER: {}'.format(self.bunchingGraphData[bus]))
+            simTime = traci.simulation.getTime()
+            if bus[4:6] == '22':
+                stopIndex = route22.index(stopData[0].stoppingPlaceID)
+            else:
+                stopIndex = route43.index(stopData[0].stoppingPlaceID)
+            # print('BEFORE: {}'.format(self.bunchingGraphData[bus]))
+            self.bunchingGraphData[bus][-1] = (simTime + time + holdingTime, stopIndex)
+            # print('AFTER: {}'.format(self.bunchingGraphData[bus]))
+        elif action < -0.3:
+            if alight == 0:
+                stopData = traci.vehicle.getStops(bus, 1)
+                if stopData[0].stoppingPlaceID not in ['410460005', '1847853709']: # first stops of route
+                    traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=0)
+                    simTime = traci.simulation.getTime()
+                    if bus[4:6] == '22':
+                        stopIndex = route22.index(stopData[0].stoppingPlaceID)
+                    else:
+                        stopIndex = route43.index(stopData[0].stoppingPlaceID)
+                    self.bunchingGraphData[bus][-1] = (simTime, stopIndex)
 
     def sumoStep(self):
         while len(self.actionBuses) == 0:

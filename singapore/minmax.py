@@ -1,6 +1,6 @@
 import pandas as pd
 
-log = pd.read_csv('singapore/results/sidewalks/tls/normalFreq/ppoWeightedReward/run5/Unshared.csv')
+log = pd.read_csv('singapore/results/skipping/ppo/run4/Unshared.csv')
 
 mins = log['min'].tolist()
 maxs = log['max'].tolist()

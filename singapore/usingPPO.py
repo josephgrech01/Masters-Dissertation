@@ -1,18 +1,19 @@
 from stable_baselines3 import PPO
 from env import sumoMultiLine
 
-for i in range(0, 1):
+for i in range(0, 5):
     print('ITERATION: {}'.format(i))
-    e = sumoMultiLine(gui=False, traffic=False, save='singapore/results/sidewalks/tls/normalFreq/ppoWeightedReward/run'+str(i+5)+'/')
+    e = sumoMultiLine(gui=False, traffic=False, save='singapore/results/skipping/ppo/run'+str(i)+'/')
 
     # model = PPO.load('singapore/models/sidewalks/ppo1800000fypReward')
 
-    model = PPO.load('singapore/models/sidewalks/weightedReward/normalFreq/ppo1750000WeightedRewardTLS')
+    # model = PPO.load('singapore/models/sidewalks/weightedReward/normalFreq/ppo1750000WeightedRewardTLS')
+
+    model = PPO.load('singapore/models/skipping/nonWeighted/ppo1500000')
 
     obs = e.reset()
     while True:
         action, states = model.predict(obs)
-        # print('action: {}'.format(action))
         # print('Action: {}'.format(action))
         obs, reward, done, info = e.step(action)
         if done:

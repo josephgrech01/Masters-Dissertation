@@ -5,8 +5,8 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="bus22" vClass="bus" maxSpeed="4.1" color="yellow" lcKeepRight="0"/>
-    <vType id="bus43" vClass="bus" maxSpeed="4.1" color="white" lcKeepRight="0"/>
+    <vType id="bus22" vClass="bus" maxSpeed="4.1" color="yellow" lcKeepRight="0"/><!-- personCapacity="25"/>-->
+    <vType id="bus43" vClass="bus" maxSpeed="4.1" color="white" lcKeepRight="0"/><!-- personCapacity="25"/>-->
     <!-- <vType id="tram" vClass="tram"/>
     <vType id="train" vClass="rail"/>
     <vType id="subway" vClass="rail_urban"/>
@@ -123,21 +123,25 @@
     <flow id="bus_22:0" type="bus22" route="bus_22:0" begin="0.0" end="7201" period="600" line="22" > <!-- 600 300 -->
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
+        <!-- <param key="completeness" value="1"/> -->
     </flow>
     <!-- 8.31 to 16.59 - every 13 mins -->
     <flow id="bus_22:1" type="bus22" route="bus_22:0" begin="7980" end="38401" period="780" line="22" > <!-- 780 390 -->
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
+        <!-- <param key="completeness" value="1"/> -->
     </flow>
     <!-- 17.00 to 19.00 - every 11 mins -->
     <flow id="bus_22:2" type="bus22" route="bus_22:0" begin="39000" end="45001" period="660" line="22" > <!-- 660 330 -->
         <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
+        <!-- <param key="completeness" value="1"/> -->
     </flow>
     <!-- 19.00 to 21.00 - every 16 mins, demand data provided passengers until only 21.00, instead of 22.00   -->
     <flow id="bus_22:3" type="bus22" route="bus_22:0" begin="45960" end="52681" period="980" line="22" > <!-- last bus index 7 (added extra bus since people were still at stop) -->
          <param key="name" value="Svc 22 (Ang Mo Kio Interchange → Eunos Interchange)"/>
         <param key="completeness" value="0.97"/>
+        <!-- <param key="completeness" value="1"/> -->
     </flow>
 
     <!-- bus route 43 -->

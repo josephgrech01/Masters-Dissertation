@@ -1,7 +1,7 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('singapore/results/sidewalks/tls/normalFreqTraffic/nc/bunchingGraph.pkl', 'rb') as f:
+with open('singapore/results/skipping/nc/bunchingGraphNC.pkl', 'rb') as f:
     data = pickle.load(f)
 
 graph = 'shared'
@@ -38,7 +38,7 @@ if graph == 'shared':
     plt.title('Shared Corridor Trajectories - No Control')
     plt.xlabel('Time of Day')
     plt.ylabel('Stop along Shared Corridor')
-    # plt.savefig('singapore/results/sidewalks/tls/normalFreq/shortNcSharedBunching.jpg')
+    plt.savefig('singapore/results/skipping/nc/graphs/BunchingShared.jpg')
     plt.show()
 
 else:
