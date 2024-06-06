@@ -58,7 +58,7 @@ class SumoEnv(gym.Env):
 
         self.gymStep = 0
        
-        self.stoppedBuses = [None for _ in range(numBuses)]
+        self.stoppedBuses = [[None for _ in range(6)], [None for _ in range(6)]]
         
         self.bunchingGraphData = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
 
@@ -69,7 +69,8 @@ class SumoEnv(gym.Env):
         traci.start(self.sumoCmd)
 
         self.busStops = list(traci.simulation.getBusStopIDList()) # get the list of bus stops from the simulation
-        self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus"] # get the list of buses from the simulation
+        self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == '.'] # get the list of buses from the simulation
+        self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
 
         self.busCapacity = 85
 
@@ -79,7 +80,8 @@ class SumoEnv(gym.Env):
         self.stopTime = 0
 
         # stores the number of people on each bus which will stop at each stop
-        self.peopleOnBuses = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12] 
+        self.peopleOnBuses = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12]
+        self.peopleOnBusesB = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12] 
 
         self.action_space = Discrete(3)
 
@@ -127,13 +129,21 @@ class SumoEnv(gym.Env):
 
             # boarding
             personsOnStop = traci.busstop.getPersonIDs(self.decisionBus[1])
-            # All persons on the stop can board the bus
-            for person in personsOnStop:
-                # set the decision bus as the bus which the person boarded 
-                self.personsWithStop[person][1] = self.decisionBus[0] 
+            # All persons of that line on the stop can board the bus
+            for person in personsOnStop: 
                 # increment the number of passengers of the decision bus 
-                self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1 
-
+                line = self.personsWithStop[person][2]
+                if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                    #####CHECK IF CAN BOARD DEPENDING ON LINE
+                    if line == 'line1':
+                        self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1 
+                        # set the decision bus as the bus which the person boarded 
+                        self.personsWithStop[person][1] = self.decisionBus[0]
+                elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                    if line == 'line2':
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                        # set the decision bus as the bus which the person boarded 
+                        self.personsWithStop[person][1] = self.decisionBus[0]
             #alighting
             personsOnBus = traci.vehicle.getPersonIDList(self.decisionBus[0])
             # Not everyone on the bus may be alighting at this stop
@@ -141,8 +151,10 @@ class SumoEnv(gym.Env):
                 # check if passenger will alight at this stop
                 if self.personsWithStop[person][0] == self.decisionBus[1]:
                     # decrement the number of passengers of the decision bus
-                    self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
-
+                    if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                        self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                    elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
         # skip the stop
         elif action == 1: 
             stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
@@ -160,13 +172,20 @@ class SumoEnv(gym.Env):
 
             #boarding
             personsOnStop = traci.busstop.getPersonIDs(self.decisionBus[1])
-            # All persons on the stop can board the bus
+            # All persons of that line on the stop can board the bus
             for person in personsOnStop: 
-                # set the decision bus as the bus which the person boards
-                self.personsWithStop[person][1] = self.decisionBus[0]
                 # increment the number of passengers of the decision bus
-                self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
-
+                line = self.personsWithStop[person][2]
+                if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                    if line == 'line1':
+                        self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                        # set the decision bus as the bus which the person boards
+                        self.personsWithStop[person][1] = self.decisionBus[0]
+                elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                    if line == 'line2':
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                        # set the decision bus as the bus which the person boards
+                        self.personsWithStop[person][1] = self.decisionBus[0]
             #alighting
             personsOnBus = traci.vehicle.getPersonIDList(self.decisionBus[0])
             # Not everyone on the bus may be alighting at this stop
@@ -174,7 +193,10 @@ class SumoEnv(gym.Env):
                 # check if the passenger will alight at this stop
                 if self.personsWithStop[person][0] == self.decisionBus[1]:
                     # decrement the number of passengers of the decision bus
-                    self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                    if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                        self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                    elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
 
 
         ########################################
@@ -291,10 +313,11 @@ class SumoEnv(gym.Env):
             self.sumoCmd.append("--no-warnings")
         traci.start(self.sumoCmd)
         self.gymStep = 0
-        self.stoppedBuses = [None for _ in range(numBuses)] 
+        self.stoppedBuses = [[None for _ in range(6)], [None for _ in range(6)]] 
         self.decisionBus = ["bus.0", "stop1", 0]
         self.personsWithStop = dict()
         self.peopleOnBuses = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12]
+        self.peopleOnBusesB = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12]
 
         self.stopTime = 0
 
@@ -308,10 +331,11 @@ class SumoEnv(gym.Env):
             self.lowestTrafficSpeed = self.traffic
 
         # sumo step until all buses are in the simulation
-        while len(traci.vehicle.getIDList()) < numBuses:
+        while len(traci.vehicle.getIDList()) < numBuses: ##### SHOULD CHECK WHETHER THE VEHICLES ARE BUSES AND NOT CARS???
             self.sumoStep()
 
-        self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus"]
+        self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == '.']
+        self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
 
         state = self.computeState()
         return state
@@ -325,6 +349,8 @@ class SumoEnv(gym.Env):
 
         simTime = traci.simulation.getTime()
 
+        mapping = {'.': 0, 'B': 1}
+
         for vehicle in traci.vehicle.getIDList():
             if vehicle[0:3] == "bus":
                 for stop in self.busStops:
@@ -334,58 +360,67 @@ class SumoEnv(gym.Env):
                         if (traci.vehicle.getLanePosition(vehicle) >= (traci.busstop.getStartPos(stop) - 5)) and (traci.vehicle.getLanePosition(vehicle) <= (traci.busstop.getEndPos(stop) + 1)):
                             # the bus shouls be marked as a newly stopped bus only if it was not already marked as so in 
                             # the previous few time steps
-                            if self.stoppedBuses[int(vehicle[-1])] == None:
+                            if self.stoppedBuses[mapping[vehicle[3]]][int(vehicle[-1])] == None:
                                 # get stop id and update stopped bused list
-                                self.stoppedBuses[int(vehicle[-1])] = stop
+                                self.stoppedBuses[mapping[vehicle[3]]][int(vehicle[-1])] = stop
                                 # add the bus to the list of newly stopped buses
                                 reached.append([vehicle, stop])
 
                                 # update bunching graph data
-                                busNum = int(vehicle[-1])
+                                ##########################
+                                # need to update
+                                ##########################
+                                # busNum = int(vehicle[-1])
 
-                                if len(stop) == 5:
-                                    s = int(stop[-1])
-                                else:
-                                    s = int(stop[-2:])
-                                self.bunchingGraphData[busNum][-1].append((simTime, s))
+                                # if len(stop) == 5:
+                                #     s = int(stop[-1])
+                                # else:
+                                #     s = int(stop[-2:])
+                                # self.bunchingGraphData[busNum][-1].append((simTime, s))
 
                         else:
                             # update buses which have left a bus stop such that they are no longer marked as stopped
-                            if self.stoppedBuses[int(vehicle[-1])] != None:
-                                self.stoppedBuses[int(vehicle[-1])] = None
+                            if self.stoppedBuses[mapping[vehicle[3]]][int(vehicle[-1])] != None:
+                                self.stoppedBuses[mapping[vehicle[3]]][int(vehicle[-1])] = None
                                 
                                 # update bunching graoh data
-                                busNum = int(vehicle[-1])
+                                ##########################
+                                # need to update
+                                ##########################
+                                # busNum = int(vehicle[-1])
                     
-                                if len(stop) == 5:
-                                    s = int(stop[-1])
-                                else:
-                                    s = int(stop[-2:])   
+                                # if len(stop) == 5:
+                                #     s = int(stop[-1])
+                                # else:
+                                #     s = int(stop[-2:])   
 
-                                self.bunchingGraphData[busNum][-1].append((simTime, s))
+                                # self.bunchingGraphData[busNum][-1].append((simTime, s))
 
-                                if s == 12:
-                                    self.bunchingGraphData[busNum].append([])
+                                # if s == 12:
+                                #     self.bunchingGraphData[busNum].append([])
     
         
         # calculate headway standard deviation
-        if reached:
-            headways = []
-            for bus in traci.vehicle.getIDList():
-                if bus[0:3] == "bus":
-                    follower, leader = self.getFollowerLeader(bus=[bus])
 
-                    forwardHeadway = self.getForwardHeadway(leader, bus)
+        # MUST CHECK LATER ON
 
-                    backwardHeadway = self.getForwardHeadway(bus, follower)
-                    headways.append(abs(forwardHeadway - backwardHeadway))
+        # if reached:
+        #     headways = []
+        #     for bus in traci.vehicle.getIDList():
+        #         if bus[0:3] == "bus":
+        #             follower, leader = self.getFollowerLeader(bus=[bus])
 
-            average = sum(headways)/len(headways)
-            deviations = [((headway - average)**2) for headway in headways]
-            variance = sum(deviations) / len(headways)
-            sd = math.sqrt(variance)
+        #             forwardHeadway = self.getForwardHeadway(leader, bus)
 
-            self.sdVal = sd
+        #             backwardHeadway = self.getForwardHeadway(bus, follower)
+        #             headways.append(abs(forwardHeadway - backwardHeadway))
+
+        #     average = sum(headways)/len(headways)
+        #     deviations = [((headway - average)**2) for headway in headways]
+        #     variance = sum(deviations) / len(headways)
+        #     sd = math.sqrt(variance)
+
+        #     self.sdVal = sd
         
         return reached
 
@@ -429,7 +464,7 @@ class SumoEnv(gym.Env):
     # times at each bus stop, and the number of passengers on the previous, currentm and following buses
     def computeState(self):
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
-        bus = self.oneHotEncode(self.buses, self.decisionBus[0])
+        # bus = self.oneHotEncode(self.buses, self.decisionBus[0]) would need to update 
 
         headways = self.getHeadways()
         
@@ -452,11 +487,13 @@ class SumoEnv(gym.Env):
         return [1 if i == item else 0 for i in list]
 
     # function which returns the forward headway of a given bus (follower)
+    
+    #### MUST CHECK AND ADAPT
     def getForwardHeadway(self, leader, follower):
         # number of edges in the ring network simulation
         numEdges = 12
-        leaderRoad = int(traci.vehicle.getRoadID(leader))
-        followerRoad = int(traci.vehicle.getRoadID(follower))
+        leaderRoad = int(''.join([char for char in traci.vehicle.getRoadID(leader) if char.isdigit()]))
+        followerRoad = int(''.join([char for char in traci.vehicle.getRoadID(follower) if char.isdigit()]))
 
         # both buses are on the same edge and the leader is in front of the follower.
         # just return the distance between the position of both buses
@@ -479,12 +516,19 @@ class SumoEnv(gym.Env):
             repeats = (numEdges - (abs(leaderRoad - followerRoad))) - 1
         
         # add the length of each edge in between the edges on which the two buses currently are
+        line = traci.vehicle.getLine(follower)
         for i in range(repeats):
-            lane = int(traci.vehicle.getRoadID(follower)) + i + 1
+            lane = followerRoad + i + 1
             if lane >= numEdges:
                 lane = lane % numEdges
 
-            h += traci.lane.getLength(str(lane)+"_0")
+
+            if line == 'line1':
+                l = str(lane)
+            elif line == 'line2':
+                l = 'E'+str(lane)
+
+            h += traci.lane.getLength(l+"_0")
 
         # finally, add the portion of the leader's lane already driven  
         h+= traci.vehicle.getLanePosition(leader)
@@ -494,29 +538,47 @@ class SumoEnv(gym.Env):
     # function which returns the id of the leader and follower buses of the decision bus
     def getFollowerLeader(self, bus=[]):
         if bus:
-            b = bus[0][-1]
+            b = ''.join([char for char in bus[0] if char.isdigit()])
+            line = traci.vehicle.getLine(bus[0])
         else:
-            b = self.decisionBus[0][-1]
+            b = ''.join([char for char in self.decisionBus[0] if char.isdigit()]) 
+            line = traci.vehicle.getLine(self.decisionBus[0])
         
         # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
-        if int(b) + 1 == len(self.buses):
-            follower = "bus.0"
-        # otherwise just increment the bus number
-        else:
-            follower = "bus." + str(int(b) + 1)
+        if line == 'line1':
+            if int(b) + 1 == len(self.buses):
+                follower = "bus.0"
+            # otherwise just increment the bus number
+            else:
+                follower = "bus." + str(int(b) + 1)
+        
+            # if the decision bus is the first bus, then the leader is the last bus, hence set to the number of buses minus 1
+            if int(b) == 0:
+                leader = "bus." + str(len(self.buses) - 1)
+            # otherwise just decrement the bus number
+            else:
+                leader = "bus." + str(int(b) - 1)
 
-        # if the decision bus is the first bus, then the leader is the last bus, hence set to the number of buses minus 1
-        if int(b) == 0:
-            leader = "bus." + str(len(self.buses) - 1)
-        # otherwise just decrement the bus number
-        else:
-            leader = "bus." + str(int(b) - 1)
+        elif line == 'line2':
+            if int(b) + 1 == len(self.busesB):
+                follower = "busB.0"
+            # otherwise just increment the bus number
+            else:
+                follower = "busB." + str(int(b) + 1)
+        
+            # if the decision bus is the first bus, then the leader is the last bus, hence set to the number of buses minus 1
+            if int(b) == 0:
+                leader = "busB." + str(len(self.buses) - 1)
+            # otherwise just decrement the bus number
+            else:
+                leader = "busB." + str(int(b) - 1)
 
         return follower, leader
 
     # function which returns the forward and backward headways of the decision bus
     def getHeadways(self):
-        if len(self.buses) > 1:
+        line = traci.vehicle.getLine(self.decisionBus[0])
+        if (line == 'line1' and len(self.buses) > 1) or (line == 'line2' and len(self.busesB) > 1):
             # get the follower and leader of the decision bus
             follower, leader = self.getFollowerLeader()
             
@@ -578,26 +640,61 @@ class SumoEnv(gym.Env):
         persons = traci.person.getIDList()
         # get list of persons curently without destination
         personsWithoutStop = [person for person in persons if person not in self.personsWithStop]
-        for person in personsWithoutStop:            
-            # assign a random bus stop from the following six bus stops as the destination (as is done in the paper by Wang and Sun 2020)
-            num = random.randint(1,6)
-            edge = traci.person.getRoadID(person)
-            newEdge = (int(edge) + num) % 12
-            newStop = newEdge + 1
-            stop = "stop"+str(newStop)
-            traci.person.appendDrivingStage(person, str(newEdge), "line1", stopID=stop) 
-            traci.person.appendWalkingStage(person, [str(newEdge)], 250) 
-            # add the person to the persons with an assigned stop
-            self.personsWithStop[person] = [stop, None]
+        for person in personsWithoutStop:
+            if person[0] == 'p':
+                line = 'line1'
+                # assign a random bus stop from the following six bus stops as the destination (as is done in the paper by Wang and Sun 2020)
+                num = random.randint(1,6)
+                edge = traci.person.getRoadID(person)
+                newEdge = (int(edge) + num) % 12
+                newStop = newEdge + 1
+                stop = "stop"+str(newStop)
+                traci.person.appendDrivingStage(person, str(newEdge), "line1", stopID=stop) 
+                traci.person.appendWalkingStage(person, [str(newEdge)], 250) 
+                # add the person to the persons with an assigned stop
+                self.personsWithStop[person] = [stop, None, line]
+            elif person[0] == 'B':
+                line = 'line2'
+                num = random.randint(1,6)
+                edgeTemp = traci.person.getRoadID(person)
+
+                if not edgeTemp[0].isdigit():
+                    edge = edgeTemp[1:]
+                else:
+                    edge = edgeTemp
+
+                newEdge = (int(edge) + num) % 12
+                newStop = newEdge + 1
+                stop = "stop"+str(newStop)
+                if newStop not in [10, 11, 12]:
+                    stop += 'B'
+                    e = 'E'+str(newEdge)
+                else:
+                    e = str(newEdge)
+                traci.person.appendDrivingStage(person, e, "line2", stopID=stop) 
+                traci.person.appendWalkingStage(person, [e], 250) 
+                # add the person to the persons with an assigned stop
+                self.personsWithStop[person] = [stop, None, line]            
+            
             
     # function which determines the dwell time of a bus at a stop based on the number of passengers boarding and alighting, using the boarding and alighting rates
     def getStopTime(self, bus, stop):
 
         # the number of people on the bus stop waiting to board the bus
-        boarding = traci.busstop.getPersonCount(stop)
+        # boarding = traci.busstop.getPersonCount(stop)
+
+        line = traci.vehicle.getLine(bus)
+        boarding = 0
+        personsOnStop = traci.busstop.getPersonIDs(self.decisionBus[1])
+        for person in personsOnStop:
+            if self.personsWithStop[person][2] == line:
+                boarding += 1
         
         # the number of passengers on this bus that will alight at this stop
-        alighting = self.peopleOnBuses[int(bus[-1])][int(stop[-1])-1]
+        if line == 'line1':
+            alighting = self.peopleOnBuses[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
+        elif line == 'line2':
+            alighting = self.peopleOnBusesB[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
 
         # calculate dwell time according to the boarding and alighting rates in the paper by Wang and Sun 2020
         time = max(math.ceil(boarding/3), math.ceil(abs(alighting)/1.8)) #abs is there just in case is falls below zero if a person should've left a bus but the simulation did not give them time
@@ -606,14 +703,20 @@ class SumoEnv(gym.Env):
 
     # For any passengers which board the bus during holding time and thus were not know beforehand that they would board
     def updatePassengersOnBoard(self): 
-        for bus in self.buses:
-            for person in traci.vehicle.getPersonIDList(bus):
-                # check if passenger does not yet have a bus assigned to them
-                if self.personsWithStop[person][1] == None:
-                    # assign the bus to the passenger
-                    self.personsWithStop[person][1] = bus 
-                    # increment number of passengers of the particular bus
-                    self.peopleOnBuses[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+        # for bus in self.buses:
+        for bus in traci.vehicle.getIDList():
+            if bus[0:3] == "bus":
+                for person in traci.vehicle.getPersonIDList(bus):
+                    # check if passenger does not yet have a bus assigned to them
+                    if self.personsWithStop[person][1] == None:
+                        # assign the bus to the passenger
+                        self.personsWithStop[person][1] = bus 
+                        # increment number of passengers of the particular bus
+                        line = self.personsWithStop[person][2]
+                        if line == 'line1':
+                            self.peopleOnBuses[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                        elif line == 'line2':
+                            self.peopleOnBusesB[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
 
     # function which returns the speed factor (speed of bus/speed without traffic) of the leader bus, decision bus, and follower bus
     def getSpeedFactors(self):
@@ -637,6 +740,8 @@ class SumoEnv(gym.Env):
     def occupancyDispersion(self):
         passengers = []
         for bus in self.buses:
+            passengers.append(traci.vehicle.getPersonNumber(bus))
+        for bus in self.busesB:
             passengers.append(traci.vehicle.getPersonNumber(bus))
 
         average = sum(passengers)/len(passengers)

@@ -214,11 +214,11 @@
     <vehicle id="bus.4" type="BUS" depart="0" line="line1" route="route3"/>
     <vehicle id="bus.5" type="BUS" depart="0" line="line1" route="route2"/>
 
-    <vehicle id="bus.0B" type="BUS" depart="0" line="line2" route="route1B"/>   <!-- color="255,0,0" -->
-    <vehicle id="bus.1B" type="BUS" depart="0" line="line2" route="route6B"/>
-    <vehicle id="bus.2B" type="BUS" depart="0" line="line2" route="route5B"/>
-    <vehicle id="bus.3B" type="BUS" depart="0" line="line2" route="route4B"/>
-    <vehicle id="bus.4B" type="BUS" depart="0" line="line2" route="route3B"/>
-    <vehicle id="bus.5B" type="BUS" depart="0" line="line2" route="route2B"/>
+    <vehicle id="busB.0" type="BUS" depart="0" line="line2" route="route1B"/>   <!-- color="255,0,0" -->
+    <vehicle id="busB.1" type="BUS" depart="0" line="line2" route="route6B"/>
+    <vehicle id="busB.2" type="BUS" depart="0" line="line2" route="route5B"/>
+    <vehicle id="busB.3" type="BUS" depart="0" line="line2" route="route4B"/>
+    <vehicle id="busB.4" type="BUS" depart="0" line="line2" route="route3B"/>
+    <vehicle id="busB.5" type="BUS" depart="0" line="line2" route="route2B"/>
 
 </additional>
