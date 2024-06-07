@@ -18,7 +18,8 @@ else:
 from sumolib import checkBinary
 import traci
 
-numBuses = 6
+# numBuses = 6
+numBuses = 12
 
 class SumoEnv(gym.Env):
     # epLen: the number of RL steps before the episode terminates
@@ -216,6 +217,9 @@ class SumoEnv(gym.Env):
         # we set the first bus in reachedStopBuses as the decision bus
         # calculate the stopping time required
         self.stopTime = self.getStopTime(reachedStopBuses[0][0], reachedStopBuses[0][1])
+        # if reachedStopBuses[0][0][3] == 'B':
+        #     print('Stop {}, people on bus {}'.format(reachedStopBuses[0][1], self.peopleOnBusesB))
+        #     print('Stop time {}'.format(self.stopTime))
         self.decisionBus = [reachedStopBuses[0][0], reachedStopBuses[0][1], self.stopTime]
 
 
@@ -227,6 +231,11 @@ class SumoEnv(gym.Env):
         state = self.computeState()
 
         reward = self.computeReward()
+
+        # print(self.peopleOnBuses)
+        # print(self.decisionBus[0])
+        # print(self.decisionBus[1])
+        # print(self.stopTime)
 
         
         # check if episode has terminated
@@ -526,7 +535,10 @@ class SumoEnv(gym.Env):
             if line == 'line1':
                 l = str(lane)
             elif line == 'line2':
-                l = 'E'+str(lane)
+                if lane not in [9,10,11]:
+                    l = 'E'+str(lane)
+                else:
+                    l = str(lane)
 
             h += traci.lane.getLength(l+"_0")
 
@@ -560,18 +572,24 @@ class SumoEnv(gym.Env):
                 leader = "bus." + str(int(b) - 1)
 
         elif line == 'line2':
+            # print('in line 2')
             if int(b) + 1 == len(self.busesB):
                 follower = "busB.0"
             # otherwise just increment the bus number
             else:
                 follower = "busB." + str(int(b) + 1)
+
+            # print('follower {}'.format(follower))
         
             # if the decision bus is the first bus, then the leader is the last bus, hence set to the number of buses minus 1
             if int(b) == 0:
-                leader = "busB." + str(len(self.buses) - 1)
+                leader = "busB." + str(len(self.busesB) - 1)
+                # print('b==0')
             # otherwise just decrement the bus number
             else:
                 leader = "busB." + str(int(b) - 1)
+
+            # print('leader {}'.format(leader))
 
         return follower, leader
 
