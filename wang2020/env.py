@@ -184,7 +184,7 @@ class SumoEnv(gym.Env):
                         self.personsWithStop[person][1] = self.decisionBus[0]
                 elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
                     if line == 'line2':
-                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
                         # set the decision bus as the bus which the person boards
                         self.personsWithStop[person][1] = self.decisionBus[0]
             #alighting
@@ -197,7 +197,7 @@ class SumoEnv(gym.Env):
                     if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
                         self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
                     elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
-                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
 
 
         ########################################
@@ -734,7 +734,7 @@ class SumoEnv(gym.Env):
                         if line == 'line1':
                             self.peopleOnBuses[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
                         elif line == 'line2':
-                            self.peopleOnBusesB[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                            self.peopleOnBusesB[int(bus[-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
 
     # function which returns the speed factor (speed of bus/speed without traffic) of the leader bus, decision bus, and follower bus
     def getSpeedFactors(self):
