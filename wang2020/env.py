@@ -107,6 +107,8 @@ class SumoEnv(gym.Env):
         
         self.dfLog = pd.DataFrame(columns=['meanWaitTime', 'action', 'dispersion', 'headwaySD'])
 
+        self.inCommon = ['bus.1', 'busB.1']
+
     # step function required by the gym environment
     # each each step signifies an arrival of a bus at a bus stop 
     def step(self, action):
@@ -339,6 +341,8 @@ class SumoEnv(gym.Env):
         else:
             self.lowestTrafficSpeed = self.traffic
 
+        self.inCommon = ['bus.1', 'busB.1']
+
         # sumo step until all buses are in the simulation
         while len(traci.vehicle.getIDList()) < numBuses: ##### SHOULD CHECK WHETHER THE VEHICLES ARE BUSES AND NOT CARS???
             self.sumoStep()
@@ -374,6 +378,13 @@ class SumoEnv(gym.Env):
                                 self.stoppedBuses[mapping[vehicle[3]]][int(vehicle[-1])] = stop
                                 # add the bus to the list of newly stopped buses
                                 reached.append([vehicle, stop])
+
+                                # if stop == 'stop9' or stop == 'stop9B':
+                                #     self.inCommon.append(vehicle)
+                                # elif stop == 'stop1' or stop == 'stop1B':
+                                #     self.inCommon.remove(vehicle)
+
+                                
 
                                 # update bunching graph data
                                 ##########################
@@ -413,30 +424,49 @@ class SumoEnv(gym.Env):
 
         # MUST CHECK LATER ON
 
-        # if reached:
-        #     headways = []
-        #     for bus in traci.vehicle.getIDList():
-        #         if bus[0:3] == "bus":
-        #             follower, leader = self.getFollowerLeader(bus=[bus])
+        if reached:
+            headways = []
+            for bus in traci.vehicle.getIDList():
+                if bus[0:3] == "bus":
+                    # follower, leader = self.getFollowerLeader(bus=[bus])
 
-        #             forwardHeadway = self.getForwardHeadway(leader, bus)
+                    # forwardHeadway = self.getForwardHeadway(leader, bus)
 
-        #             backwardHeadway = self.getForwardHeadway(bus, follower)
-        #             headways.append(abs(forwardHeadway - backwardHeadway))
+                    # backwardHeadway = self.getForwardHeadway(bus, follower)
+                    # headways.append(abs(forwardHeadway - backwardHeadway))
 
-        #     average = sum(headways)/len(headways)
-        #     deviations = [((headway - average)**2) for headway in headways]
-        #     variance = sum(deviations) / len(headways)
-        #     sd = math.sqrt(variance)
+                    if bus not in self.inCommon:
+                        h = self.notInCommonHeadways()
+                    else:
+                        h = self.inCommonHeadways()
+                    
+                    headways.append(abs(h[0] - h[1]))
 
-        #     self.sdVal = sd
+            average = sum(headways)/len(headways)
+            deviations = [((headway - average)**2) for headway in headways]
+            variance = sum(deviations) / len(headways)
+            sd = math.sqrt(variance)
+
+            self.sdVal = sd
         
         return reached
+
+    def updateCommon(self):
+        for vehicle in traci.vehicle.getIDList():
+            if vehicle[0:3] == "bus":
+                lane = traci.vehicle.getLaneID(vehicle)
+                if lane == '9_1' and vehicle not in self.inCommon:
+                    self.inCommon.append(vehicle)
+                elif (lane == '0_1' or lane == 'E0_1') and vehicle in self.inCommon:
+                    self.inCommon.remove(vehicle)
+
 
 
     def sumoStep(self):
         traci.simulationStep() # run the simulation for 1 step
         self.updatePersonStop() # update the stops corresponding to each person 
+        self.updateCommon()
+        print('common: {}'.format(self.inCommon))
         # update the passengers on board only if all buses are currently in the simulation
         if len([bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus"]) == numBuses:
             self.updatePassengersOnBoard()
@@ -483,9 +513,10 @@ class SumoEnv(gym.Env):
 
         numPassengers = self.getNumPassengers()
 
-        speedFactors = self.getSpeedFactors()
         
         if self.traffic != 0:
+            # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
+            speedFactors = self.getSpeedFactors()
             state = stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
         else:
             state = stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
@@ -593,23 +624,52 @@ class SumoEnv(gym.Env):
 
         return follower, leader
 
+    def notInCommonHeadways(self):
+        # get the follower and leader of the decision bus
+        follower, leader = self.getFollowerLeader()
+        
+        # get the forward headway of the decision bus
+        forwardHeadway = self.getForwardHeadway(leader, self.decisionBus[0])
+
+        # get the backward headway of the decision bus.
+        # in this case, we are in reality finding the forward headway of the follower to the decision bus which
+        # is the same as the backward headway of the decision bus to its follower
+        backwardHeadway = self.getForwardHeadway(self.decisionBus[0], follower)
+
+        return [forwardHeadway, backwardHeadway]
+
+    def inCommonHeadways(self):
+        sameRouteFollower, sameRouteLeader = self.getFollowerLeader()
+        bus = self.decisionBus[0]
+        index = self.inCommon.index(bus)
+        if index == 0:
+            leader = sameRouteLeader
+        else:
+            leader = self.inCommon[index - 1]
+            
+        forwardHeadway = self.getForwardHeadway(leader, bus)
+
+        if index == len(self.inCommon) - 1:
+            follower = sameRouteFollower
+        else:
+            follower = self.inCommon[index + 1]
+
+        backwardHeadway = self.getForwardHeadway(bus, follower)
+
+        return [forwardHeadway, backwardHeadway]
+        
+
+
     # function which returns the forward and backward headways of the decision bus
     def getHeadways(self):
         line = traci.vehicle.getLine(self.decisionBus[0])
         if (line == 'line1' and len(self.buses) > 1) or (line == 'line2' and len(self.busesB) > 1):
-            # get the follower and leader of the decision bus
-            follower, leader = self.getFollowerLeader()
             
-            # get the forward headway of the decision bus
-            forwardHeadway = self.getForwardHeadway(leader, self.decisionBus[0])
-
-            # get the backward headway of the decision bus.
-            # in this case, we are in reality finding the forward headway of the follower to the decision bus which
-            # is the same as the backward headway of the decision bus to its follower
-            backwardHeadway = self.getForwardHeadway(self.decisionBus[0], follower)
-         
-            return [forwardHeadway, backwardHeadway]
-
+            if self.decisionBus[0] not in self.inCommon:
+                return self.notInCommonHeadways()
+            else:
+                return self.inCommonHeadways()
+            
         else:
             return [0, 0]
 
@@ -635,7 +695,23 @@ class SumoEnv(gym.Env):
 
     # function which returns the number of passengers on the leader bus, decision bus, and follower bus
     def getNumPassengers(self):
-        follower, leader = self.getFollowerLeader()
+        sameRouteFollower, sameRouteLeader = self.getFollowerLeader()
+
+        bus = self.decisionBus[0]
+        if bus in self.inCommon:
+            index = self.inCommon.index(bus)
+            if index == 0:
+                leader = sameRouteLeader
+            else:
+                leader = self.inCommon[index - 1]
+            if index == len(self.inCommon) - 1:
+                follower = sameRouteFollower
+            else:
+                follower = self.inCommon[index + 1]
+        else:
+            leader = sameRouteLeader
+            follower = sameRouteFollower
+
 
         numPassengers = [traci.vehicle.getPersonNumber(leader), traci.vehicle.getPersonNumber(self.decisionBus[0]), traci.vehicle.getPersonNumber(follower)]
         return numPassengers

@@ -1,6 +1,6 @@
 from env import SumoEnv
 
-env = SumoEnv(gui=True, noWarnings=True, epLen=500, traffic=0, bunched=False)
+env = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=0, bunched=False)
 
 episodes = 1
 for episode in range(1, episodes + 1):  
