@@ -84,6 +84,10 @@ class SumoEnv(gym.Env):
         self.peopleOnBuses = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12]
         self.peopleOnBusesB = [[0]*12, [0]*12, [0]*12, [0]*12, [0]*12, [0]*12] 
 
+
+        self.routes = ['.', 'B']
+
+
         self.action_space = Discrete(3)
 
        
@@ -93,11 +97,11 @@ class SumoEnv(gym.Env):
         # times at each bus stop, the numnber of passengers on the previous, current, and following buses, and the speed factors of the previous,
         # current and follwing buses
         if self.traffic != 0:
-            self.low = np.array([0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
-            self.high = np.array([1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
+            self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
+            self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
         else:
-            self.low = np.array([0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
-            self.high = np.array([1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
+            self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
+            self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
 
@@ -108,6 +112,26 @@ class SumoEnv(gym.Env):
         self.dfLog = pd.DataFrame(columns=['meanWaitTime', 'action', 'dispersion', 'headwaySD'])
 
         self.inCommon = ['bus.1', 'busB.1']
+
+
+    def canSkip(self):
+        bus = self.decisionBus[0]
+        stop = self.decisionBus[1]
+        personsOnBus = traci.vehicle.getPersonIDList(bus)
+        for person in personsOnBus:
+            if self.personsWithStop[person][0] == stop:
+                return False
+
+        return True
+
+
+
+    def valid_action_mask(self):
+        if self.canSkip():
+            return [1,1,1]
+        else:
+            return [1,0,1]
+        
 
     # step function required by the gym environment
     # each each step signifies an arrival of a bus at a bus stop 
@@ -144,7 +168,9 @@ class SumoEnv(gym.Env):
                         self.personsWithStop[person][1] = self.decisionBus[0]
                 elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
                     if line == 'line2':
-                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                        # print(self.decisionBus[0][-1])
+                        # print(self.personsWithStop[person])
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
                         # set the decision bus as the bus which the person boarded 
                         self.personsWithStop[person][1] = self.decisionBus[0]
             #alighting
@@ -157,7 +183,7 @@ class SumoEnv(gym.Env):
                     if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
                         self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
                     elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
-                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
         # skip the stop
         elif action == 1: 
             stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
@@ -436,9 +462,9 @@ class SumoEnv(gym.Env):
                     # headways.append(abs(forwardHeadway - backwardHeadway))
 
                     if bus not in self.inCommon:
-                        h = self.notInCommonHeadways()
+                        h = self.notInCommonHeadways(bus=[bus])
                     else:
-                        h = self.inCommonHeadways()
+                        h = self.inCommonHeadways(bus=[bus])
                     
                     headways.append(abs(h[0] - h[1]))
 
@@ -466,7 +492,7 @@ class SumoEnv(gym.Env):
         traci.simulationStep() # run the simulation for 1 step
         self.updatePersonStop() # update the stops corresponding to each person 
         self.updateCommon()
-        print('common: {}'.format(self.inCommon))
+        # print('common: {}'.format(self.inCommon))
         # update the passengers on board only if all buses are currently in the simulation
         if len([bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus"]) == numBuses:
             self.updatePassengersOnBoard()
@@ -500,8 +526,11 @@ class SumoEnv(gym.Env):
     # function which computes the state required by the gym environment
     # The state that is returned contains the stop which the bus has reached, the forward and backward headways, the number of persons waiting at each stop,
     # the stopping time required according to the number of people boarding and alighting at this stop, the current maximum passenger waiting
-    # times at each bus stop, and the number of passengers on the previous, currentm and following buses
+    # times at each bus stop, and the number of passengers on the previous, current and following buses
     def computeState(self):
+
+        route = self.oneHotEncode(self.routes, self.decisionBus[0][3])
+
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
         # bus = self.oneHotEncode(self.buses, self.decisionBus[0]) would need to update 
 
@@ -517,9 +546,9 @@ class SumoEnv(gym.Env):
         if self.traffic != 0:
             # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
             speedFactors = self.getSpeedFactors()
-            state = stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
+            state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
         else:
-            state = stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
+            state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
 
         return state
 
@@ -624,37 +653,48 @@ class SumoEnv(gym.Env):
 
         return follower, leader
 
-    def notInCommonHeadways(self):
+    def notInCommonHeadways(self, bus=[]):
+        if bus:
+            b = bus[0]
+        else:
+            b = self.decisionBus[0]
         # get the follower and leader of the decision bus
-        follower, leader = self.getFollowerLeader()
+        follower, leader = self.getFollowerLeader(bus=[b])
         
         # get the forward headway of the decision bus
-        forwardHeadway = self.getForwardHeadway(leader, self.decisionBus[0])
+        forwardHeadway = self.getForwardHeadway(leader, b)
 
         # get the backward headway of the decision bus.
         # in this case, we are in reality finding the forward headway of the follower to the decision bus which
         # is the same as the backward headway of the decision bus to its follower
-        backwardHeadway = self.getForwardHeadway(self.decisionBus[0], follower)
+        backwardHeadway = self.getForwardHeadway(b, follower)
 
         return [forwardHeadway, backwardHeadway]
 
-    def inCommonHeadways(self):
-        sameRouteFollower, sameRouteLeader = self.getFollowerLeader()
-        bus = self.decisionBus[0]
-        index = self.inCommon.index(bus)
+    def inCommonHeadways(self, bus=[]):
+        if bus:
+            b = bus[0]
+        else:
+            b = self.decisionBus[0]
+        sameRouteFollower, sameRouteLeader = self.getFollowerLeader(bus=[b])
+        # bus = self.decisionBus[0]
+        # print('decision bus: {} '.format(b))
+        # print('inCommon: {}'.format(self.inCommon))
+        index = self.inCommon.index(b)
+        
         if index == 0:
             leader = sameRouteLeader
         else:
             leader = self.inCommon[index - 1]
             
-        forwardHeadway = self.getForwardHeadway(leader, bus)
+        forwardHeadway = self.getForwardHeadway(leader, b)
 
         if index == len(self.inCommon) - 1:
             follower = sameRouteFollower
         else:
             follower = self.inCommon[index + 1]
 
-        backwardHeadway = self.getForwardHeadway(bus, follower)
+        backwardHeadway = self.getForwardHeadway(b, follower)
 
         return [forwardHeadway, backwardHeadway]
         
