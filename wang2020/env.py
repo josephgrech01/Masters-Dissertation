@@ -8,6 +8,7 @@ import pandas as pd
 import random
 from datetime import datetime
 import matplotlib.pyplot as plt
+import pickle
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -26,7 +27,7 @@ class SumoEnv(gym.Env):
     # traffic: set to zero for no traffic or else to the lowest traffic speed in km/h
     # bunched: True - buses start already bunched, False - buses start evenly spaced
     # mixedConfigs: Used during training to alternate between already bunched and evenly spaced scenarios
-    def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=0, bunched=False, mixedConfigs=False):
+    def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=0, bunched=False, mixedConfigs=False, save=None):
         if gui:
             self._sumoBinary = checkBinary('sumo-gui')
         else:
@@ -61,11 +62,14 @@ class SumoEnv(gym.Env):
        
         self.stoppedBuses = [[None for _ in range(6)], [None for _ in range(6)]]
         
-        self.bunchingGraphData = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
+        self.route1Travel = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
+        self.route2Travel = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
 
         # Variable which contains the bus which has just reached a stop, the bus stop that it has reached, and the
         # stopping time required given the number of people alighting at this stop and those waiting to board
         self.decisionBus = ["bus.0", "stop1", 0]
+
+        self.save= save
 
         traci.start(self.sumoCmd)
 
@@ -109,7 +113,7 @@ class SumoEnv(gym.Env):
 
         self.sdVal = 0
         
-        self.dfLog = pd.DataFrame(columns=['meanWaitTime', 'action', 'dispersion', 'headwaySD'])
+        self.dfLog = pd.DataFrame(columns=['time', 'meanWaitTime', 'action', 'dispersion', 'headwaySD'])
 
         self.inCommon = ['bus.1', 'busB.1']
 
@@ -272,7 +276,13 @@ class SumoEnv(gym.Env):
 
             done = True
 
-            # self.dfLog.to_csv('results/final/csvs/ppo/TrafficBunched.csv')
+            with open('wang2020/results/maskablePPO/route1.pkl', 'wb') as f:
+                pickle.dump(self.route1Travel, f)
+            with open('wang2020/results/maskablePPO/route2.pkl', 'wb') as f:
+                pickle.dump(self.route2Travel, f) 
+
+            if self.save is not None:
+                self.dfLog.to_csv(self.save)
 
 
             # BUNCHING GRAPH
@@ -360,7 +370,8 @@ class SumoEnv(gym.Env):
 
         self.sdVal = 0
 
-        self.bunchingGraphData = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
+        self.route1Travel = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
+        self.route2Travel = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
 
         if self.traffic == -1:
             self.lowestTrafficSpeed = random.randint(7,10)
@@ -416,12 +427,20 @@ class SumoEnv(gym.Env):
                                 ##########################
                                 # need to update
                                 ##########################
-                                # busNum = int(vehicle[-1])
+                                
+                                busNum = int(''.join([char for char in vehicle if char.isdigit()]))
+
+                                s = int(''.join([char for char in stop if char.isdigit()]))
 
                                 # if len(stop) == 5:
                                 #     s = int(stop[-1])
                                 # else:
                                 #     s = int(stop[-2:])
+                                if vehicle[3] == '.':
+                                    self.route1Travel[busNum][-1].append((simTime, s))
+                                elif vehicle[3] == 'B':
+                                    self.route2Travel[busNum][-1].append((simTime, s))
+
                                 # self.bunchingGraphData[busNum][-1].append((simTime, s))
 
                         else:
@@ -433,15 +452,28 @@ class SumoEnv(gym.Env):
                                 ##########################
                                 # need to update
                                 ##########################
-                                # busNum = int(vehicle[-1])
+                                busNum = int(''.join([char for char in vehicle if char.isdigit()]))
                     
+                                s = int(''.join([char for char in stop if char.isdigit()]))
+                                
                                 # if len(stop) == 5:
                                 #     s = int(stop[-1])
                                 # else:
                                 #     s = int(stop[-2:])   
 
+                                if vehicle[3] == '.':
+                                    self.route1Travel[busNum][-1].append((simTime, s))
+                                    if s == 12:
+                                        self.route1Travel[busNum].append([])
+                                elif vehicle[3] == 'B':
+                                    self.route2Travel[busNum][-1].apend((simTime, s))
+                                    if s == 12:
+                                        self.route2Travel[busNum].append([])
                                 # self.bunchingGraphData[busNum][-1].append((simTime, s))
 
+                                #################################################################################
+                                # MIGHT NEED TO UPDATE IF A ROUTE HAS A DIFFERENT NUMBER OF STOPS OTHER THAN 12 #
+                                #################################################################################
                                 # if s == 12:
                                 #     self.bunchingGraphData[busNum].append([])
     
@@ -861,6 +893,9 @@ class SumoEnv(gym.Env):
 
     # logging the values in the dataframe
     def logValues(self, action):
+
+        time = traci.simulation.getTime()
+
         maxWaitTimes = self.getMaxWaitTimeOnStops()    
         mean = sum(maxWaitTimes)/len(maxWaitTimes)
         
@@ -868,7 +903,7 @@ class SumoEnv(gym.Env):
 
         occDisp = self.occupancyDispersion()
 
-        self.dfLog = pd.concat([self.dfLog, pd.DataFrame.from_records([{'meanWaitTime':mean, 'action':actions[action], 'dispersion':occDisp, 'headwaySD':self.sdVal}])], ignore_index=True)
+        self.dfLog = pd.concat([self.dfLog, pd.DataFrame.from_records([{'time': time, 'meanWaitTime':mean, 'action':actions[action], 'dispersion':occDisp, 'headwaySD':self.sdVal}])], ignore_index=True)
 
     # occupancy dispersion as calculated in Wang and Sun (2020), using a variance to mean ratio
     def occupancyDispersion(self):
