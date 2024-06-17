@@ -1,6 +1,6 @@
 from env import SumoEnv
 
-env = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=0, bunched=False)
+env = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=0, bunched=False, save='wang2020/results/noControl/2')
 
 episodes = 1
 for episode in range(1, episodes + 1):  

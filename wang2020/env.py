@@ -47,7 +47,8 @@ class SumoEnv(gym.Env):
             self.config = 'wang2020/sumo/ring.sumocfg'
 
         self.noWarnings = noWarnings
-        self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
+        # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
+        self.sumoCmd = [self._sumoBinary, "-c", self.config, "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
         if self.noWarnings:
             self.sumoCmd.append("--no-warnings")
 
@@ -101,10 +102,15 @@ class SumoEnv(gym.Env):
         # times at each bus stop, the numnber of passengers on the previous, current, and following buses, and the speed factors of the previous,
         # current and follwing buses
         if self.traffic != 0:
+            # self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
             self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
+
+            # self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
             self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
         else:
+            # self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
             self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
+            # self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
             self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
@@ -116,6 +122,7 @@ class SumoEnv(gym.Env):
         self.dfLog = pd.DataFrame(columns=['time', 'meanWaitTime', 'action', 'dispersion', 'headwaySD'])
 
         self.inCommon = ['bus.1', 'busB.1']
+        self.notInCommon = ['bus.2', 'busB.2', 'bus.3', 'busB.3', 'bus.4', 'busB.4', 'bus.5', 'busB.5', 'bus.0', 'busB.0']
 
 
     def canSkip(self):
@@ -271,45 +278,45 @@ class SumoEnv(gym.Env):
 
         
         # check if episode has terminated
-        if self.gymStep > self.epLen:
+        # if self.gymStep > self.epLen:
+        if traci.simulation.getTime() > 3000:
             print("DONE, episode num: ", self.episodeNum)
 
             done = True
 
-            with open('wang2020/results/maskablePPO/route1.pkl', 'wb') as f:
-                pickle.dump(self.route1Travel, f)
-            with open('wang2020/results/maskablePPO/route2.pkl', 'wb') as f:
-                pickle.dump(self.route2Travel, f) 
-
             if self.save is not None:
-                self.dfLog.to_csv(self.save)
+                self.dfLog.to_csv(self.save + 'log.csv')
+                with open(self.save + 'route1.pkl', 'wb') as f:
+                    pickle.dump(self.route1Travel, f)
+                with open(self.save + 'route2.pkl', 'wb') as f:
+                    pickle.dump(self.route2Travel, f)
 
 
             # BUNCHING GRAPH
-            colours = ['red', 'green', 'orange', 'blue', 'purple', 'black']
-            labelled = [False for _ in range(6)]
-            for y in range(0,6):
-                for z in self.bunchingGraphData[y]:
-                    x_values = []
-                    y_values = []
+            # colours = ['red', 'green', 'orange', 'blue', 'purple', 'black']
+            # labelled = [False for _ in range(6)]
+            # for y in range(0,6):
+            #     for z in self.bunchingGraphData[y]:
+            #         x_values = []
+            #         y_values = []
 
-                    for i in z:
-                        x_values.append((i[0]*9)/60)
-                        y_values.append(i[1])
+            #         for i in z:
+            #             x_values.append((i[0]*9)/60)
+            #             y_values.append(i[1])
 
-                    if not labelled[y]:
-                        plt.plot(x_values, y_values, color=colours[y], label='bus '+str(y))
-                        labelled[y] = True
-                    else:
-                        plt.plot(x_values, y_values, color=colours[y])
-            plt.yticks(range(1,13))
-            plt.title("PPO with Traffic, Bunched")
-            plt.xlabel('Time (mins)')
-            plt.ylabel('Bus Stop')
-            plt.legend(loc=4)
+            #         if not labelled[y]:
+            #             plt.plot(x_values, y_values, color=colours[y], label='bus '+str(y))
+            #             labelled[y] = True
+            #         else:
+            #             plt.plot(x_values, y_values, color=colours[y])
+            # plt.yticks(range(1,13))
+            # plt.title("PPO with Traffic, Bunched")
+            # plt.xlabel('Time (mins)')
+            # plt.ylabel('Bus Stop')
+            # plt.legend(loc=4)
             # plt.savefig('results/final/bunching/ppo/TrafficBunchedBunching.jpg')
             # plt.show()
-            plt.clf()
+            # plt.clf()
 
 
             # PIE CHART showing the actions taken
@@ -355,7 +362,8 @@ class SumoEnv(gym.Env):
             else:
                 self.config = 'sumo/bunched/ring.sumocfg'
 
-        self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
+        # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
+        self.sumoCmd = [self._sumoBinary, "-c", self.config, "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
         if self.noWarnings:
             self.sumoCmd.append("--no-warnings")
         traci.start(self.sumoCmd)
@@ -379,6 +387,7 @@ class SumoEnv(gym.Env):
             self.lowestTrafficSpeed = self.traffic
 
         self.inCommon = ['bus.1', 'busB.1']
+        self.notInCommon = ['bus.2', 'busB.2', 'bus.3', 'busB.3', 'bus.4', 'busB.4', 'bus.5', 'busB.5', 'bus.0', 'busB.0']
 
         # sumo step until all buses are in the simulation
         while len(traci.vehicle.getIDList()) < numBuses: ##### SHOULD CHECK WHETHER THE VEHICLES ARE BUSES AND NOT CARS???
@@ -466,7 +475,7 @@ class SumoEnv(gym.Env):
                                     if s == 12:
                                         self.route1Travel[busNum].append([])
                                 elif vehicle[3] == 'B':
-                                    self.route2Travel[busNum][-1].apend((simTime, s))
+                                    self.route2Travel[busNum][-1].append((simTime, s))
                                     if s == 12:
                                         self.route2Travel[busNum].append([])
                                 # self.bunchingGraphData[busNum][-1].append((simTime, s))
@@ -496,6 +505,7 @@ class SumoEnv(gym.Env):
                     if bus not in self.inCommon:
                         h = self.notInCommonHeadways(bus=[bus])
                     else:
+                        # print('from sd:')
                         h = self.inCommonHeadways(bus=[bus])
                     
                     headways.append(abs(h[0] - h[1]))
@@ -515,8 +525,13 @@ class SumoEnv(gym.Env):
                 lane = traci.vehicle.getLaneID(vehicle)
                 if lane == '9_1' and vehicle not in self.inCommon:
                     self.inCommon.append(vehicle)
+                    self.notInCommon.remove(vehicle)
                 elif (lane == '0_1' or lane == 'E0_1') and vehicle in self.inCommon:
                     self.inCommon.remove(vehicle)
+                    self.notInCommon.append(vehicle)
+
+        # print('inCommon: {}'.format(self.inCommon))
+        # print('notInCommon: {}'.format(self.notInCommon))
 
 
 
@@ -563,6 +578,10 @@ class SumoEnv(gym.Env):
 
         route = self.oneHotEncode(self.routes, self.decisionBus[0][3])
 
+        # inCommon = 0
+        # if self.decisionBus[0] in ['stop10', 'stop11', 'stop12']:
+        #     inCommon = 1
+
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
         # bus = self.oneHotEncode(self.buses, self.decisionBus[0]) would need to update 
 
@@ -578,8 +597,10 @@ class SumoEnv(gym.Env):
         if self.traffic != 0:
             # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
             speedFactors = self.getSpeedFactors()
+            # state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
             state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
         else:
+            # state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
             state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
 
         return state
@@ -701,6 +722,26 @@ class SumoEnv(gym.Env):
         # is the same as the backward headway of the decision bus to its follower
         backwardHeadway = self.getForwardHeadway(b, follower)
 
+
+        check = False
+        line = b[3]
+        for veh in self.notInCommon:
+            if veh[3] == line:
+                if veh == b:
+                    check = True
+                
+                break
+
+        if check and (len(self.inCommon) != 0):
+            if self.inCommon[-1] != leader:
+                # print(b)
+                # print('diff route leader {}'.format(self.inCommon[-1]))
+                forwardHeadway = self.getForwardHeadway(self.inCommon[-1], b)
+
+            # else:
+            #     print('{} Same route leader {}'.format(b, self.inCommon[-1]))
+
+
         return [forwardHeadway, backwardHeadway]
 
     def inCommonHeadways(self, bus=[]):
@@ -713,20 +754,81 @@ class SumoEnv(gym.Env):
         # print('decision bus: {} '.format(b))
         # print('inCommon: {}'.format(self.inCommon))
         index = self.inCommon.index(b)
+
+        # print(b)
         
         if index == 0:
-            leader = sameRouteLeader
+            # leader = sameRouteLeader
+            line = b[3]
+
+            diffRouteLeader = None
+
+            for veh in reversed(self.notInCommon):
+                if veh[3] != line:
+                    diffRouteLeader = veh
+                    break
+            
+            if diffRouteLeader == None: # just in case all other route buses are following in the common corridor
+                for veh in reversed(self.inCommon):
+                    if veh[3] != line:
+                        diffRouteLeader = veh
+                        break
+
+            sameRouteHeadway = self.getForwardHeadway(sameRouteLeader, b)
+            diffRouteHeadway = self.getForwardHeadway(diffRouteLeader, b)
+
+            # if sameRouteHeadway < diffRouteHeadway:
+            #     print('Same Route Leader')
+            # else:
+            #     print('Diff route Leader')
+
+            forwardHeadway = sameRouteHeadway if sameRouteHeadway < diffRouteHeadway else diffRouteHeadway
+
         else:
             leader = self.inCommon[index - 1]
             
-        forwardHeadway = self.getForwardHeadway(leader, b)
+            forwardHeadway = self.getForwardHeadway(leader, b)
 
         if index == len(self.inCommon) - 1:
-            follower = sameRouteFollower
+            # follower = sameRouteFollower
+            line = b[3]
+
+            diffRouteFollower = None
+
+            for veh in self.notInCommon:
+                if veh[3] != line:
+                    diffRouteFollower = veh
+                    break
+
+            if diffRouteFollower == None: # just in case all other route buses are leading in the common corridor
+                for veh in self.inCommon:
+                    if veh[3] != line:
+                        diffRouteFollower = veh
+                        break
+
+            sameRouteHeadway = self.getForwardHeadway(b, sameRouteFollower)
+            diffRouteHeadway = self.getForwardHeadway(b, diffRouteFollower)
+
+            # if sameRouteHeadway < diffRouteHeadway:
+            #     print('Same Route Follower')
+            # else:
+            #     print('Diff Route Follower')
+
+            backwardHeadway = sameRouteHeadway if sameRouteHeadway < diffRouteHeadway else diffRouteHeadway
+        
         else:
             follower = self.inCommon[index + 1]
 
-        backwardHeadway = self.getForwardHeadway(b, follower)
+        # print('```````````````````````````')
+        # print('bus: {}'.format(b))
+        # print('manual follower: {}'.format(follower))
+        
+        # print('traci follower: {}'.format(traci.vehicle.getFollower(b, dist=443)))
+
+            backwardHeadway = self.getForwardHeadway(b, follower)
+
+        # print('manual headway: {}'.format(backwardHeadway))
+        # print('```````````````````````````')
 
         return [forwardHeadway, backwardHeadway]
         
