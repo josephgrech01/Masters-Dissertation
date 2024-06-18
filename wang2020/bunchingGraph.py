@@ -1,13 +1,13 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('wang2020/results/maskablePPO/2route1.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('wang2020/results/maskablePPO/2route2.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
 
 strategy = 'PPO'
-save = 'wang2020/results/graphs/PPO/'
+save = 'wang2020/results/graphs/updatedHeadwaysDur15/'
 
 for y in range(0, 6):
     for z in route1[y]:
@@ -24,8 +24,10 @@ plt.title(strategy + ' - Route 1')
 plt.xlabel('Time (mins')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
-plt.savefig(save + 'route1Bunching.jpg')
-plt.show()
+if save is not None:
+    plt.savefig(save + 'route1Bunching.jpg')
+else:
+    plt.show()
 plt.clf()
 
 
@@ -46,8 +48,10 @@ plt.title(strategy + ' - Route 2')
 plt.xlabel('Time (mins')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
-plt.savefig(save + 'route2Bunching.jpg')
-plt.show()
+if save is not None:
+    plt.savefig(save + 'route2Bunching.jpg')
+else:
+    plt.show()
 plt.clf()
 
 
@@ -88,8 +92,10 @@ plt.title(strategy + ' - Shared Stops')
 plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 plt.legend(loc=4)
-plt.savefig(save + 'sharedStopsBunching.jpg')
-plt.show()
+if save is not None:
+    plt.savefig(save + 'sharedStopsBunching.jpg')
+else:
+    plt.show()
 plt.clf()
 
 

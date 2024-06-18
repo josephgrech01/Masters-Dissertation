@@ -43,8 +43,10 @@ class SumoEnv(gym.Env):
         else:
             self.config = 'sumo/traffic/ring.sumocfg'
 
-        if self.traffic == 0:
+        if self.traffic == 0 and not bunched:
             self.config = 'wang2020/sumo/ring.sumocfg'
+        elif self.traffic == 0 and bunched:
+            self.config = 'wang2020/sumo/ringBunched.sumocfg'
 
         self.noWarnings = noWarnings
         # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
@@ -102,16 +104,16 @@ class SumoEnv(gym.Env):
         # times at each bus stop, the numnber of passengers on the previous, current, and following buses, and the speed factors of the previous,
         # current and follwing buses
         if self.traffic != 0:
-            # self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
-            self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
+            self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
+            # self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
 
-            # self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
-            self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
+            self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
+            # self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
         else:
-            # self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
-            self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
-            # self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
-            self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
+            self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
+            # self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
+            self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
+            # self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
 
@@ -358,9 +360,11 @@ class SumoEnv(gym.Env):
         
         if self.mixedConfigs: # choose the initial state of the environment (bunched or unbunched)
             if self.episodeNum % 2 == 0:
-                self.config = 'sumo/traffic/ring.sumocfg'
+                self.config = 'wang2020/sumo/ring.sumocfg'
+                print('Not bunched')
             else:
-                self.config = 'sumo/bunched/ring.sumocfg'
+                self.config = 'wang2020/sumo/ringBunched.sumocfg'
+                print('Bunched')
 
         # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
         self.sumoCmd = [self._sumoBinary, "-c", self.config, "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
@@ -578,9 +582,9 @@ class SumoEnv(gym.Env):
 
         route = self.oneHotEncode(self.routes, self.decisionBus[0][3])
 
-        # inCommon = 0
-        # if self.decisionBus[0] in ['stop10', 'stop11', 'stop12']:
-        #     inCommon = 1
+        inCommon = 0
+        if self.decisionBus[0] in ['stop10', 'stop11', 'stop12']:
+            inCommon = 1
 
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
         # bus = self.oneHotEncode(self.buses, self.decisionBus[0]) would need to update 
@@ -597,11 +601,11 @@ class SumoEnv(gym.Env):
         if self.traffic != 0:
             # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
             speedFactors = self.getSpeedFactors()
-            # state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
-            state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
+            state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
+            # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
         else:
-            # state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
-            state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
+            state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
+            # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
 
         return state
 
