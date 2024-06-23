@@ -1,13 +1,13 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/route1.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic90/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/route2.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic90/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
 
 strategy = 'PPO'
-save = 'wang2020/results/graphs/updatedHeadwaysDur15/'
+save = None#'wang2020/results/graphs/updatedHeadwaysDur15/'
 
 for y in range(0, 6):
     for z in route1[y]:

@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-nc = pd.read_csv('wang2020/results/noControl/log.csv')
-ppo = pd.read_csv('wang2020/results/maskablePPO/initial/log.csv')
+nc = pd.read_csv('wang2020/results/noControl/traffic100log.csv')
+ppo = pd.read_csv('wang2020/results/maskablePPO/traffic100log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -13,11 +13,11 @@ ppoTime = ppo['meanWaitTime'].tolist()
 
 ncSD = nc['headwaySD'].tolist()
 ppoSD = ppo['headwaySD'].tolist()
-
+ 
 ncDisp = nc['dispersion'].tolist()
 ppoDisp = ppo['dispersion'].tolist()
 
-save = 'wang2020/results/graphs/initial/'
+save = None#'wang2020/results/graphs/initial/'
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)

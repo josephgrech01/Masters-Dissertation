@@ -1,9 +1,9 @@
 from env import SumoEnv
 
-env = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=0, bunched=False, save=None)#'wang2020/results/noControl/2')
+env = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=True, bunched=False, save='wang2020/results/noControl/traffic90/')
 
 episodes = 1
-for episode in range(1, episodes + 1):  
+for episode in range(1, episodes + 1):
 
     state = env.reset()
 

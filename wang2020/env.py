@@ -27,7 +27,7 @@ class SumoEnv(gym.Env):
     # traffic: set to zero for no traffic or else to the lowest traffic speed in km/h
     # bunched: True - buses start already bunched, False - buses start evenly spaced
     # mixedConfigs: Used during training to alternate between already bunched and evenly spaced scenarios
-    def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=0, bunched=False, mixedConfigs=False, save=None):
+    def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=False, bunched=False, mixedConfigs=False, save=None):
         if gui:
             self._sumoBinary = checkBinary('sumo-gui')
         else:
@@ -43,10 +43,12 @@ class SumoEnv(gym.Env):
         else:
             self.config = 'sumo/traffic/ring.sumocfg'
 
-        if self.traffic == 0 and not bunched:
+        if not self.traffic and not bunched:
             self.config = 'wang2020/sumo/ring.sumocfg'
-        elif self.traffic == 0 and bunched:
+        elif not self.traffic and bunched:
             self.config = 'wang2020/sumo/ringBunched.sumocfg'
+        elif self.traffic and not bunched:
+            self.config = 'wang2020/sumo/ringTraffic.sumocfg'
 
         self.noWarnings = noWarnings
         # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
@@ -56,10 +58,10 @@ class SumoEnv(gym.Env):
 
         self.epLen = epLen
 
-        if self.traffic == -1:
-            self.lowestTrafficSpeed = random.randint(7,10)
-        else:
-            self.lowestTrafficSpeed = self.traffic
+        # if self.traffic == -1:
+        #     self.lowestTrafficSpeed = random.randint(7,10)
+        # else:
+        #     self.lowestTrafficSpeed = self.traffic
 
         self.gymStep = 0
        
@@ -77,8 +79,11 @@ class SumoEnv(gym.Env):
         traci.start(self.sumoCmd)
 
         self.busStops = list(traci.simulation.getBusStopIDList()) # get the list of bus stops from the simulation
-        self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == '.'] # get the list of buses from the simulation
-        self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
+        # self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == '.'] # get the list of buses from the simulation
+        # self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
+        self.buses = ['bus.0', 'bus.1', 'bus.2', 'bus.3', 'bus.4', 'bus.5'] 
+        self.busesB = ['busB.0', 'busB.1', 'busB.2', 'busB.3', 'busB.4', 'busB.5']
+
 
         self.busCapacity = 85
 
@@ -103,17 +108,17 @@ class SumoEnv(gym.Env):
         # the stopping time required according to the number of people boarding and alighting at this stop, the current maximum passenger waiting 
         # times at each bus stop, the numnber of passengers on the previous, current, and following buses, and the speed factors of the previous,
         # current and follwing buses
-        if self.traffic != 0:
-            self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
-            # self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
+        # if self.traffic != 0:
+        #     self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
+        #     # self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0] + [0, 0, 0], dtype='float32')
 
-            self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
-            # self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
-        else:
-            self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
-            # self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
-            self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
-            # self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
+        #     self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
+        #     # self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85] + [1, 1, 1], dtype='float32')
+        # else:
+        self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
+        # self.low = np.array([0 for _ in range(len(self.routes))] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
+        self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
+        # self.high = np.array([1 for _ in range(len(self.routes))] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
 
@@ -385,10 +390,10 @@ class SumoEnv(gym.Env):
         self.route1Travel = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
         self.route2Travel = {0:[[]], 1:[[]], 2:[[]], 3:[[]], 4:[[]], 5:[[]]}
 
-        if self.traffic == -1:
-            self.lowestTrafficSpeed = random.randint(7,10)
-        else:
-            self.lowestTrafficSpeed = self.traffic
+        # if self.traffic == -1:
+        #     self.lowestTrafficSpeed = random.randint(7,10)
+        # else:
+        #     self.lowestTrafficSpeed = self.traffic
 
         self.inCommon = ['bus.1', 'busB.1']
         self.notInCommon = ['bus.2', 'busB.2', 'bus.3', 'busB.3', 'bus.4', 'busB.4', 'bus.5', 'busB.5', 'bus.0', 'busB.0']
@@ -397,8 +402,11 @@ class SumoEnv(gym.Env):
         while len(traci.vehicle.getIDList()) < numBuses: ##### SHOULD CHECK WHETHER THE VEHICLES ARE BUSES AND NOT CARS???
             self.sumoStep()
 
-        self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == '.']
-        self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
+        # self.buses = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == '.']
+        # self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
+        self.buses = ['bus.0', 'bus.1', 'bus.2', 'bus.3', 'bus.4', 'bus.5'] 
+        self.busesB = ['busB.0', 'busB.1', 'busB.2', 'busB.3', 'busB.4', 'busB.5']
+
 
         state = self.computeState()
         return state
@@ -507,6 +515,9 @@ class SumoEnv(gym.Env):
                     # headways.append(abs(forwardHeadway - backwardHeadway))
 
                     if bus not in self.inCommon:
+                        # print('bus: {}'.format(bus))
+                        # print('self.buses: {}'.format(self.buses))
+                        # print('self.busesB: {}'.format(self.busesB))
                         h = self.notInCommonHeadways(bus=[bus])
                     else:
                         # print('from sd:')
@@ -550,21 +561,21 @@ class SumoEnv(gym.Env):
 
         simTime = traci.simulation.getTime()
 
-        if self.traffic != 0:
-            if simTime % 15 == 0: # add a new car in the simulation
-                traci.vehicle.add('car'+str(simTime), 'traffic', typeID='traffic')
-                repeats = random.randint(1,3) # randomly choose the number of times the new car will loop around the bus corridor
-                # # build the new route of the car according to the number of repeats
-                newRoute = ['E0']
-                for _ in range(repeats):
-                    newRoute.extend(['5','6','7','8','9','10','11','0','1','2','3','4'])
-                newRoute.extend(['5','6','7','8','9','E1'])
-                traci.vehicle.setRoute('car'+str(simTime), newRoute)
+        # if self.traffic != 0:
+        #     if simTime % 15 == 0: # add a new car in the simulation
+        #         traci.vehicle.add('car'+str(simTime), 'traffic', typeID='traffic')
+        #         repeats = random.randint(1,3) # randomly choose the number of times the new car will loop around the bus corridor
+        #         # # build the new route of the car according to the number of repeats
+        #         newRoute = ['E0']
+        #         for _ in range(repeats):
+        #             newRoute.extend(['5','6','7','8','9','10','11','0','1','2','3','4'])
+        #         newRoute.extend(['5','6','7','8','9','E1'])
+        #         traci.vehicle.setRoute('car'+str(simTime), newRoute)
 
-                # randomly set the speed of the new car
-                speeds = [self.lowestTrafficSpeed, 20, 30, 50]
-                speed = random.randint(0,3)
-                traci.vehicle.setSpeed('car'+str(simTime), speeds[speed])
+        #         # randomly set the speed of the new car
+        #         speeds = [self.lowestTrafficSpeed, 20, 30, 50]
+        #         speed = random.randint(0,3)
+        #         traci.vehicle.setSpeed('car'+str(simTime), speeds[speed])
 
         traci.vehicle.highlight('bus.0', color=(255,0,0), size=60)
         traci.vehicle.highlight('bus.1', color=(255,0,0), size=60)
@@ -572,6 +583,13 @@ class SumoEnv(gym.Env):
         traci.vehicle.highlight('bus.3', color=(255,0,0), size=60)
         traci.vehicle.highlight('bus.4', color=(255,0,0), size=60)
         traci.vehicle.highlight('bus.5', color=(255,0,0), size=60)
+
+        traci.vehicle.highlight('busB.0', color=(255,0,255), size=60)
+        traci.vehicle.highlight('busB.1', color=(255,0,255), size=60)
+        traci.vehicle.highlight('busB.2', color=(255,0,255), size=60)
+        traci.vehicle.highlight('busB.3', color=(255,0,255), size=60)
+        traci.vehicle.highlight('busB.4', color=(255,0,255), size=60)
+        traci.vehicle.highlight('busB.5', color=(255,0,255), size=60)
 
 
     # function which computes the state required by the gym environment
@@ -598,14 +616,14 @@ class SumoEnv(gym.Env):
         numPassengers = self.getNumPassengers()
 
         
-        if self.traffic != 0:
-            # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
-            speedFactors = self.getSpeedFactors()
-            state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
-            # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
-        else:
-            state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
-            # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
+        # if self.traffic != 0:
+        #     # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
+        #     speedFactors = self.getSpeedFactors()
+        #     state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
+        #     # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
+        # else:
+        state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
+        # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
 
         return state
 
@@ -672,6 +690,10 @@ class SumoEnv(gym.Env):
         else:
             b = ''.join([char for char in self.decisionBus[0] if char.isdigit()]) 
             line = traci.vehicle.getLine(self.decisionBus[0])
+
+        # print('b: {}'.format(b))
+        # print('line: {}'.format(line))
+        
         
         # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
         if line == 'line1':
@@ -717,6 +739,7 @@ class SumoEnv(gym.Env):
             b = self.decisionBus[0]
         # get the follower and leader of the decision bus
         follower, leader = self.getFollowerLeader(bus=[b])
+        # print('follower, leader: {} {}'.format(follower, leader))
         
         # get the forward headway of the decision bus
         forwardHeadway = self.getForwardHeadway(leader, b)
