@@ -1,9 +1,9 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic90/route1.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic100route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic90/route2.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic100route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
 
 strategy = 'PPO'

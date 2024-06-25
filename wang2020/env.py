@@ -276,7 +276,8 @@ class SumoEnv(gym.Env):
 
         state = self.computeState()
 
-        reward = self.computeReward()
+        reward = self.computeRewardWithTime()
+        # reward = self.computeReward()
 
         # print(self.peopleOnBuses)
         # print(self.decisionBus[0])
@@ -926,6 +927,26 @@ class SumoEnv(gym.Env):
         backward = headways[1]
 
         reward = -abs(forward - backward)
+
+        return reward  
+
+    # function which computes the reward required by the gym environment and rl algorithm
+    def computeRewardWithTime(self):
+
+        # headways = self.getHeadways()
+
+        # forward = headways[0]
+        # backward = headways[1]
+
+        # dist = -abs(forward - backward)
+
+        # speed = traci.vehicle.getSpeed(self.decisionBus[0])
+
+        # time = dist/speed
+
+        maxWaitTimes = self.getMaxWaitTimeOnStops()
+
+        reward = -sum(maxWaitTimes)
 
         return reward   
 

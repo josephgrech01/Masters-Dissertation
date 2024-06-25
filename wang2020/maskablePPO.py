@@ -17,13 +17,13 @@ from env import SumoEnv
 def mask_fn(env):
     return env.valid_action_mask()
 
-e = SumoEnv(gui=False, noWarnings=True, epLen=250, traffic=False, mixedConfigs=True, bunched=True, save=None)
+e = SumoEnv(gui=False, noWarnings=True, epLen=250, traffic=False, mixedConfigs=False, bunched=False, save=None)
 e = ActionMasker(e, mask_fn)
-# model = MaskablePPO(MaskableActorCriticPolicy, e, verbose=1, learning_rate=0.001, tensorboard_log="wang2020/tensorboard/maskablePPO/mixedConfigs")
-model = MaskablePPO.load('wang2020/models/maskablePPOmixedConfigs375000', tensorboard_log="wang2020/tensorboard/maskablePPO/mixedConfigs")
+# model = MaskablePPO(MaskableActorCriticPolicy, e, verbose=1, learning_rate=0.001, tensorboard_log="wang2020/tensorboard/maskablePPO/MaxTimeReward")
+model = MaskablePPO.load('wang2020/models/maskablePPOtimeReward250000', tensorboard_log="wang2020/tensorboard/maskablePPO/MaxTimeReward")
 model.set_env(e)
-model.learn(total_timesteps=125000, log_interval=1, reset_num_timesteps=False)
-model.save("wang2020/models/maskablePPOmixedConfigs500000")
+model.learn(total_timesteps=25000, log_interval=1, reset_num_timesteps=False)
+model.save("wang2020/models/maskablePPOtimeReward275000")
 
 e.close()
 

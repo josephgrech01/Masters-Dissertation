@@ -1,0 +1,7 @@
+
+                            Mean Wait Time (mins)
+Traffic Level of Service    No Control      PPO
+A-B                         6.2             3.1
+C-D                         6.9             3.4
+E-F                         10.3            5.6
+

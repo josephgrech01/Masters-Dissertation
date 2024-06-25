@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-nc = pd.read_csv('wang2020/results/noControl/traffic100log.csv')
-ppo = pd.read_csv('wang2020/results/maskablePPO/traffic100log.csv')
+nc = pd.read_csv('wang2020/results/noControl/noTraffic/log.csv')
+ppo = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/noTraffic/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -34,6 +34,8 @@ if save is not None:
 else:
     plt.show()
 plt.clf()
+
+# print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime])/len([t*9/60 for t in ppoTime])))
 
 # # Headway Standard Deviation
 fig, ax1 = plt.subplots(1, 1)

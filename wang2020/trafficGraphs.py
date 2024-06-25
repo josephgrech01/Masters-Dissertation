@@ -2,17 +2,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-traffic29 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic29/log.csv')
-traffic56 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic56/log.csv')
-traffic90 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic90/log.csv')
+# traffic29 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic29/log.csv')
+# traffic56 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic56/2log.csv')
+# traffic90 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic90/log.csv')
+# traffic100 = pd.read_csv('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic100log.csv')
+
+traffic29 = pd.read_csv('wang2020/results/noControl/traffic29/log.csv')
+traffic56 = pd.read_csv('wang2020/results/noControl/traffic56/log.csv')
+traffic90 = pd.read_csv('wang2020/results/noControl/traffic90/log.csv')
+traffic100 = pd.read_csv('wang2020/results/noControl/traffic100log.csv')
 
 simTime1 = traffic29['time'].tolist()
 simTime2 = traffic56['time'].tolist()
 simTime3 = traffic90['time'].tolist()
+simTime4 = traffic100['time'].tolist()
 
 time29 = traffic29['meanWaitTime'].tolist()
 time56 = traffic56['meanWaitTime'].tolist()
 time90 = traffic90['meanWaitTime'].tolist()
+time100 = traffic100['meanWaitTime'].tolist()
 
 sd1 = traffic29['headwaySD'].tolist()
 sd2 = traffic56['headwaySD'].tolist()
@@ -33,6 +41,7 @@ ax1.set_title('Mean Waiting Time')
 ax1.plot([t*9/60 for t in simTime1], [(mean*9)/60 for mean in time29], color='blue', linestyle='-', linewidth=1, label='A')
 ax1.plot([t*9/60 for t in simTime2], [(mean*9)/60 for mean in time56], color='black', linestyle='-', linewidth=1, label='B')
 ax1.plot([t*9/60 for t in simTime3], [(mean*9)/60 for mean in time90], color='red', linestyle='-', linewidth=1, label='C')
+ax1.plot([t*9/60 for t in simTime4], [(mean*9)/60 for mean in time100], color='red', linestyle='-', linewidth=1, label='D')
 ax1.grid()
 plt.legend()
 if save is not None:
@@ -44,6 +53,7 @@ plt.clf()
 print('Average A: {}'.format(sum([(mean*9)/60 for mean in time29])/len([(mean*9)/60 for mean in time29])))
 print('Average B: {}'.format(sum([(mean*9)/60 for mean in time56])/len([(mean*9)/60 for mean in time56])))
 print('Average C: {}'.format(sum([(mean*9)/60 for mean in time90])/len([(mean*9)/60 for mean in time90])))
+print('Average D: {}'.format(sum([(mean*9)/60 for mean in time100])/len([(mean*9)/60 for mean in time100])))
 
 # # Headway Standard Deviation
 fig, ax1 = plt.subplots(1, 1)
