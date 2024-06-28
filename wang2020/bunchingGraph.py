@@ -1,13 +1,13 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic100route1.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/timeReward/bunched/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('wang2020/results/maskablePPO/updatedHeadwaysDur15/traffic100route2.pkl', 'rb') as f:
+with open('wang2020/results/maskablePPO/timeReward/bunched/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
 
 strategy = 'PPO'
-save = None#'wang2020/results/graphs/updatedHeadwaysDur15/'
+save = 'wang2020/results/graphs/timeReward/bunched/'
 
 for y in range(0, 6):
     for z in route1[y]:
@@ -20,7 +20,7 @@ for y in range(0, 6):
 
         plt.plot(x_values, y_values, color='maroon')
 plt.yticks(range(1,13))
-plt.title(strategy + ' - Route 1')
+plt.title(strategy + ' - Route 1, Already Bunched')
 plt.xlabel('Time (mins')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
@@ -44,7 +44,7 @@ for y in range(0, 6):
         plt.plot(x_values, y_values, color='blue')
 
 plt.yticks(range(1,13))
-plt.title(strategy + ' - Route 2')
+plt.title(strategy + ' - Route 2, Already Bunched')
 plt.xlabel('Time (mins')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
@@ -88,7 +88,7 @@ for y in range(0, 6):
             plt.plot(x_values, y_values, color='blue', linewidth=1)
 
 plt.yticks(range(1,4))
-plt.title(strategy + ' - Shared Stops')
+plt.title(strategy + ' - Shared Stops, Already Bunched')
 plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 plt.legend(loc=4)
