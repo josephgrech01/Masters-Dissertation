@@ -7,7 +7,7 @@ def mask_fn(env):
     return env.valid_action_mask()
 
 actions = ['Hold', 'Skip', 'Proceed']
-e = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=False, bunched=True, save='wang2020/results/maskablePPO/timeReward/bunched/')
+e = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=True, bunched=False, save='wang2020/results/maskablePPO/timeReward/traffic90/')
 e = ActionMasker(e, mask_fn)
 # no traffic
 # model = PPO.load("models/ppoNoTraffic")

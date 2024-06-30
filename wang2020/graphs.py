@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 nc = pd.read_csv('wang2020/results/noControl/noTraffic/log.csv')
-ppo = pd.read_csv('wang2020/results/maskablePPO/timeReward/bunched/log.csv')
+ppo = pd.read_csv('wang2020/results/maskablePPO/timeReward/noTraffic/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -17,15 +17,19 @@ ppoSD = ppo['headwaySD'].tolist()
 ncDisp = nc['dispersion'].tolist()
 ppoDisp = ppo['dispersion'].tolist()
 
-save = 'wang2020/results/graphs/timeReward/bunched/'
+bunched = False
+save = None#'wang2020/results/graphs/timeReward/bunched/'
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)
 ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Mean waiting time (mins)')
-ax1.set_title('Mean Waiting Time - Already Bunched')
-# values are scaled back to reality and converted to minutes
-# ax1.plot([t*9/60 for t in ncSimTime], [(mean*9)/60 for mean in ncTime], color='blue', linestyle='-', linewidth=1, label='No Control')
+if not bunched:
+    ax1.set_title('Mean Waiting Time')
+    # values are scaled back to reality and converted to minutes
+    ax1.plot([t*9/60 for t in ncSimTime], [(mean*9)/60 for mean in ncTime], color='blue', linestyle='-', linewidth=1, label='No Control')
+else:
+    ax1.set_title('Mean Waiting Time - Already Bunched')
 ax1.plot([t*9/60 for t in ppoSimTime], [(mean*9)/60 for mean in ppoTime], color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.grid()
 plt.legend()
@@ -35,14 +39,17 @@ else:
     plt.show()
 plt.clf()
 
-# print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime])/len([t*9/60 for t in ppoTime])))
+print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime])/len([t*9/60 for t in ppoTime])))
 
 # # Headway Standard Deviation
 fig, ax1 = plt.subplots(1, 1)
 ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Headway Standard Deviation')
-ax1.set_title('Headway Standard Deviation - Already Bunched')
-# ax1.plot([t*9/60 for t in ncSimTime], ncSD, color='blue', linestyle='-', linewidth=1, label='No Control')
+if not bunched:
+    ax1.set_title('Headway Standard Deviation')
+    ax1.plot([t*9/60 for t in ncSimTime], ncSD, color='blue', linestyle='-', linewidth=1, label='No Control')
+else:
+    ax1.set_title('Headway Standard Deviation - Already Bunched')
 ax1.plot([t*9/60 for t in ppoSimTime], ppoSD, color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.grid()
 plt.legend()
@@ -56,8 +63,11 @@ plt.clf()
 fig, ax1 = plt.subplots(1, 1)
 ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Occupancy Dispersion')
-ax1.set_title('Occupancy Dispersion - Already Bunched')
-# ax1.plot([t*9/60 for t in ncSimTime], ncDisp, color='blue', linestyle='-', linewidth=1, label='No Control')
+if not bunched:
+    ax1.set_title('Occupancy Dispersion')
+    ax1.plot([t*9/60 for t in ncSimTime], ncDisp, color='blue', linestyle='-', linewidth=1, label='No Control')
+else:
+    ax1.set_title('Occupancy Dispersion - Already Bunched')
 ax1.plot([t*9/60 for t in ppoSimTime], ppoDisp, color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.grid()
 plt.legend()

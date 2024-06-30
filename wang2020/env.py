@@ -27,7 +27,7 @@ class SumoEnv(gym.Env):
     # traffic: set to zero for no traffic or else to the lowest traffic speed in km/h
     # bunched: True - buses start already bunched, False - buses start evenly spaced
     # mixedConfigs: Used during training to alternate between already bunched and evenly spaced scenarios
-    def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=False, bunched=False, mixedConfigs=False, save=None):
+    def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=False, bunched=False, mixedConfigs=False, save=None, continuous=False):
         if gui:
             self._sumoBinary = checkBinary('sumo-gui')
         else:
@@ -37,6 +37,7 @@ class SumoEnv(gym.Env):
 
         self.traffic = traffic
         self.mixedConfigs = mixedConfigs
+        self.continuous = continuous
 
         if bunched:
             self.config = 'sumo/bunched/ring.sumocfg'
@@ -99,8 +100,10 @@ class SumoEnv(gym.Env):
 
         self.routes = ['.', 'B']
 
-
-        self.action_space = Discrete(3)
+        if not self.continuous:
+            self.action_space = Discrete(3)
+        else:
+            self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
 
        
         # the observation space:
@@ -142,8 +145,6 @@ class SumoEnv(gym.Env):
 
         return True
 
-
-
     def valid_action_mask(self):
         if self.canSkip():
             return [1,1,1]
@@ -164,12 +165,93 @@ class SumoEnv(gym.Env):
         #   APPLY ACTION    #
         #####################
         
-        # hold the bus
-        if action == 0: 
+        if not self.continuous:
+            # hold the bus
+            if action == 0: 
+                stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
+                # increase the stopping time of the vehicle by 15 seconds (hence holding the vehicle)
+                traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=(self.decisionBus[2]+15))
+                
+                # UPDATE PEOPLE ON BUS
+
+                # boarding
+                personsOnStop = traci.busstop.getPersonIDs(self.decisionBus[1])
+                # All persons of that line on the stop can board the bus
+                for person in personsOnStop: 
+                    # increment the number of passengers of the decision bus 
+                    line = self.personsWithStop[person][2]
+                    if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                        #####CHECK IF CAN BOARD DEPENDING ON LINE
+                        if line == 'line1':
+                            self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1 
+                            # set the decision bus as the bus which the person boarded 
+                            self.personsWithStop[person][1] = self.decisionBus[0]
+                    elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                        if line == 'line2':
+                            # print(self.decisionBus[0][-1])
+                            # print(self.personsWithStop[person])
+                            self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
+                            # set the decision bus as the bus which the person boarded 
+                            self.personsWithStop[person][1] = self.decisionBus[0]
+                #alighting
+                personsOnBus = traci.vehicle.getPersonIDList(self.decisionBus[0])
+                # Not everyone on the bus may be alighting at this stop
+                for person in personsOnBus:
+                    # check if passenger will alight at this stop
+                    if self.personsWithStop[person][0] == self.decisionBus[1]:
+                        # decrement the number of passengers of the decision bus
+                        if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                            self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                        elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                            self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
+            # skip the stop
+            elif action == 1: 
+                stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
+                # set the stopping duration to zero, hence skipping the stop
+                traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=0)
+
+            # else action == 2, no action taken and bus proceeds normally by letting passengers board and alight
+            else:
+                stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
+                # set the stopping time to the time required just to let passengers board and alight
+                # notice that we do not increase the stopping duration as we did for the holding action 
+                traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=self.decisionBus[2])
+
+                #UPDATE PEOPLE ON BUS
+
+                #boarding
+                personsOnStop = traci.busstop.getPersonIDs(self.decisionBus[1])
+                # All persons of that line on the stop can board the bus
+                for person in personsOnStop: 
+                    # increment the number of passengers of the decision bus
+                    line = self.personsWithStop[person][2]
+                    if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                        if line == 'line1':
+                            self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
+                            # set the decision bus as the bus which the person boards
+                            self.personsWithStop[person][1] = self.decisionBus[0]
+                    elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                        if line == 'line2':
+                            self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
+                            # set the decision bus as the bus which the person boards
+                            self.personsWithStop[person][1] = self.decisionBus[0]
+                #alighting
+                personsOnBus = traci.vehicle.getPersonIDList(self.decisionBus[0])
+                # Not everyone on the bus may be alighting at this stop
+                for person in personsOnBus:
+                    # check if the passenger will alight at this stop
+                    if self.personsWithStop[person][0] == self.decisionBus[1]:
+                        # decrement the number of passengers of the decision bus
+                        if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
+                            self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
+                        elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
+                            self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
+        else:
+            holdingTime = math.ceil(action * 90)
+
             stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
-            # increase the stopping time of the vehicle by 15 seconds (hence holding the vehicle)
-            traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=(self.decisionBus[2]+15))
-            
+            traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=(self.decisionBus[2]+holdingTime))
+
             # UPDATE PEOPLE ON BUS
 
             # boarding
@@ -202,49 +284,6 @@ class SumoEnv(gym.Env):
                         self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
                     elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
                         self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
-        # skip the stop
-        elif action == 1: 
-            stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
-            # set the stopping duration to zero, hence skipping the stop
-            traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=0)
-
-        # else action == 2, no action taken and bus proceeds normally by letting passengers board and alight
-        else:
-            stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
-            # set the stopping time to the time required just to let passengers board and alight
-            # notice that we do not increase the stopping duration as we did for the holding action 
-            traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=self.decisionBus[2])
-
-            #UPDATE PEOPLE ON BUS
-
-            #boarding
-            personsOnStop = traci.busstop.getPersonIDs(self.decisionBus[1])
-            # All persons of that line on the stop can board the bus
-            for person in personsOnStop: 
-                # increment the number of passengers of the decision bus
-                line = self.personsWithStop[person][2]
-                if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
-                    if line == 'line1':
-                        self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] += 1
-                        # set the decision bus as the bus which the person boards
-                        self.personsWithStop[person][1] = self.decisionBus[0]
-                elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
-                    if line == 'line2':
-                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
-                        # set the decision bus as the bus which the person boards
-                        self.personsWithStop[person][1] = self.decisionBus[0]
-            #alighting
-            personsOnBus = traci.vehicle.getPersonIDList(self.decisionBus[0])
-            # Not everyone on the bus may be alighting at this stop
-            for person in personsOnBus:
-                # check if the passenger will alight at this stop
-                if self.personsWithStop[person][0] == self.decisionBus[1]:
-                    # decrement the number of passengers of the decision bus
-                    if traci.vehicle.getLine(self.decisionBus[0]) == 'line1':
-                        self.peopleOnBuses[int(self.decisionBus[0][-1])][int(self.personsWithStop[person][0][-1])-1] -= 1
-                    elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
-                        self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
-
 
         ########################################
         #   FAST FORWARD TO NEXT DECISION STEP #
@@ -276,8 +315,8 @@ class SumoEnv(gym.Env):
 
         state = self.computeState()
 
-        reward = self.computeRewardWithTime()
-        # reward = self.computeReward()
+        # reward = self.computeRewardWithTime()
+        reward = self.computeReward()
 
         # print(self.peopleOnBuses)
         # print(self.decisionBus[0])
