@@ -247,7 +247,9 @@ class SumoEnv(gym.Env):
                         elif traci.vehicle.getLine(self.decisionBus[0]) == 'line2':
                             self.peopleOnBusesB[int(self.decisionBus[0][-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] -= 1
         else:
-            holdingTime = math.ceil(action * 90)
+            if math.isnan(action):
+                action = 0
+            holdingTime = math.ceil(action * 9)
 
             stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
             traci.vehicle.setBusStop(self.decisionBus[0], stopData[0].stoppingPlaceID, duration=(self.decisionBus[2]+holdingTime))
@@ -366,29 +368,29 @@ class SumoEnv(gym.Env):
             # plt.clf()
 
 
-            # PIE CHART showing the actions taken
-            values = []
-            labels = []
-            actions = self.dfLog['action'].tolist()
-            hold = actions.count('Hold') / len(actions)
-            if hold != 0:
-                values.append(hold)
-                labels.append("Hold")
-            skip = actions.count('Skip') / len(actions)
-            if skip != 0:
-                values.append(skip)
-                labels.append("Skip")
-            noAction = actions.count('No action') / len(actions)
-            if noAction != 0:
-                values.append(noAction)
-                labels.append("No action")
+            # # PIE CHART showing the actions taken
+            # values = []
+            # labels = []
+            # actions = self.dfLog['action'].tolist()
+            # hold = actions.count('Hold') / len(actions)
+            # if hold != 0:
+            #     values.append(hold)
+            #     labels.append("Hold")
+            # skip = actions.count('Skip') / len(actions)
+            # if skip != 0:
+            #     values.append(skip)
+            #     labels.append("Skip")
+            # noAction = actions.count('No action') / len(actions)
+            # if noAction != 0:
+            #     values.append(noAction)
+            #     labels.append("No action")
     
 
-            plt.pie(values, labels=labels, autopct='%1.1f%%')
-            plt.title('Actions (PPO, Traffic, Bunched).jpg')
-            # plt.savefig('results/final/actions/ppo/TrafficBunchedActions.jpg')
-            # plt.show()
-            plt.clf()
+            # plt.pie(values, labels=labels, autopct='%1.1f%%')
+            # plt.title('Actions (PPO, Traffic, Bunched).jpg')
+            # # plt.savefig('results/final/actions/ppo/TrafficBunchedActions.jpg')
+            # # plt.show()
+            # plt.clf()
 
         else:
             done = False
@@ -1090,9 +1092,14 @@ class SumoEnv(gym.Env):
         
         actions = ['Hold', 'Skip', 'No action']
 
+        if not self.continuous:
+            a = actions[action]
+        else:
+            a = action
+
         occDisp = self.occupancyDispersion()
 
-        self.dfLog = pd.concat([self.dfLog, pd.DataFrame.from_records([{'time': time, 'meanWaitTime':mean, 'action':actions[action], 'dispersion':occDisp, 'headwaySD':self.sdVal}])], ignore_index=True)
+        self.dfLog = pd.concat([self.dfLog, pd.DataFrame.from_records([{'time': time, 'meanWaitTime':mean, 'action':a, 'dispersion':occDisp, 'headwaySD':self.sdVal}])], ignore_index=True)
 
     # occupancy dispersion as calculated in Wang and Sun (2020), using a variance to mean ratio
     def occupancyDispersion(self):

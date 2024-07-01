@@ -1,28 +1,20 @@
-from sb3_contrib.ppo_mask import MaskablePPO
-from sb3_contrib.common.wrappers import ActionMasker
-
+from stable_baselines3 import PPO
 from env import SumoEnv
 
-def mask_fn(env):
-    return env.valid_action_mask()
 
-actions = ['Hold', 'Skip', 'Proceed']
-e = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=True, bunched=False, save='wang2020/results/maskablePPO/timeReward/traffic90/')
-e = ActionMasker(e, mask_fn)
-# no traffic
-# model = PPO.load("models/ppoNoTraffic")
+e = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=True, bunched=False, continuous=True, save='wang2020/results/continuous/headwayReward/traffic90/')
 
-# traffic
-# model=MaskablePPO.load("wang2020/models/maskablePPOupdatedHeadways200000dur15")
-model=MaskablePPO.load("wang2020/models/maskablePPOtimeReward275000")
-# model=MaskablePPO.load("wang2020/models/maskablePPOmixedConfigs500000")
+# model = PPO.load('singapore/models/sidewalks/ppo1800000fypReward')
+
+# model = PPO.load('singapore/models/sidewalks/weightedReward/normalFreq/ppo1750000WeightedRewardTLS')
+
+model = PPO.load('wang2020/models/continuous/headwayReward150000')
 
 obs = e.reset()
 while True:
     action, states = model.predict(obs)
-    print("action: ", actions[action])
+    print('Action: {}'.format(action*90))
     obs, reward, done, info = e.step(action)
     if done:
         break
-
 e.close()
