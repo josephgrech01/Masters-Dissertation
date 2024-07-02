@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 nc = pd.read_csv('wang2020/results/noControl/noTraffic/log.csv')
-ppo = pd.read_csv('wang2020/results/continuous/headwayReward/traffic90/log.csv')
+ppo = pd.read_csv('wang2020/results/continuous/timeReward/traffic90/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -19,7 +19,7 @@ ppoDisp = ppo['dispersion'].tolist()
 
 bunched = True
 save = None
-# save = 'wang2020/results/graphs/continuous/headwayReward/bunched/'
+# save = 'wang2020/results/graphs/continuous/timeReward/bunched/'
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)

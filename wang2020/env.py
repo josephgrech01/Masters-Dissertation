@@ -317,8 +317,8 @@ class SumoEnv(gym.Env):
 
         state = self.computeState()
 
-        # reward = self.computeRewardWithTime()
-        reward = self.computeReward()
+        reward = self.computeRewardWithTime()
+        # reward = self.computeReward()
 
         # print(self.peopleOnBuses)
         # print(self.decisionBus[0])

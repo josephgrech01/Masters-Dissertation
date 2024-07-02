@@ -13,6 +13,6 @@ DYNAMIC HOLDING (CONTINUOUS)
 
                             Mean Wait Time (mins)
 Traffic Level of Service    No Control  |      PPO - Headway Reward   |         PPO - Wait Time Reward
-A-B                         6.2         |      2.6                    |                     
-C-D                         6.9         |      2.6                    |         
-E-F                         10.3        |      3.6                    |           
+A-B                         6.2         |      2.6                    |         2.6     
+C-D                         6.9         |      2.6                    |         2.7
+E-F                         10.3        |      3.6                    |         3.7

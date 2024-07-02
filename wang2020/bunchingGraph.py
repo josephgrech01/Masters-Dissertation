@@ -1,15 +1,15 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('wang2020/results/continuous/timeReward/noTraffic/route1.pkl', 'rb') as f:
+with open('wang2020/results/continuous/timeReward/bunched/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('wang2020/results/continuous/timeReward/noTraffic/route2.pkl', 'rb') as f:
+with open('wang2020/results/continuous/timeReward/bunched/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
 
 strategy = 'PPO'
 bunched = False
-save = None
-# save = 'wang2020/results/graphs/continuous/timeReward'
+# save = None
+save = 'wang2020/results/graphs/continuous/timeReward/bunched/'
 
 for y in range(0, 6):
     for z in route1[y]:
