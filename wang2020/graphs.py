@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import statistics
 
 nc = pd.read_csv('wang2020/results/noControl/noTraffic/log.csv')
 ppo = pd.read_csv('wang2020/results/continuous/timeReward/traffic90/log.csv')
@@ -41,6 +42,7 @@ else:
 plt.clf()
 
 print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime])/len([t*9/60 for t in ppoTime])))
+print('Standard Deviation: {}'.format(statistics.stdev([t*9/60 for t in ppoTime])))
 
 # # Headway Standard Deviation
 fig, ax1 = plt.subplots(1, 1)
