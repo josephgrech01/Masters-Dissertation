@@ -317,8 +317,8 @@ class SumoEnv(gym.Env):
 
         state = self.computeState()
 
-        reward = self.computeRewardWithTime()
-        # reward = self.computeReward()
+        # reward = self.computeRewardWithTime()
+        reward = self.computeReward()
 
         # print(self.peopleOnBuses)
         # print(self.decisionBus[0])
@@ -328,7 +328,7 @@ class SumoEnv(gym.Env):
         
         # check if episode has terminated
         # if self.gymStep > self.epLen:
-        if traci.simulation.getTime() > 3000:
+        if traci.simulation.getTime() > 500:#3000:
             print("DONE, episode num: ", self.episodeNum)
 
             done = True
