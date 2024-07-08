@@ -17,7 +17,7 @@ def optimize_ppo(trial):
     learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-3)
 
     env = SumoEnv(gui=False, noWarnings=True, traffic=False, mixedConfigs=False, bunched=False, save=None, continuous=False)
-    env = ActionMasker(e, mask_fn)
+    env = ActionMasker(env, mask_fn)
 
     model = MaskablePPO(MaskableActorCriticPolicy, env, verbose=0, n_steps=n_steps, gamma=gamma, learning_rate=learning_rate)
 
