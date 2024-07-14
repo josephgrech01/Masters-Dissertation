@@ -130,8 +130,11 @@ class SumoEnv(gym.Env):
         self.dfLog = pd.DataFrame(columns=['time', 'meanWaitTime', 'action', 'dispersion', 'headwaySD'])
 
         ##################### MUST ADAPT ###########################################################
-        self.inCommon = ['bus.1', 'busB.1']
-        self.notInCommon = ['bus.2', 'busB.2', 'bus.3', 'busB.3', 'bus.4', 'busB.4', 'bus.5', 'busB.5', 'bus.0', 'busB.0']
+        self.inCommon1 = ['bus.1', 'busB.1']
+        self.notInCommon1 = ['bus.2', 'busB.2', 'bus.3', 'busB.3', 'bus.4', 'busB.4', 'bus.5', 'busB.5', 'bus.0', 'busB.0']
+
+        self.inCommon2 = ['busB.4', 'busC.4']
+        self.notInCommon2 = ['busB.5', 'busC.5', 'busB.0', 'busC.0', 'busB.1', 'busC.1', 'busB.2', 'busC.2', 'busB.3', 'busC.3']
         ##################### MUST ADAPT ###########################################################
 
 
@@ -469,6 +472,9 @@ class SumoEnv(gym.Env):
         ##################### MUST ADAPT ###########################################################
         self.inCommon = ['bus.1', 'busB.1']
         self.notInCommon = ['bus.2', 'busB.2', 'bus.3', 'busB.3', 'bus.4', 'busB.4', 'bus.5', 'busB.5', 'bus.0', 'busB.0']
+
+        self.inCommon2 = ['busB.4', 'busC.4']
+        self.notInCommon2 = ['busB.5', 'busC.5', 'busB.0', 'busC.0', 'busB.1', 'busC.1', 'busB.2', 'busC.2', 'busB.3', 'busC.3']
         ##################### MUST ADAPT ###########################################################
 
         # sumo step until all buses are in the simulation
@@ -594,7 +600,7 @@ class SumoEnv(gym.Env):
                     # backwardHeadway = self.getForwardHeadway(bus, follower)
                     # headways.append(abs(forwardHeadway - backwardHeadway))
 
-                    if bus not in self.inCommon:
+                    if bus not in self.inCommon1 and bus not in self.inCommon2:
                         # print('bus: {}'.format(bus))
                         # print('self.buses: {}'.format(self.buses))
                         # print('self.busesB: {}'.format(self.busesB))
@@ -618,12 +624,19 @@ class SumoEnv(gym.Env):
         for vehicle in traci.vehicle.getIDList():
             if vehicle[0:3] == "bus":
                 lane = traci.vehicle.getLaneID(vehicle)
-                if lane == '9_1' and vehicle not in self.inCommon:
-                    self.inCommon.append(vehicle)
-                    self.notInCommon.remove(vehicle)
-                elif (lane == '0_1' or lane == 'E0_1') and vehicle in self.inCommon:
-                    self.inCommon.remove(vehicle)
-                    self.notInCommon.append(vehicle)
+                if lane == '9_1' and vehicle not in self.inCommon1:
+                    self.inCommon1.append(vehicle)
+                    self.notInCommon1.remove(vehicle)
+                elif (lane == '0_1' or lane == 'E0_1') and vehicle in self.inCommon1:
+                    self.inCommon1.remove(vehicle)
+                    self.notInCommon1.append(vehicle)
+
+                if lane == 'E3_1' and vehicle not in self.inCommon2:
+                    self.inCommon2.append(vehicle)
+                    self.notInCommon2.remove(vehicle)
+                elif (lane == 'E6_1' or lane == 'C6_1') and vehicle in self.inCommon2:
+                    self.inCommon2.remove(vehicle)
+                    self.notInCommon2.append(vehicle)
 
         # print('inCommon: {}'.format(self.inCommon))
         # print('notInCommon: {}'.format(self.notInCommon))
@@ -671,6 +684,13 @@ class SumoEnv(gym.Env):
         traci.vehicle.highlight('busB.4', color=(255,0,255), size=60)
         traci.vehicle.highlight('busB.5', color=(255,0,255), size=60)
 
+        traci.vehicle.highlight('busC.0', color=(0,0,255), size=60)
+        traci.vehicle.highlight('busC.1', color=(0,0,255), size=60)
+        traci.vehicle.highlight('busC.2', color=(0,0,255), size=60)
+        traci.vehicle.highlight('busC.3', color=(0,0,255), size=60)
+        traci.vehicle.highlight('busC.4', color=(0,0,255), size=60)
+        traci.vehicle.highlight('busC.5', color=(0,0,255), size=60)
+
 
     # function which computes the state required by the gym environment
     # The state that is returned contains the stop which the bus has reached, the forward and backward headways, the number of persons waiting at each stop,
@@ -681,7 +701,7 @@ class SumoEnv(gym.Env):
         route = self.oneHotEncode(self.routes, self.decisionBus[0][3])
 
         inCommon = 0
-        if self.decisionBus[0] in ['stop10', 'stop11', 'stop12']:
+        if self.decisionBus[0] in ['stop10', 'stop11', 'stop12', 'stop4B', 'stop5B', 'stop6B']:
             inCommon = 1
 
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
@@ -754,11 +774,16 @@ class SumoEnv(gym.Env):
                     l = 'E'+str(lane)
                 else:
                     l = str(lane)
+            elif line == 'line3':
+                if lane not in [3,4,5]:
+                    l = 'C'+str(lane)
+                else:
+                    l = 'E'+str(lane) 
 
             h += traci.lane.getLength(l+"_0")
 
         # finally, add the portion of the leader's lane already driven  
-        h+= traci.vehicle.getLanePosition(leader)
+        h += traci.vehicle.getLanePosition(leader)
 
         return h
             
@@ -775,8 +800,9 @@ class SumoEnv(gym.Env):
         # print('line: {}'.format(line))
         
         
-        # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
+        
         if line == 'line1':
+            # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
             if int(b) + 1 == len(self.buses):
                 follower = "bus.0"
             # otherwise just increment the bus number
@@ -792,6 +818,7 @@ class SumoEnv(gym.Env):
 
         elif line == 'line2':
             # print('in line 2')
+            # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
             if int(b) + 1 == len(self.busesB):
                 follower = "busB.0"
             # otherwise just increment the bus number
@@ -809,6 +836,21 @@ class SumoEnv(gym.Env):
                 leader = "busB." + str(int(b) - 1)
 
             # print('leader {}'.format(leader))
+
+        elif line == 'line3':
+            # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
+            if int(b) + 1 == len(self.busesC):
+                follower = 'busC.0'
+            # otherwise just increment the bus number
+            else:
+                follower = 'busC.' + str(int(b) + 1)
+
+            # if the decision bus is the first bus, then the leader is the last bus, hence set the number of buses minus 1
+            if int(b) == 0:
+                leader = 'busC.' + str(len(self.busesC) - 1)
+            # otherwise just decrement the bus number
+            else:
+                leader = 'busC.' + str(int(b) - 1)
 
         return follower, leader
 
@@ -832,21 +874,55 @@ class SumoEnv(gym.Env):
 
         check = False
         line = b[3]
-        for veh in self.notInCommon:
-            if veh[3] == line:
-                if veh == b:
-                    check = True
-                
-                break
+        if line == '.' or line == 'C':
+            for veh in self.notInCommon:
+                if veh[3] == line:
+                    if veh == b:
+                        check = True
+                    
+                    break
 
-        if check and (len(self.inCommon) != 0):
-            if self.inCommon[-1] != leader:
-                # print(b)
-                # print('diff route leader {}'.format(self.inCommon[-1]))
-                forwardHeadway = self.getForwardHeadway(self.inCommon[-1], b)
+        # if check and (len(self.inCommon) != 0):
+        mapping = {'.': self.inCommon1, 'C': self.inCommon2}
+        if check:
+            if len(mapping[line]) != 0:
+                # if self.inCommon[-1] != leader:
+                if mapping[line][-1] != leader:
+                    # print(b)
+                    # print('diff route leader {}'.format(self.inCommon[-1]))
+                    # forwardHeadway = self.getForwardHeadway(self.inCommon[-1], b)
+                    forwardHeadway = self.getForwardHeadway(mapping[line][-1], b)
 
             # else:
             #     print('{} Same route leader {}'.format(b, self.inCommon[-1]))
+
+        check = False
+        line = b[3]
+        if line == 'B':
+            for veh in self.notInCommon1:
+                if veh[3] == line:
+                    if veh == b:
+                        check = True
+
+                    break
+            for veh in self.notInCommon2:
+                if veh[3] == line:
+                    if veh == b:
+                        check = True
+
+                    break
+
+        if check:
+            road = int(''.join([char for char in traci.vehicle.getRoadID(b) if char.isdigit()]))
+            if road in [0,1,2]:
+                if len(self.inCommon2) != 0:
+                    if self.inCommon2[-1] != leader:
+                        forwardHeadway = self.getForwardHeadway(self.inCommon2[-1], b)
+            if road in [6,7,8]:
+                if len(self.inCommon1) != 0:
+                    if self.inCommon1[-1] != leader:
+                        forwardHeadway = self.getForwardHeadway(self.inCommon1[-1], b)
+
 
 
         return [forwardHeadway, backwardHeadway]
