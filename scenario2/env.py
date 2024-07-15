@@ -933,26 +933,36 @@ class SumoEnv(gym.Env):
         else:
             b = self.decisionBus[0]
         sameRouteFollower, sameRouteLeader = self.getFollowerLeader(bus=[b])
-        # bus = self.decisionBus[0]
-        # print('decision bus: {} '.format(b))
-        # print('inCommon: {}'.format(self.inCommon))
-        index = self.inCommon.index(b)
+
+
+        road = traci.vehicle.getRoadID(b)
+        if road in ['9', '10', '11']:
+            index = self.inCommon1.index(b)
+            x = 0
+        elif road in ['E3', 'E4', 'E5']:
+            index = self.inCommon2.index(b)
+            x = 1
+
+        inCommon = {0: self.inCommon1, 1: self.inCommon2}
+        notInCommon = {0: self.notInCommon1, 1: self.notInCommon2}
+
+        # index = self.inCommon.index(b)
 
         # print(b)
         
-        if index == 0:
+        if index == 0:  
             # leader = sameRouteLeader
             line = b[3]
 
             diffRouteLeader = None
 
-            for veh in reversed(self.notInCommon):
+            for veh in reversed(notInCommon[x]):
                 if veh[3] != line:
                     diffRouteLeader = veh
                     break
             
             if diffRouteLeader == None: # just in case all other route buses are following in the common corridor
-                for veh in reversed(self.inCommon):
+                for veh in reversed(inCommon[x]):
                     if veh[3] != line:
                         diffRouteLeader = veh
                         break
@@ -968,23 +978,24 @@ class SumoEnv(gym.Env):
             forwardHeadway = sameRouteHeadway if sameRouteHeadway < diffRouteHeadway else diffRouteHeadway
 
         else:
-            leader = self.inCommon[index - 1]
+            # leader = self.inCommon[index - 1]
+            leader = inCommon[x][index - 1]
             
             forwardHeadway = self.getForwardHeadway(leader, b)
 
-        if index == len(self.inCommon) - 1:
+        if index == len(inCommon[x]) - 1:
             # follower = sameRouteFollower
             line = b[3]
 
             diffRouteFollower = None
 
-            for veh in self.notInCommon:
+            for veh in notInCommon[x]:
                 if veh[3] != line:
                     diffRouteFollower = veh
                     break
 
             if diffRouteFollower == None: # just in case all other route buses are leading in the common corridor
-                for veh in self.inCommon:
+                for veh in inCommon[x]:
                     if veh[3] != line:
                         diffRouteFollower = veh
                         break
@@ -1000,7 +1011,8 @@ class SumoEnv(gym.Env):
             backwardHeadway = sameRouteHeadway if sameRouteHeadway < diffRouteHeadway else diffRouteHeadway
         
         else:
-            follower = self.inCommon[index + 1]
+            # follower = self.inCommon[index + 1]
+            follower = inCommon[x][index + 1]
 
         # print('```````````````````````````')
         # print('bus: {}'.format(b))
@@ -1020,9 +1032,9 @@ class SumoEnv(gym.Env):
     # function which returns the forward and backward headways of the decision bus
     def getHeadways(self):
         line = traci.vehicle.getLine(self.decisionBus[0])
-        if (line == 'line1' and len(self.buses) > 1) or (line == 'line2' and len(self.busesB) > 1):
+        if (line == 'line1' and len(self.buses) > 1) or (line == 'line2' and len(self.busesB) > 1) or (line == 'line3' and len(self.busesC) > 1):
             
-            if self.decisionBus[0] not in self.inCommon:
+            if self.decisionBus[0] not in self.inCommon1 and self.decisionBus[0] not in self.inCommon2:
                 return self.notInCommonHeadways()
             else:
                 return self.inCommonHeadways()
@@ -1055,16 +1067,25 @@ class SumoEnv(gym.Env):
         sameRouteFollower, sameRouteLeader = self.getFollowerLeader()
 
         bus = self.decisionBus[0]
-        if bus in self.inCommon:
-            index = self.inCommon.index(bus)
+        road = traci.vehicle.getRoadID(bus)
+        if road in ['9', '10', '11']:
+            x = 0
+        elif road in ['E3', 'E4', 'E5']:
+            x = 1
+
+        inCommon = {0: self.inCommon1, 1: self.inCommon2}
+        index = inCommon[x].index(bus)
+
+        if bus in self.inCommon1 or bus in self.inCommon2:
+            # index = self.inCommon.index(bus)
             if index == 0:
                 leader = sameRouteLeader
             else:
-                leader = self.inCommon[index - 1]
-            if index == len(self.inCommon) - 1:
+                leader = inCommon[x][index - 1]
+            if index == len(inCommon[x]) - 1:
                 follower = sameRouteFollower
             else:
-                follower = self.inCommon[index + 1]
+                follower = inCommon[x][index + 1]
         else:
             leader = sameRouteLeader
             follower = sameRouteFollower
@@ -1145,7 +1166,28 @@ class SumoEnv(gym.Env):
                 traci.person.appendDrivingStage(person, e, "line2", stopID=stop) 
                 traci.person.appendWalkingStage(person, [e], 250) 
                 # add the person to the persons with an assigned stop
-                self.personsWithStop[person] = [stop, None, line]            
+                self.personsWithStop[person] = [stop, None, line] 
+            elif person[0] == 'C':
+                line = 'line3'
+                num = random.randint(1,6)
+                road = traci.person.getRoadID(person)
+
+                edge = int(''.join([char for char in road if char.isdigit()]))
+                newEdge = (int(edge) + num) % 12
+                newStop = newEdge + 1
+                stop = 'stop' + str(newStop)
+
+                if newStop not in [4, 5, 6]:
+                    stop += 'C'
+                    e = 'C' + str(newEdge)
+                else:
+                    stop += 'B'
+                    e = 'E' + str(newEdge)
+
+                traci.person.appendDrivingStage(person, e, 'line3', stopID=stop)
+                traci.person.appendWalkingStage(person, [e], 250)
+                # add the person to ther persons with an assigned stop
+                self.personsWithStop[person] = [stop, None, line]
             
             
     # function which determines the dwell time of a bus at a stop based on the number of passengers boarding and alighting, using the boarding and alighting rates
@@ -1166,6 +1208,8 @@ class SumoEnv(gym.Env):
             alighting = self.peopleOnBuses[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
         elif line == 'line2':
             alighting = self.peopleOnBusesB[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
+        elif line == 'line3':
+            alighting = self.peopleOnBusesC[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
 
         # calculate dwell time according to the boarding and alighting rates in the paper by Wang and Sun 2020
         time = max(math.ceil(boarding/3), math.ceil(abs(alighting)/1.8)) #abs is there just in case is falls below zero if a person should've left a bus but the simulation did not give them time
@@ -1188,6 +1232,8 @@ class SumoEnv(gym.Env):
                             self.peopleOnBuses[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
                         elif line == 'line2':
                             self.peopleOnBusesB[int(bus[-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
+                        elif line == 'line3':
+                            self.peopleOnBusesC[int(bus[-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
 
     # function which returns the speed factor (speed of bus/speed without traffic) of the leader bus, decision bus, and follower bus
     def getSpeedFactors(self):
@@ -1221,6 +1267,8 @@ class SumoEnv(gym.Env):
         for bus in self.buses:
             passengers.append(traci.vehicle.getPersonNumber(bus))
         for bus in self.busesB:
+            passengers.append(traci.vehicle.getPersonNumber(bus))
+        for bus in self.busesC:
             passengers.append(traci.vehicle.getPersonNumber(bus))
 
         average = sum(passengers)/len(passengers)
