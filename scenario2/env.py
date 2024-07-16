@@ -356,7 +356,7 @@ class SumoEnv(gym.Env):
         
         # check if episode has terminated
         # if self.gymStep > self.epLen:
-        if traci.simulation.getTime() > 500:#3000:
+        if traci.simulation.getTime() > self.epLen:#3000:
             print("DONE, episode num: ", self.episodeNum)
 
             done = True
@@ -1074,9 +1074,9 @@ class SumoEnv(gym.Env):
             x = 1
 
         inCommon = {0: self.inCommon1, 1: self.inCommon2}
-        index = inCommon[x].index(bus)
 
         if bus in self.inCommon1 or bus in self.inCommon2:
+            index = inCommon[x].index(bus)
             # index = self.inCommon.index(bus)
             if index == 0:
                 leader = sameRouteLeader
