@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2024-07-16 13:42:37.608910 by randomtrips.py v1_14_1+0000-f654d7b963e
+<!-- generated on 2024-07-16 15:53:45.681895 by randomtrips.py v1_14_1+0000-f654d7b963e
 <configuration>
     <end value="3000"/>
     <insertion-density value="29.0"/>
     <net-file value="scenario2/sumo/ring.net.xml"/>
-    <route-file value="scenario2/sumo/traffic29.rou.xml"/>
+    <route-file value="scenario2/sumo/traffic29_2.rou.xml"/>
 </configuration>
 -->
 
-<!-- generated on 2024-07-16 13:42:37 by Eclipse SUMO duarouter Version 1.14.1
+<!-- generated on 2024-07-16 15:53:45 by Eclipse SUMO duarouter Version 1.14.1
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -18,7 +18,7 @@
     </input>
 
     <output>
-        <output-file value="scenario2/sumo/traffic29.rou.xml"/>
+        <output-file value="scenario2/sumo/traffic29_2.rou.xml"/>
         <alternatives-output value="NUL"/>
     </output>
 
