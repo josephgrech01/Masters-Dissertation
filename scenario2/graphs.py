@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import statistics
 
-nc = pd.read_csv('scenario2/results/noControl/traffic29/2_log.csv')
-ppo = pd.read_csv('wang2020/results/continuous/timeReward/traffic90/log.csv')
+nc = pd.read_csv('scenario2/results/noControl/noTraffic/log.csv')
+ppo = pd.read_csv('scenario2/results/continuous/timeReward/bunched/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -18,9 +18,10 @@ ppoSD = ppo['headwaySD'].tolist()
 ncDisp = nc['dispersion'].tolist()
 ppoDisp = ppo['dispersion'].tolist()
 
-bunched = False
-save = None
-# save = 'wang2020/results/graphs/continuous/timeReward/bunched/'
+bunched = True
+
+save = 'scenario2/results/graphs/continuous/timeReward/bunched/'
+# save = None
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)
@@ -41,7 +42,7 @@ else:
     plt.show()
 plt.clf()
 
-print('Average wait time: {}'.format(sum([t*9/60 for t in ncTime])/len([t*9/60 for t in ncTime])))
+print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime])/len([t*9/60 for t in ppoTime])))
 print('Standard Deviation: {}'.format(statistics.stdev([t*9/60 for t in ppoTime])))
 
 # # Headway Standard Deviation
