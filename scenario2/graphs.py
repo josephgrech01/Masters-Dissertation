@@ -4,7 +4,7 @@ import numpy as np
 import statistics
 
 nc = pd.read_csv('scenario2/results/noControl/noTraffic/log.csv')
-ppo = pd.read_csv('scenario2/results/continuous/timeReward/bunched/log.csv')
+ppo = pd.read_csv('scenario2/results/continuous/timeReward/traffic90/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -20,8 +20,8 @@ ppoDisp = ppo['dispersion'].tolist()
 
 bunched = True
 
-save = 'scenario2/results/graphs/continuous/timeReward/bunched/'
-# save = None
+# save = 'scenario2/results/graphs/continuous/timeReward/bunched/'
+save = None
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)
