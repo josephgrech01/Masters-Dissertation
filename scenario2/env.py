@@ -81,7 +81,7 @@ class SumoEnv(gym.Env):
         # self.busesB = [bus for bus in traci.vehicle.getIDList() if bus[0:3] == "bus" and bus[3] == 'B']
         self.buses = ['bus.0', 'bus.1', 'bus.2', 'bus.3', 'bus.4', 'bus.5'] 
         self.busesB = ['busB.0', 'busB.1', 'busB.2', 'busB.3', 'busB.4', 'busB.5']
-        self.busesB = ['busC.0', 'busC.1', 'busC.2', 'busC.3', 'busC.4', 'busC.5']
+        self.busesC = ['busC.0', 'busC.1', 'busC.2', 'busC.3', 'busC.4', 'busC.5']
 
 
         self.busCapacity = 85
