@@ -762,11 +762,16 @@ class SumoEnv(gym.Env):
                     l = 'E'+str(lane)
                 else:
                     l = str(lane)
+            elif line == 'line3':
+                if lane not in [9,10,11]:
+                    l = 'C'+str(lane)
+                else:
+                    l = str(lane)
 
             h += traci.lane.getLength(l+"_0")
 
         # finally, add the portion of the leader's lane already driven  
-        h+= traci.vehicle.getLanePosition(leader)
+        h += traci.vehicle.getLanePosition(leader)
 
         return h
             
@@ -817,6 +822,21 @@ class SumoEnv(gym.Env):
                 leader = "busB." + str(int(b) - 1)
 
             # print('leader {}'.format(leader))
+
+        elif line == 'line3':
+            # if the decision bus is the last bus, then the follower is the first bus, hence it is set to zero
+            if int(b) + 1 == len(self.busesC):
+                follower = 'busC.0'
+            # otherwise just increment the bus number
+            else:
+                follower = 'busC.' + str(int(b) + 1)
+
+            # if the decision bus is the first bus, then the leader is the last bus, hence set to the number of buses minus 1
+            if int(b) == 0:
+                leader = 'busC.' + str(len(self.busesC) - 1)
+            # otherwise just decrement the bus number
+            else:
+                leader = 'busC.' + str(int(b) - 1)
 
         return follower, leader
 
@@ -952,7 +972,7 @@ class SumoEnv(gym.Env):
     # function which returns the forward and backward headways of the decision bus
     def getHeadways(self):
         line = traci.vehicle.getLine(self.decisionBus[0])
-        if (line == 'line1' and len(self.buses) > 1) or (line == 'line2' and len(self.busesB) > 1):
+        if (line == 'line1' and (len(self.buses) > 1)) or (line == 'line2' and (len(self.busesB) > 1)) or (line == 'line3' and (len(self.busesC) > 1)):
             
             if self.decisionBus[0] not in self.inCommon:
                 return self.notInCommonHeadways()
@@ -1077,7 +1097,26 @@ class SumoEnv(gym.Env):
                 traci.person.appendDrivingStage(person, e, "line2", stopID=stop) 
                 traci.person.appendWalkingStage(person, [e], 250) 
                 # add the person to the persons with an assigned stop
-                self.personsWithStop[person] = [stop, None, line]            
+                self.personsWithStop[person] = [stop, None, line]
+            elif person[0] == 'C':
+                line = 'line3'
+                num = random.randint(1,6)
+                road = traci.person.getRoadID(person)
+
+                edge = int(''.join([char for char in road if char.isdigit()]))
+                newEdge = (int(edge) + num) % 12
+                newStop = newEdge + 1
+                stop = 'stop' + str(newStop)
+
+                if newStop not in [10, 11, 12]:
+                    stop += 'C'
+                    e = 'C' + str(newEdge)
+                else:
+                    e = str(newEdge)
+                traci.person.appendDrivingStage(person, e, "line3", stopID=stop)
+                traci.person.appendWalkingStage(person, [e], 250)
+                # add the person to the persons with an assigned stop
+                self.personsWithStop[person] = [stop, None, line]        
             
             
     # function which determines the dwell time of a bus at a stop based on the number of passengers boarding and alighting, using the boarding and alighting rates
@@ -1098,6 +1137,8 @@ class SumoEnv(gym.Env):
             alighting = self.peopleOnBuses[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
         elif line == 'line2':
             alighting = self.peopleOnBusesB[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
+        elif line == 'line3':
+            alighting = self.peopleOnBusesC[int(bus[-1])][int(''.join([char for char in stop if char.isdigit()]))-1]
 
         # calculate dwell time according to the boarding and alighting rates in the paper by Wang and Sun 2020
         time = max(math.ceil(boarding/3), math.ceil(abs(alighting)/1.8)) #abs is there just in case is falls below zero if a person should've left a bus but the simulation did not give them time
@@ -1120,6 +1161,8 @@ class SumoEnv(gym.Env):
                             self.peopleOnBuses[int(bus[-1])][int(self.personsWithStop[person][0][-1])-1] += 1
                         elif line == 'line2':
                             self.peopleOnBusesB[int(bus[-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
+                        elif line == 'line3':
+                            self.peopleOnBusesC[int(bus[-1])][int(''.join([char for char in self.personsWithStop[person][0] if char.isdigit()]))-1] += 1
 
     # function which returns the speed factor (speed of bus/speed without traffic) of the leader bus, decision bus, and follower bus
     def getSpeedFactors(self):
@@ -1153,6 +1196,8 @@ class SumoEnv(gym.Env):
         for bus in self.buses:
             passengers.append(traci.vehicle.getPersonNumber(bus))
         for bus in self.busesB:
+            passengers.append(traci.vehicle.getPersonNumber(bus))
+        for bus in self.busesC:
             passengers.append(traci.vehicle.getPersonNumber(bus))
 
         average = sum(passengers)/len(passengers)

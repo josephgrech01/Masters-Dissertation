@@ -879,7 +879,7 @@ class SumoEnv(gym.Env):
         check = False
         line = b[3]
         if line == '.' or line == 'C':
-            for veh in self.notInCommon:
+            for veh in self.notInCommon: ###############################
                 if veh[3] == line:
                     if veh == b:
                         check = True
