@@ -1,18 +1,18 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('scenario3/results/noControl/noTraffic/route1.pkl', 'rb') as f:
+with open('scenario3/results/continuous/timeReward/noTraffic/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('scenario3/results/noControl/noTraffic/route2.pkl', 'rb') as f:
+with open('scenario3/results/continuous/timeReward/noTraffic/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
-with open('scenario3/results/noControl/noTraffic/route3.pkl', 'rb') as f:
+with open('scenario3/results/continuous/timeReward/noTraffic/route3.pkl', 'rb') as f:
     route3 = pickle.load(f)
 
-strategy = 'No Control'
+strategy = 'PPO'
 bunched = False
 
-# save = 'scenario3/results/graphs/noControl/'
-save = None
+save = 'scenario3/results/graphs/continuous/timeReward/'
+# save = None
 
 for y in range(0, 6):
     for z in route1[y]:
