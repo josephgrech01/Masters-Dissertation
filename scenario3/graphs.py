@@ -4,7 +4,7 @@ import numpy as np
 import statistics
 
 nc = pd.read_csv('scenario3/results/noControl/traffic90/log.csv')
-ppo = pd.read_csv('wang2020/results/continuous/timeReward/traffic90/log.csv')
+ppo = pd.read_csv('scenario3/results/continuous/timeReward/traffic90/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -42,8 +42,11 @@ else:
     plt.show()
 plt.clf()
 
-print('Average wait time: {}'.format(sum([t*9/60 for t in ncTime])/len([t*9/60 for t in ncTime])))
-print('Standard Deviation: {}'.format(statistics.stdev([t*9/60 for t in ppoTime])))
+print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime][:int(len(ppoTime)*0.75)])/len([t*9/60 for t in ppoTime][:int(len(ppoTime)*0.75)])))
+print('Standard Deviation: {}'.format(statistics.stdev([t*9/60 for t in ppoTime][:int(len(ppoTime)*0.75)])))
+
+# print('Average wait time: {}'.format(sum([t*9/60 for t in ppoTime])/len([t*9/60 for t in ppoTime])))
+# print('Standard Deviation: {}'.format(statistics.stdev([t*9/60 for t in ppoTime])))
 
 # # Headway Standard Deviation
 fig, ax1 = plt.subplots(1, 1)

@@ -97,7 +97,7 @@ class sumoMultiLine(gym.Env):
         self.buses = ['bus.'+str(i) for i in range(12)]
         self.busesB = ['busB.'+str(i) for i in range(21)]
 
-        self.busStops = list(traci.simulation.getBusStopIDList())
+        
 
         self.routes = ['.', 'B']
 
@@ -108,12 +108,14 @@ class sumoMultiLine(gym.Env):
         self.decisionBs = ["bus.0", "410460005", 0]
         traci.start(self.sumoCmd)
 
+        self.busStops = list(traci.simulation.getBusStopIDList())
+
         # self.envStep = 0
         self.currentVehicles = []
         self.hour = 6
         
-        self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
-        self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
+        self.df22 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route22.csv'))
+        self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
         self.action_space = Box(low=-1, high=1, shape=(1,), dtype=np.float32)
@@ -150,9 +152,10 @@ class sumoMultiLine(gym.Env):
 
         # observations = {bus: self.observe(bus) for bus in self.actionBuses}
         if len(self.actionBuses) > 0:
-            observation = self.observe(self.actionBuses[0])
-            # reward = self.calculateWeightedReward(self.actionBuses[0], action)
-            reward = self.calculateReward(self.actionBuses[0], action)
+            # observation = self.observe(self.actionBuses[0])
+            
+            # reward = self.calculateReward(self.actionBuses[0], action)
+            pass
         else: # when last bus exits in the final step
             observation = []
             reward = 0
@@ -365,8 +368,8 @@ class sumoMultiLine(gym.Env):
         self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         self.minmax = pd.DataFrame(columns=['min','max'])
         
-        self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
-        self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
+        self.df22 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route22.csv'))
+        self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
         self.bunchingGraphData = {}
@@ -461,8 +464,8 @@ class sumoMultiLine(gym.Env):
             if self.getHour(time) != self.hour:
                 self.hour = self.getHour(time)
                 # load the demand data for the current hour
-                self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
-                self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
+                self.df22 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route22.csv'))
+                self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
                 # add the passengers for the coming hour
                 self.addPassengers()#self.df22, self.df43, self.hour)
             
@@ -510,7 +513,8 @@ class sumoMultiLine(gym.Env):
                 
                 if len(next_stop) == 0:
                     # remove bus since it does not have any more stops
-                    removeVehicles.append(v[0])
+                    # removeVehicles.append(v[0])
+                    pass
                 else:
                     stopId = next_stop[0][2] # the bus stop ID is the third element in the tuple returned
 
@@ -526,12 +530,13 @@ class sumoMultiLine(gym.Env):
                                         self.reachedSharedCorridor.append(v[0])
                                     elif stopId in shared[1]: # update journey section to 'after shared corridor'
                                         v[2] = 1 
-                                        self.bus_states[v[0]]['journeySection'] = 1
+                                        self.bus_states[v[0]]['journeySection'] = -1
 
                                     # check if the bus should stop
                                     # if not self.shouldStop(v[0], stopId):
                                     persons = self.shouldStop(v[0], stopId)
                                     if persons is None:
+                                        ############## ADAPT #################
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
                                         #############################################################
                                         if v[0][4:6] == '22':
@@ -564,17 +569,17 @@ class sumoMultiLine(gym.Env):
             ############################################################################################################
             
             # removing the vehicles that have ended their journey
-            for v in removeVehicles:
-                for x in self.currentVehicles:
-                    if v == x[0]:
-                        self.reachedSharedCorridor.remove(v)
-                        self.currentVehicles.remove(x)
-                        # self.removeAgent(v)
+            # for v in removeVehicles:
+            #     for x in self.currentVehicles:
+            #         if v == x[0]:
+            #             self.reachedSharedCorridor.remove(v)
+            #             self.currentVehicles.remove(x)
+            #             # self.removeAgent(v)
 
-                        if self.bus_states[v]['route'] == '22':
-                            self.travelTimes22[v] = (time - self.travelTimes22[v]) / 60
-                        else:
-                            self.travelTimes43[v] = (time - self.travelTimes43[v]) / 60
+            #             if self.bus_states[v]['route'] == '22':
+            #                 self.travelTimes22[v] = (time - self.travelTimes22[v]) / 60
+            #             else:
+            #                 self.travelTimes43[v] = (time - self.travelTimes43[v]) / 60
 
             #########################################################################
             ###################### REMOVE AGENTS ####################################
@@ -758,7 +763,7 @@ class sumoMultiLine(gym.Env):
             # print("BUSES: {}".format(buses))
             i = buses.index(bus) # index of bus in currentVehicles
             if i + 1 == len(buses): # bus is the current last of the route, therefore it has no follower
-                return None
+                return buses[0] #??????????????????
             else: # follower is the next element of list since all buses keep their order as no overtaking is possible
                 return buses[i + 1]
         # follower bus with different route
@@ -782,7 +787,7 @@ class sumoMultiLine(gym.Env):
             buses = [v[0] for v in self.currentVehicles if v[0].split(':')[0][-2:] == traci.vehicle.getLine(bus)]
             i = buses.index(bus) # index of bus in currentVehicles
             if i == 0: # bus is the leader of the route, therefore it has no leader
-                return None
+                return buses[-1] #????????????????
             else: # leader is the previous element of list since all buses keep their order as no overtaking is possible 
                 return buses[i - 1]
         # leader bus with different route
@@ -953,39 +958,6 @@ class sumoMultiLine(gym.Env):
         if minUnshared is not None:
             if min(minUnshared) < self.minTime[2]:
                 self.minTime[2] = min(minUnshared)
-        
-    def getMinWaitTimes(self):
-        pass
-        minAll = []
-        minShared = []
-        minUnshared = []
-        routes = [route22, route43]
-        for index, route in enumerate(routes):
-            for stop in route:
-                if index == 1 and stop in route22:
-                    pass
-                else:
-                    personsOnStop = traci.busstop.getPersonIDs(stop)
-                    waitTimes = [traci.person.getWaitingTime(person) for person in personsOnStop]
-                    if len(waitTimes) > 0:
-                        minAll.append(min(waitTimes))
-                        #####################################
-                        if stop in sharedStops:
-                            minShared.append(min(waitTimes))
-                        else:
-                            minUnshared.append(min(waitTimes))
-                        ####################################
-                    # else:
-                    #     maxWaitTimes.append(0)
-
-        if len(minAll) == 0:
-            minAll = None
-        if len(minShared) == 0:
-            minShared = None
-        if len(minUnshared) == 0:
-            minUnshared = None
-        
-        return minAll, minShared, minUnshared
 
 
     def getMaxWaitTimeOnStops(self):
