@@ -43,11 +43,13 @@ class sumoMultiLine(gym.Env):
 
     metadata = {}
 
-    def __init__(self, gui=False, traffic=False, bunched=False, headwayReward=True, save=None, noWarnings=True):
+    def __init__(self, gui=False, traffic=False, bunched=False, headwayReward=True, save=None, noWarnings=True, saveState=None):
 
+        self.saveState = saveState
         self.save = str(save)
         self.episodeNum = 0
         # self.agents = []
+        self.trips = {}
         self.bus_states =  {} # dictionary to store the state of each bus
         self.actionBuses = []
         self.total22 = 0
@@ -59,14 +61,16 @@ class sumoMultiLine(gym.Env):
         self.bunchingGraphData = {}
 
         self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
-        self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
-        self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        # self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        # self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         self.rates = pd.DataFrame(columns=['rate'])
-        self.minmax = pd.DataFrame(columns=['min','max'])
-
+        # self.minmax = pd.DataFrame(columns=['min','max'])
+        
+        
+        self.bunchingGraphData = {}
         self.reachedSharedCorridor = [] # buses that have reached the first stop of the shared corridor, will remain in list until end of journey
-        self.maxTime = [0,0,0]
-        self.minTime = [1000000,1000000,1000000]
+        # self.maxTime = [0,0,0]
+        
         if gui:
             self.sumoBinary = checkBinary('sumo-gui')
         else:
@@ -84,8 +88,11 @@ class sumoMultiLine(gym.Env):
         elif self.traffic and not self.bunched:
             pass
         
-
-        self.sumoCmd = [self.sumoBinary, '-c', self.config, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550']#, '--lanechange.overtake-right', 'true']
+        if self.saveState is None or self.saveState is False:
+            self.sumoCmd = [self.sumoBinary, '-c', self.config, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550']#, '--save-state.times', '1500', '--save-state.files', 'test.xml', '--save-state.transportables']#, '--lanechange.overtake-right', 'true']
+        else:
+            self.sumoCmd = [self.sumoBinary, '-c', self.config, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550', '--save-state.times', str(self.saveState), '--save-state.files', 'singaporeRing/sumo/test.xml', '--save-state.transportables']
+        
         if self.noWarnings:
             self.sumoCmd.append("--no-warnings")
 
@@ -97,6 +104,9 @@ class sumoMultiLine(gym.Env):
         self.buses = ['bus.'+str(i) for i in range(12)]
         self.busesB = ['busB.'+str(i) for i in range(21)]
 
+        self.currentVehicles = []
+        self.hour = 6
+
         
 
         self.routes = ['.', 'B']
@@ -105,17 +115,23 @@ class sumoMultiLine(gym.Env):
         self.notInCommon = ['bus.'+str(i) for i in range(12)]
         self.notInCommon.extend(['busB.'+str(i) for i in range(21)])
 
-        self.decisionBs = ["bus.0", "410460005", 0]
+        self.decisionBus = ["bus.0", "410460005", 0]
         traci.start(self.sumoCmd)
+        if self.saveState == False:
+            traci.simulation.loadState('singaporeRing/sumo/test.xml')
+            self.loadValues()
+            print(self.hour)
+            for v in self.currentVehicles:
+                traci.vehicle.subscribe(v[0], [traci.constants.VAR_NEXT_STOPS])
 
         self.busStops = list(traci.simulation.getBusStopIDList())
 
         # self.envStep = 0
-        self.currentVehicles = []
-        self.hour = 6
+        
         
         self.df22 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
+        # if self.hour == 6:
         self.addPassengers()#self.df22, self.df43, self.hour)
 
         self.action_space = Box(low=-1, high=1, shape=(1,), dtype=np.float32)
@@ -134,7 +150,7 @@ class sumoMultiLine(gym.Env):
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
 
-        self.d = False
+        # self.d = False
 
         self.episodes = 0
 
@@ -171,25 +187,25 @@ class sumoMultiLine(gym.Env):
         self.logValues()
 
         if done:
-            total22 = 0
-            print("ROUTE 22:")
-            for _, v in self.travelTimes22.items():
-                total22 += v
-                # print(v)
+            # total22 = 0
+            # print("ROUTE 22:")
+            # for _, v in self.travelTimes22.items():
+            #     total22 += v
+            #     # print(v)
 
-            avg22 = total22 / len(self.travelTimes22)
+            # avg22 = total22 / len(self.travelTimes22)
 
-            print("ROUTE 22 AVERAGE: {}".format(avg22))
+            # print("ROUTE 22 AVERAGE: {}".format(avg22))
  
-            total43 = 0
-            print("ROUTE 43:")
-            for _, v in self.travelTimes43.items():
-                total43 += v
-                # print(v)
+            # total43 = 0
+            # print("ROUTE 43:")
+            # for _, v in self.travelTimes43.items():
+            #     total43 += v
+            #     # print(v)
 
-            avg43 = total43 / len(self.travelTimes43)
+            # avg43 = total43 / len(self.travelTimes43)
 
-            print("ROUTE 43 AVERAGE: {}".format(avg43))
+            # print("ROUTE 43 AVERAGE: {}".format(avg43))
 
             # self.df.to_csv('singapore/results/sidewalks/test/fypReward/fyp' + self.iteration +  '.csv')
             if self.save != None:
@@ -208,7 +224,8 @@ class sumoMultiLine(gym.Env):
             
 
 
-        return observation, reward, done, {} #, dones, {}
+        # return observation, reward, done, {} #, dones, {}
+        return {},{},done,{}
 
 
     # def addAgent(self, agent):
@@ -354,14 +371,26 @@ class sumoMultiLine(gym.Env):
         self.close()
 
         # self.agents = []
+        self.trips = {}
         self.bus_states =  {} # dictionary to store the state of each bus
         self.actionBuses = []
-
-        traci.start(self.sumoCmd)
 
         # self.envStep = 0
         self.currentVehicles = []
         self.hour = 6
+
+        self.bunchingGraphData = {}
+        self.reachedSharedCorridor = []
+
+        traci.start(self.sumoCmd)
+        if self.saveState == False:
+            traci.simulation.loadState('singaporeRing/sumo/test.xml')
+            self.loadValues()
+            # print(self.trips)
+            for v in self.currentVehicles:
+                traci.vehicle.subscribe(v[0], [traci.constants.VAR_NEXT_STOPS])
+
+        
 
         self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
@@ -372,7 +401,7 @@ class sumoMultiLine(gym.Env):
         self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
         self.addPassengers()#self.df22, self.df43, self.hour)
 
-        self.bunchingGraphData = {}
+        
 
         self.maxTime = [0,0,0]
         self.minTime = [1000000,1000000,1000000]
@@ -383,15 +412,15 @@ class sumoMultiLine(gym.Env):
 
         print("EPISODEEEEEE: {}".format(self.episodes))
 
-        self.stoppedBuses = [[None for _ in range(12)], [None for _ in range(21)]]
-        self.route22Travel = {i:[[]] for i in range(12)}
-        self.route43Travel = {i:[[]] for i in range(21)}
+        # self.stoppedBuses = [[None for _ in range(12)], [None for _ in range(21)]]
+        # self.route22Travel = {i:[[]] for i in range(12)}
+        # self.route43Travel = {i:[[]] for i in range(21)}
 
-        self.inCommon = []
-        self.notInCommon = ['bus.'+str(i) for i in range(12)]
-        self.notInCommon.extend(['busB.'+str(i) for i in range(21)])
+        # self.inCommon = []
+        # self.notInCommon = ['bus.'+str(i) for i in range(12)]
+        # self.notInCommon.extend(['busB.'+str(i) for i in range(21)])
 
-        self.decisionBs = ["bus.0", "410460005", 0]
+        # self.decisionBus = ["bus.0", "410460005", 0]
 
 
 
@@ -419,7 +448,7 @@ class sumoMultiLine(gym.Env):
         alight = self.bus_states[bus]['alight_board'][0]
         board = self.bus_states[bus]['alight_board'][1]
         # calculate dwell time required according to boarding and alighting rates in the paper by Wang and Sun 2020
-        time = max(math.ceil(board / 3), math.ceil(alight / 1.8))
+        time = max(math.ceil(board * 3), math.ceil(alight * 1.8))
 
         # TO AVOID NANs
         if math.isnan(action):
@@ -461,13 +490,16 @@ class sumoMultiLine(gym.Env):
             time = traci.simulation.getTime()
 
             # start of a new hour
+            # print('TESTING HOUR: GETHOUR {} HOUR {} TIME {}'.format(self.getHour(time), self.hour, time))
             if self.getHour(time) != self.hour:
                 self.hour = self.getHour(time)
                 # load the demand data for the current hour
                 self.df22 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route22.csv'))
                 self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
                 # add the passengers for the coming hour
-                self.addPassengers()#self.df22, self.df43, self.hour)
+                print('CALLED ADDPASSENGERS AT TIME {} GETHOUR {} HOUR {}'.format(time, self.getHour(time), self.hour))
+                if self.hour != 11:
+                    self.addPassengers()#self.df22, self.df43, self.hour)
             
             # keep track of vehicles (buses) active in the simulation
             newV = traci.simulation.getDepartedIDList()
@@ -480,10 +512,10 @@ class sumoMultiLine(gym.Env):
                     
                     self.bunchingGraphData[v] = []
 
-                    if self.bus_states[v]['route'] == '22':
-                        self.travelTimes22[v] = time
-                    else:
-                        self.travelTimes43[v] = time
+                    # if self.bus_states[v]['route'] == '22':
+                    #     self.travelTimes22[v] = time
+                    # else:
+                    #     self.travelTimes43[v] = time
                     
                     # self.addAgent(v)
                     # print("New Vehicle, Agent Added: {}".format(v))
@@ -531,10 +563,12 @@ class sumoMultiLine(gym.Env):
                                     elif stopId in shared[1]: # update journey section to 'after shared corridor'
                                         v[2] = 1 
                                         self.bus_states[v[0]]['journeySection'] = -1
+                                        self.reachedSharedCorridor.remove(v[0])
 
                                     # check if the bus should stop
                                     # if not self.shouldStop(v[0], stopId):
                                     persons = self.shouldStop(v[0], stopId)
+                                    # print('SHOULD STOP: {}'.format(persons))
                                     if persons is None:
                                         ############## ADAPT #################
                                         traci.vehicle.setBusStop(v[0], stopId, duration=0) # stopping duration set to zero
@@ -561,7 +595,7 @@ class sumoMultiLine(gym.Env):
                                             stopIndex = route43.index(stopId)
                                         self.bunchingGraphData[v[0]].append((time, stopIndex))
 
-                                        seconds = max(math.ceil(board / 3), math.ceil(alight / 1.8))
+                                        seconds = max(math.ceil(board * 3), math.ceil(alight * 1.8))
                                         self.bunchingGraphData[v[0]].append((time + seconds, stopIndex))
 
             ############################################################################################################
@@ -584,7 +618,33 @@ class sumoMultiLine(gym.Env):
             #########################################################################
             ###################### REMOVE AGENTS ####################################
             #########################################################################
+            
+            ### SAVING THE STATE ONCE ALL BUSES HAVE ENTERED THE NETWORK ###
+            if self.saveState is not None and self.saveState is not False:
+                if time == self.saveState:
+                    with open('singaporeRing/sumo/state/trips.pkl', 'wb') as f:
+                        pickle.dump(self.trips, f)
+                    with open('singaporeRing/sumo/state/bus_states.pkl', 'wb') as f:
+                        pickle.dump(self.bus_states, f)
+                    with open('singaporeRing/sumo/state/actionBuses.pkl', 'wb') as f:
+                        pickle.dump(self.actionBuses, f)
+                    with open('singaporeRing/sumo/state/bunchingGraphData.pkl', 'wb') as f:
+                        pickle.dump(self.bunchingGraphData, f)
+                    with open('singaporeRing/sumo/state/reachedSharedCorridor.pkl', 'wb') as f:
+                        pickle.dump(self.reachedSharedCorridor, f)
+                    with open('singaporeRing/sumo/state/currentVehicles.pkl', 'wb') as f:
+                        pickle.dump(self.currentVehicles, f)
+                    with open('singaporeRing/sumo/state/hour.pkl', 'wb') as f:
+                        pickle.dump(self.hour, f)
 
+                if time == self.saveState + 1:
+                    self.close()
+            # if self.saveState is not None and self.saveState is not False:
+            #     if time == self.saveState + 1:
+            #     # traci.simulation.saveState('singaporeRing/sumo/evenlySpacedtest.xml', saveTransportables=True)
+            #         self.close()
+            ###
+            
             # if len(self.agents) < 1:
             if len(self.currentVehicles) < 1:# or traci.simulation.getTime() == 28000:
                 return True
@@ -600,6 +660,7 @@ class sumoMultiLine(gym.Env):
     
     # function that adds the passengers into the simulation for the coming hour
     def addPassengers(self): #df22, df43, hour):
+        print('called ADDPASSENGERS HOUR {}'.format(self.hour))
         routes = [route22, route43]
         currTime = traci.simulation.getTime()
         for index, route in enumerate(routes):
@@ -712,21 +773,24 @@ class sumoMultiLine(gym.Env):
             traci.person.appendDrivingStage(person, alightEdge, "ANY", stopID=alightingStop)
 
             # update the trips dictionary with the new passenger and alighting stop
-            trips[person] = alightingStop
+            self.trips[person] = alightingStop
 
     # determines whether a bus should stop given the passengers on board and those waiting at the stop 
     def shouldStop(self, bus, stop):
         alight = 0
         board = 0
         # check if any of the passengers on the bus want to alight at the stop
+        print(self.trips)
         for p in traci.vehicle.getPersonIDList(bus):
-            if trips[p] == stop:
+            if self.trips[p] == stop:
                 # return True
                 alight += 1
         # check if any of the persons waiting at the stop want to board this bus line
         busLine = traci.vehicle.getLine(bus)
+        # print('busLine: {}'.format(busLine))
         for p in traci.busstop.getPersonIDs(stop):
             passengerLine = p.split('.')[1]
+            # print('passengerLine: {}'.format(passengerLine))
             if passengerLine == busLine:
                 # return True
                 board += 1
@@ -739,7 +803,8 @@ class sumoMultiLine(gym.Env):
 
     def updateTrips(self, arrived):
         for p in arrived:
-            trips.pop(p) # remove finished trip from dictionary
+            print('popping {}'.format(p))
+            self.trips.pop(p) # remove finished trip from dictionary
 
     # function that returns the forward and backward headways of the provided bus
     def getHeadways(self, bus, sameRoute=True):
@@ -921,43 +986,42 @@ class sumoMultiLine(gym.Env):
         time = traci.simulation.getTime()
 
         maxWaitTimes, maxSharedWaitTimes, maxUnsharedWaitTimes = self.getMaxWaitTimeOnStops()
-        minAll, minShared, minUnshared = self.getMinWaitTimes()
         
         if maxWaitTimes is not None:
             mean = sum(maxWaitTimes)/len(maxWaitTimes)
             median = statistics.median(maxWaitTimes)
-            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes), 'min':min(minAll), 'max':max(maxWaitTimes)}])])
+            self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes), 'max':max(maxWaitTimes)}])])
             # if max(maxWaitTimes) > self.maxTime[0]:
             #     self.maxTime[0] = max(maxWaitTimes)
-        if maxSharedWaitTimes is not None:
-            meanShared = sum(maxSharedWaitTimes)/len(maxSharedWaitTimes)
-            medianShared = statistics.median(maxSharedWaitTimes)
-            self.shared = pd.concat([self.shared, pd.DataFrame.from_records([{'time':time, 'mean':meanShared, 'median':medianShared, 'sd':self.sd(maxSharedWaitTimes), 'min':min(minShared), 'max':max(maxSharedWaitTimes)}])])
-            if max(maxSharedWaitTimes) > self.maxTime[1]:
-                self.maxTime[1] = max(maxSharedWaitTimes)
-        if maxUnsharedWaitTimes is not None:
-            meanUnshared = sum(maxUnsharedWaitTimes)/len(maxUnsharedWaitTimes)
-            medianUnshared = statistics.median(maxUnsharedWaitTimes)
-            self.unshared = pd.concat([self.unshared, pd.DataFrame.from_records([{'time':time, 'mean':meanUnshared, 'median':medianUnshared, 'sd':self.sd(maxUnsharedWaitTimes), 'min':min(minUnshared), 'max':max(maxUnsharedWaitTimes)}])])
-            if max(maxUnsharedWaitTimes) > self.maxTime[2]:
-                self.maxTime[2] = max(maxUnsharedWaitTimes)
+        # if maxSharedWaitTimes is not None:
+        #     meanShared = sum(maxSharedWaitTimes)/len(maxSharedWaitTimes)
+        #     medianShared = statistics.median(maxSharedWaitTimes)
+        #     self.shared = pd.concat([self.shared, pd.DataFrame.from_records([{'time':time, 'mean':meanShared, 'median':medianShared, 'sd':self.sd(maxSharedWaitTimes), 'max':max(maxSharedWaitTimes)}])])
+        #     if max(maxSharedWaitTimes) > self.maxTime[1]:
+        #         self.maxTime[1] = max(maxSharedWaitTimes)
+        # if maxUnsharedWaitTimes is not None:
+        #     meanUnshared = sum(maxUnsharedWaitTimes)/len(maxUnsharedWaitTimes)
+        #     medianUnshared = statistics.median(maxUnsharedWaitTimes)
+        #     self.unshared = pd.concat([self.unshared, pd.DataFrame.from_records([{'time':time, 'mean':meanUnshared, 'median':medianUnshared, 'sd':self.sd(maxUnsharedWaitTimes), 'max':max(maxUnsharedWaitTimes)}])])
+        #     if max(maxUnsharedWaitTimes) > self.maxTime[2]:
+        #         self.maxTime[2] = max(maxUnsharedWaitTimes)
         # else:
         #     mean = 0
 
         # self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean}])])
 
-        minAll, minShared, minUnshared = self.getMinWaitTimes()
-        if minAll is not None:
-            if min(minAll) < self.minTime[0]:
-                self.minTime[0] = min(minAll)
+        # minAll, minShared, minUnshared = self.getMinWaitTimes()
+        # if minAll is not None:
+        #     if min(minAll) < self.minTime[0]:
+        #         self.minTime[0] = min(minAll)
 
-        if minShared is not None:
-            if min(minShared) < self.minTime[1]:
-                self.minTime[1] = min(minShared)
+        # if minShared is not None:
+        #     if min(minShared) < self.minTime[1]:
+        #         self.minTime[1] = min(minShared)
 
-        if minUnshared is not None:
-            if min(minUnshared) < self.minTime[2]:
-                self.minTime[2] = min(minUnshared)
+        # if minUnshared is not None:
+        #     if min(minUnshared) < self.minTime[2]:
+        #         self.minTime[2] = min(minUnshared)
 
 
     def getMaxWaitTimeOnStops(self):
@@ -995,5 +1059,21 @@ class sumoMultiLine(gym.Env):
         if len(maxWaitTimes) != 0:
             return maxWaitTimes
         else:
-            return None
+            return None   
+
+    def loadValues(self):
+        with open('singaporeRing/sumo/state/trips.pkl', 'rb') as f:
+            self.trips = pickle.load(f)
+        with open('singaporeRing/sumo/state/bus_states.pkl', 'rb') as f:
+            self.bus_states = pickle.load(f)
+        with open('singaporeRing/sumo/state/actionBuses.pkl', 'rb') as f:
+            self.actionBuses = pickle.load(f)
+        with open('singaporeRing/sumo/state/bunchingGraphData.pkl', 'rb') as f:
+            self.bunchingGraphData = pickle.load(f)
+        with open('singaporeRing/sumo/state/reachedSharedCorridor.pkl', 'rb') as f:
+            self.reachedSharedCorridor = pickle.load(f)
+        with open('singaporeRing/sumo/state/currentVehicles.pkl', 'rb') as f:
+            self.currentVehicles = pickle.load(f)
+        with open('singaporeRing/sumo/state/hour.pkl', 'rb') as f:
+            self.hour = pickle.load(f)
 
