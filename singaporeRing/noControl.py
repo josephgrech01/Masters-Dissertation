@@ -2,14 +2,14 @@ from env import sumoMultiLine
 
 for i in range(0,1):
     print('ITERATION: {}'.format(i))
-    env = sumoMultiLine(gui=True, traffic=False, save=None, saveState=False)#'singapore/results/skipping/nc/run'+str(i)+'/')
+    env = sumoMultiLine(gui=True, traffic=False, save=None, saveState=False, continuous=False)#'singapore/results/skipping/nc/run'+str(i)+'/')
 
     obs = env.reset()
     done = False
     step = 0
     while not done:
         # actions = {agent: 0 for agent in env.agents if agent in env.action Buses}
-        action = 0
+        action = 2
         obs, reward, done, info = env.step(action)
         step += 1
         # print('STEP')
