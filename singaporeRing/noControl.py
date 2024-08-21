@@ -2,7 +2,7 @@ from env import sumoMultiLine
 
 for i in range(0,1):
     print('ITERATION: {}'.format(i))
-    env = sumoMultiLine(gui=True, traffic=False, save=None, saveState=False, continuous=False)#'singapore/results/skipping/nc/run'+str(i)+'/')
+    env = sumoMultiLine(gui=True, traffic=False, saveState=False, epLen=52000, continuous=False, save=None)#'singaporeRing/results/noControl/noTraffic/test1Action')#'singapore/results/skipping/nc/run'+str(i)+'/')
 
     obs = env.reset()
     done = False

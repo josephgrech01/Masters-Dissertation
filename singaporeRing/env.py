@@ -43,8 +43,9 @@ class sumoMultiLine(gym.Env):
 
     metadata = {}
 
-    def __init__(self, gui=False, traffic=False, bunched=False, headwayReward=True, save=None, noWarnings=True, saveState=None, continuous=False):
+    def __init__(self, gui=False, traffic=False, bunched=False, headwayReward=True, save=None, noWarnings=True, saveState=None, continuous=False, epLen=52000):
 
+        self.epLen = epLen
         self.continuous = continuous
         self.saveState = saveState
         self.save = str(save)
@@ -61,7 +62,8 @@ class sumoMultiLine(gym.Env):
 
         self.bunchingGraphData = {}
 
-        self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
+        self.df = pd.DataFrame(columns=['time', 'meanWaitTime', 'action', 'dispersion', 'headwaySD'])
+        # self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         # self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         # self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         self.rates = pd.DataFrame(columns=['rate'])
@@ -92,7 +94,7 @@ class sumoMultiLine(gym.Env):
         if self.saveState is None or self.saveState is False:
             self.sumoCmd = [self.sumoBinary, '-c', self.config, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550']#, '--save-state.times', '1500', '--save-state.files', 'test.xml', '--save-state.transportables']#, '--lanechange.overtake-right', 'true']
         else:
-            self.sumoCmd = [self.sumoBinary, '-c', self.config, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550', '--save-state.times', str(self.saveState), '--save-state.files', 'singaporeRing/sumo/test.xml', '--save-state.transportables']
+            self.sumoCmd = [self.sumoBinary, '-c', self.config, '--tripinfo-output', 'tripinfo.xml', '--no-internal-links', 'true', '--time-to-teleport', '550', '--save-state.times', str(self.saveState), '--save-state.files', 'singaporeRing/sumo/state.xml', '--save-state.transportables']
         
         if self.noWarnings:
             self.sumoCmd.append("--no-warnings")
@@ -119,9 +121,9 @@ class sumoMultiLine(gym.Env):
         self.decisionBus = ["bus.0", "410460005", 0]
         traci.start(self.sumoCmd)
         if self.saveState == False:
-            traci.simulation.loadState('singaporeRing/sumo/test.xml')
+            traci.simulation.loadState('singaporeRing/sumo/state.xml')
             self.loadValues()
-            print(self.hour)
+            # print(self.hour)
             for v in self.currentVehicles:
                 traci.vehicle.subscribe(v[0], [traci.constants.VAR_NEXT_STOPS])
 
@@ -167,10 +169,27 @@ class sumoMultiLine(gym.Env):
 
         self.episodes = 0
 
+    def canSkip(self):
+        bus = self.actionBuses[0]
+        stop = self.bus_states[bus]['stop']
+        personsOnBus = traci.vehicle.getPersonIDList(bus)
+        for person in personsOnBus:
+            if self.trips[person] == stop:
+                return False
+
+        return True
+    
+    def valid_action_mask(self):
+        if self.canSkip():
+            return [1,1,1]
+        else:
+            return [1,0,1]
+            
 
     def step(self, action):
-        for bus in self.actionBuses:
-            self.executeAction(bus, action)
+        # for bus in self.actionBuses:
+        #     self.executeAction(bus, action)
+        self.executeAction(self.actionBuses[0], action)
 
         ######################################
         ### SET ACTION BUSES TO EMPTY LIST ###
@@ -474,7 +493,7 @@ class sumoMultiLine(gym.Env):
 
         traci.start(self.sumoCmd)
         if self.saveState == False:
-            traci.simulation.loadState('singaporeRing/sumo/test.xml')
+            traci.simulation.loadState('singaporeRing/sumo/state.xml')
             self.loadValues()
             # print(self.trips)
             for v in self.currentVehicles:
@@ -630,8 +649,8 @@ class sumoMultiLine(gym.Env):
                 self.df22 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route22.csv'))
                 self.df43 = pd.read_csv(os.path.join('singaporeRing','demand','byHour','hour'+str(self.hour),'route43.csv'))
                 # add the passengers for the coming hour
-                print('CALLED ADDPASSENGERS AT TIME {} GETHOUR {} HOUR {}'.format(time, self.getHour(time), self.hour))
-                if self.hour != 11:
+                # print('CALLED ADDPASSENGERS AT TIME {} GETHOUR {} HOUR {}'.format(time, self.getHour(time), self.hour))
+                if self.hour != 11: # ??????? was 11
                     self.addPassengers()#self.df22, self.df43, self.hour)
             
             # keep track of vehicles (buses) active in the simulation
@@ -697,6 +716,8 @@ class sumoMultiLine(gym.Env):
                                         v[2] = 1 
                                         self.bus_states[v[0]]['journeySection'] = -1
                                         self.reachedSharedCorridor.remove(v[0])
+                                    elif stopId in [route22[0], route43[0]]:
+                                        v[2] = -1
 
                                     # check if the bus should stop
                                     # if not self.shouldStop(v[0], stopId):
@@ -796,6 +817,9 @@ class sumoMultiLine(gym.Env):
             # if len(self.agents) < 1:
             if len(self.currentVehicles) < 1:# or traci.simulation.getTime() == 28000:
                 return True
+
+            if time == self.epLen:
+                return True
         #########################################################################
         ###################### RETURN TRUE IF NO MORE BUSES ####################
         #########################################################################
@@ -808,7 +832,7 @@ class sumoMultiLine(gym.Env):
     
     # function that adds the passengers into the simulation for the coming hour
     def addPassengers(self): #df22, df43, hour):
-        print('called ADDPASSENGERS HOUR {}'.format(self.hour))
+        # print('called ADDPASSENGERS HOUR {}'.format(self.hour))
         routes = [route22, route43]
         currTime = traci.simulation.getTime()
         for index, route in enumerate(routes):
@@ -1165,7 +1189,7 @@ class sumoMultiLine(gym.Env):
         mean = sum(maxWaitTimes)/len(maxWaitTimes)
         # median = statistics.median(maxWaitTimes)
         # self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes)}])])
-        self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean, 'action':a, 'disperion':occDisp, 'headwaySD':self.sdVal}])], ignore_index=True)
+        self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean, 'action':a, 'dispersion':occDisp, 'headwaySD':self.sdVal}])])#, ignore_index=True)
             
             
             
