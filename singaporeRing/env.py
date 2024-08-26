@@ -19,18 +19,30 @@ else:
 
 numBuses = 33
 
+uniqueStops = ['410460005', '410459901', '410459897', '410459904', '410459657', '410459651', '410467153', '410462101', '410462103',
+           '410475114', '1531005322', '410483103', '410482520', '410482572', '410482568', '410482491', '410482562', '410482564',
+           '410482570', '410482551', '410471081', '410471030', '410480716', '410480722', '410480721', '5701793241', '410480724',
+           '410464248', '410465916', '410465917', '410465915', '410462762', '410466111', '410464251', '1847853709', '7314770844',
+           '3865151058', '1849631331', '3737148763', '8926967788', '410474760', '410474348', '1849631269', '2429952037', '1849631273',
+           '410462266', '410462293', '410462211', '410462291', '410486991', '410486955', '4430976208', '410486969', '1855320978',
+           '410486966', '410486516', '410486293', '410470959', '410471005', '410464255', '410478275', '-410478274', '-410478273',
+           '-1849457018', '410478271', '410459494', '4623289717', '410467553', '410467566', '410467564', '1268343846', '410467574',
+           '410467562', '410467567', '410467571', '410461658', '410481810', '410481815', '410481781', '410481783', '410482047',
+           '410482019', '1847713996']
+
+
 trips = {} # dictionary to store the destination bus stop of a passenger
 route22 = ['410460005', '410459901', '410459897', '410459904', '410459657', '410459651', '410467153', '410462101', '410462103',
            '410475114', '1531005322', '410483103', '410482520', '410482572', '410482568', '410482491', '410482562', '410482564',
            '410482570', '410482551', '410471081', '410471030', '410480716', '410480722', '410480721', '5701793241', '410480724',
-           '410464248', '410465916', '410465917', '410465915', '410462762', '410466111', '410464251']
+           '410464248', '410465916', '410465917', '410465915', '410462762', '410466111', '410464251'] #34 stops
 route43 = ['1847853709', '7314770844', '3865151058', '1849631331', '3737148763', '8926967788', '410474760', '410474348', '1849631269',
            '2429952037', '1849631273', '410462266', '410462293', '410462211', '410462291', '410486991', '410486955', '4430976208',
            '410486969', '1855320978', '410486966', '410486516', '410486293', '410475114', '1531005322', '410483103', '410482520',
            '410482572', '410482568', '410482491', '410482562', '410482564', '410482570', '410482551', '410471081', '410471030',
            '410470959', '410471005', '410464255', '410478275', '-410478274', '-410478273', '-1849457018', '410478271', '410459494',
            '4623289717', '410467553', '410467566', '410467564', '1268343846', '410467574', '410467562', '410467567', '410467571',
-           '410461658', '410481810', '410481815', '410481781', '410481783', '410482047', '410482019', '1847713996']
+           '410461658', '410481810', '410481815', '410481781', '410481783', '410482047', '410482019', '1847713996'] #62 stops
 shared = ['410475114', ['410480716', '410470959']]
 sharedStops = ['410475114', '1531005322', '410483103', '410482520', '410482572', '410482568', '410482491', '410482562', '410482564',
                '410482570', '410482551', '410471081', '410471030']
@@ -142,8 +154,10 @@ class sumoMultiLine(gym.Env):
         else:
             self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
         
-        self.low = np.array([0 for _ in range(2)] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] + [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0,0,0], dtype='float32')
-        self.high = np.array([1 for _ in range(2)] + [1] + [1 for _ in range(len(self.busStops))] + [float('inf'), float('inf')] + [float('inf') for _ in self.busStops] + [float('inf')] + [float('inf') for _ in self.busStops] + [85, 85, 85], dtype='float32')
+        self.low = np.array([0 for _ in range(2)] + [0] + [0 for _ in range(83)] + [0, 0] + [0 for _ in range(83)] + [0] + [0 for _ in range(83)] + [0,0,0], dtype='float32')
+        self.high = np.array([1 for _ in range(2)] + [1] + [1 for _ in range(83)] + [float('inf'), float('inf')] + [float('inf') for _ in range(83)] + [float('inf')] + [float('inf') for _ in range(83)] + [85, 85, 85], dtype='float32')
+        # print(len(self.low))
+        # print(len(self.high))
 
         self.observation_space = Box(self.low, self.high, dtype='float32')
 
@@ -280,7 +294,8 @@ class sumoMultiLine(gym.Env):
 
 
     def getPersonsOnStop(self):
-        persons = [traci.busstop.getPersonCount(stop) for stop in self.busStops]
+        # persons = [traci.busstop.getPersonCount(stop) for stop in self.busStops]
+        persons = [traci.busstop.getPersonCount(stop) for stop in uniqueStops]
         return persons
 
     def getNumPassengers(self, bus):
@@ -298,7 +313,8 @@ class sumoMultiLine(gym.Env):
 
         inCommon = 1 if self.bus_states[bus]['journeySection'] == 0 else 0
 
-        stop = self.oneHotEncode(self.busStops, self.bus_states[bus]['stop'])
+        # stop = self.oneHotEncode(self.busStops, self.bus_states[bus]['stop'])
+        stop = self.oneHotEncode(uniqueStops, self.bus_states[bus]['stop'])
 
         headways = self.getHeadways(bus) if inCommon == 0 else self.getHeadways(bus, sameRoute=False)
 
@@ -314,7 +330,7 @@ class sumoMultiLine(gym.Env):
 
 
         observation = route + [inCommon] + stop + [headways[1], headways[0]] + waitingPersons + [stopTime] + maxWaitTimes + numPassengers
-
+        # print(len(observation))
         return observation
 
 
@@ -553,7 +569,7 @@ class sumoMultiLine(gym.Env):
             # hold the bus
             if action == 0:
                 stopData = traci.vehicle.getStops(bus, 1)
-                traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + 120))
+                traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + 60))#120))
 
                 ##########
                 # update bunching graph data !!!!!!!
@@ -1249,11 +1265,16 @@ class sumoMultiLine(gym.Env):
         #             # else:
         #             #     maxWaitTimes.append(0)
 
-        for stop in self.busStops:
+        # for stop in self.busStops:
+        for stop in uniqueStops:
             personsOnStop = traci.busstop.getPersonIDs(stop)
             waitTimes = [traci.person.getWaitingTime(person) for person in personsOnStop]
             if len(waitTimes) > 0:
                 maxWaitTimes.append(max(waitTimes))
+            # in order for the obsevation space to correspond
+            # since when stops do not have any passengers these would otherwise not get included in the observation
+            else:
+                maxWaitTimes.append(0)
             
                 
 

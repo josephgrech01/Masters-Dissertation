@@ -4,7 +4,8 @@ import numpy as np
 import statistics
 
 nc = pd.read_csv('singaporeRing/results/noControl/noTraffic/log.csv')
-ppo = pd.read_csv('singaporeRing/results/noControl/noTraffic/test1Actionlog.csv')
+ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLenlog.csv')
+# ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/shortEpLenlog.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
@@ -19,8 +20,8 @@ ncDisp = nc['disperion'].tolist()
 ppoDisp = ppo['dispersion'].tolist()
 
 bunched = False
-save = None
-# save = 'wang2020/results/graphs/continuous/timeReward/bunched/'
+# save = None
+save = 'singaporeRing/results/graphs/discrete/headwayReward/1minHolding'
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)
@@ -29,7 +30,7 @@ ax1.set_ylabel('Mean waiting time (mins)')
 if not bunched:
     ax1.set_title('Mean Waiting Time')
     # values are scaled back to reality and converted to minutes
-    # ax1.plot([t/60 for t in ncSimTime], [(mean)/60 for mean in ncTime], color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([t/60 for t in ncSimTime], [(mean)/60 for mean in ncTime], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Mean Waiting Time - Already Bunched')
 ax1.plot([t/60 for t in ppoSimTime], [(mean)/60 for mean in ppoTime], color='black', linestyle='-', linewidth=1, label='PPO')
@@ -42,7 +43,7 @@ else:
 plt.clf()
 
 print('Average wait time: {}'.format(sum([t/60 for t in ncTime])/len([t/60 for t in ncTime])))
-print('Standard Deviation: {}'.format(statistics.stdev([t/60 for t in ppoTime])))
+print('Standard Deviation: {}'.format(statistics.stdev([t/60 for t in ncTime])))
 
 print('Average wait time: {}'.format(sum([t/60 for t in ppoTime])/len([t/60 for t in ppoTime])))
 print('Standard Deviation: {}'.format(statistics.stdev([t/60 for t in ppoTime])))
