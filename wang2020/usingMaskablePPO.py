@@ -4,10 +4,11 @@ from sb3_contrib.common.wrappers import ActionMasker
 from env import SumoEnv
 
 def mask_fn(env):
+    print('MASK_FN')
     return env.valid_action_mask()
 
 actions = ['Hold', 'Skip', 'Proceed']
-e = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=True, bunched=False, save='wang2020/results/maskablePPO/timeReward/traffic90/')
+e = SumoEnv(gui=True, noWarnings=True, epLen=750, traffic=True, bunched=False, save=None)#'wang2020/results/maskablePPO/timeReward/traffic90/')
 e = ActionMasker(e, mask_fn)
 # no traffic
 # model = PPO.load("models/ppoNoTraffic")

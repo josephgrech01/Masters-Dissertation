@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import statistics
 
-nc = pd.read_csv('singaporeRing/results/noControl/noTraffic/log.csv')
-ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLenlog.csv')
+nc = pd.read_csv('singaporeRing/results/noControl/noTraffic/test/log.csv')
+# ppo = pd.read_csv('singaporeRing/results/discrete/timeReward/noTraffic/50000Masklog.csv')
+ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLen300000log.csv')
 # ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/shortEpLenlog.csv')
 
 ncSimTime = nc['time'].tolist()
@@ -20,8 +21,8 @@ ncDisp = nc['disperion'].tolist()
 ppoDisp = ppo['dispersion'].tolist()
 
 bunched = False
-# save = None
-save = 'singaporeRing/results/graphs/discrete/headwayReward/1minHolding'
+save = None
+# save = 'singaporeRing/results/graphs/discrete/timeReward/'
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)
@@ -30,10 +31,10 @@ ax1.set_ylabel('Mean waiting time (mins)')
 if not bunched:
     ax1.set_title('Mean Waiting Time')
     # values are scaled back to reality and converted to minutes
-    ax1.plot([t/60 for t in ncSimTime], [(mean)/60 for mean in ncTime], color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([t/60 for t in ncSimTime][:2800], [(mean)/60 for mean in ncTime][:2800], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Mean Waiting Time - Already Bunched')
-ax1.plot([t/60 for t in ppoSimTime], [(mean)/60 for mean in ppoTime], color='black', linestyle='-', linewidth=1, label='PPO')
+ax1.plot([t/60 for t in ppoSimTime][:2700], [(mean)/60 for mean in ppoTime][:2700], color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.grid()
 plt.legend()
 if save is not None:
@@ -54,10 +55,10 @@ ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Headway Standard Deviation')
 if not bunched:
     ax1.set_title('Headway Standard Deviation')
-    ax1.plot([t*9/60 for t in ncSimTime], ncSD, color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([t/60 for t in ncSimTime][:2880], ncSD[:2880], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Headway Standard Deviation - Already Bunched')
-ax1.plot([t*9/60 for t in ppoSimTime], ppoSD, color='black', linestyle='-', linewidth=1, label='PPO')
+ax1.plot([t/60 for t in ppoSimTime][:2700], ppoSD[:2700], color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.grid()
 plt.legend()
 if save is not None:
@@ -72,10 +73,10 @@ ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Occupancy Dispersion')
 if not bunched:
     ax1.set_title('Occupancy Dispersion')
-    ax1.plot([t*9/60 for t in ncSimTime], ncDisp, color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([t/60 for t in ncSimTime][:2800], ncDisp[:2800], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Occupancy Dispersion - Already Bunched')
-ax1.plot([t*9/60 for t in ppoSimTime], ppoDisp, color='black', linestyle='-', linewidth=1, label='PPO')
+ax1.plot([t/60 for t in ppoSimTime][:2700], ppoDisp[:2700], color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.grid()
 plt.legend()
 if save is not None:

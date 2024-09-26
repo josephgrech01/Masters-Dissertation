@@ -136,17 +136,21 @@ class SumoEnv(gym.Env):
 
 
     def canSkip(self):
+        print('CANSKIP')
         bus = self.decisionBus[0]
         stop = self.decisionBus[1]
         personsOnBus = traci.vehicle.getPersonIDList(bus)
         for person in personsOnBus:
             if self.personsWithStop[person][0] == stop:
+                print('CANNOT SKIP')
                 return False
 
         return True
 
     def valid_action_mask(self):
+        print('VALIDATE ACTION MASK')
         if self.canSkip():
+            print('VALID')
             return [1,1,1]
         else:
             return [1,0,1]

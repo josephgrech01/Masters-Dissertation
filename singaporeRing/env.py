@@ -184,13 +184,20 @@ class sumoMultiLine(gym.Env):
         self.episodes = 0
 
     def canSkip(self):
+        
         bus = self.actionBuses[0]
         stop = self.bus_states[bus]['stop']
+        # print('Stop: {}'.format(stop))
         personsOnBus = traci.vehicle.getPersonIDList(bus)
         for person in personsOnBus:
             if self.trips[person] == stop:
+                # print('CAN\'T SKIP')
+                # print('{} {}'.format(person, stop))
                 return False
-
+            # else:
+            #     print('CAN SKIP')
+            #     print('{} {}'.format(person, stop))
+        # print('CAN SKIP')
         return True
     
     def valid_action_mask(self):
@@ -752,7 +759,8 @@ class sumoMultiLine(gym.Env):
                                     # else add bus to actionBuses only if the stop is not the final one in the route (since it should always stop at the final stop)
                                     else:
                                     # elif stopId not in finalStopsEdges:
-                                        if stopId not in finalStopsEdges:
+                                        # if stopId not in finalStopsEdges:
+                                        if stopId not in ['410464251', '1847713996']:
                                             # an action should be taken for this bus
                                             self.actionBuses.append(v[0])
                                             self.bus_states[v[0]]['alight_board'] = persons # keep track of number of people that want to alight and board                                    
