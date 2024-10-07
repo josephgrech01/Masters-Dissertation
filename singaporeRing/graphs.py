@@ -38,7 +38,7 @@ ax1.plot([t/60 for t in ppoSimTime][:2700], [(mean)/60 for mean in ppoTime][:270
 ax1.grid()
 plt.legend()
 if save is not None:
-    plt.savefig(save + 'meanWaitTime.jpg')
+    plt.savefig(save + 'meanWaitTime.jpg') #.eps
 else:
     plt.show()
 plt.clf()
