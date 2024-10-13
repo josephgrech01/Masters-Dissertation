@@ -24,11 +24,11 @@ e = ActionMasker(e, mask_fn) # eplen was 22000 or 50000
 # model = MaskablePPO(MaskableActorCriticPolicy, e, verbose=1, learning_rate=0.001, tensorboard_log="singaporeRing/tensorboard/discrete/timeReward/epLen22000")
 
 # model = MaskablePPO.load('singaporeRing/models/discrete/timeReward1450000', tensorboard_log="singaporeRing/tensorboard/discrete/timeReward/epLen22000Part3")
-model = MaskablePPO.load('singaporeRing/models/discrete/headwayReward1050000', tensorboard_log="singaporeRing/tensorboard/discrete/headwayReward/epLen22000Part4")
+model = MaskablePPO.load('singaporeRing/models/discrete/headwayReward1150000', tensorboard_log="singaporeRing/tensorboard/discrete/headwayReward/epLen22000Part4")
 model.set_env(e)
 
 model.learn(total_timesteps=50000, log_interval=1, reset_num_timesteps=False)
-model.save("singaporeRing/models/discrete/headwayReward1100000")
+model.save("singaporeRing/models/discrete/headwayReward1200000")
 
 e.close()
 

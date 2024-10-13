@@ -601,7 +601,7 @@ class sumoMultiLine(gym.Env):
         else:
             if math.isnan(action):
                 action = 0
-            holdingTime = math.ceil(action * 120)
+            holdingTime = math.ceil(action * 60)# 120)
 
             stopData = traci.vehicle.getStops(bus, 1)
             traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
