@@ -263,6 +263,7 @@ class SumoEnv(gym.Env):
         else:
             if math.isnan(action):
                 action = 0
+            # calculate the holding time
             holdingTime = math.ceil(action * 9)
 
             stopData = traci.vehicle.getStops(self.decisionBus[0], 1)
