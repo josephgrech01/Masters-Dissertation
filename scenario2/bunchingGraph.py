@@ -1,17 +1,20 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('scenario2/results/continuous/timeReward/noTraffic/route1.pkl', 'rb') as f:
+with open('scenario2/results/noControl/noTraffic/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('scenario2/results/continuous/timeReward/noTraffic/route2.pkl', 'rb') as f:
+with open('scenario2/results/noControl/noTraffic/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
-with open('scenario2/results/continuous/timeReward/noTraffic/route3.pkl', 'rb') as f:
+with open('scenario2/results/noControl/noTraffic/route3.pkl', 'rb') as f:
     route3 = pickle.load(f)
 
-strategy = 'PPO'
-bunched = False
+strategy = 'No Control'
+# strategy = 'PPO'
 
-# save = 'scenario2/results/graphs/continuous/timeReward/'
+bunched = False
+# bunched = True
+
+# save = 'scenario2/results/graphs/noControl/'
 save = None
 
 for y in range(0, 6):
@@ -33,7 +36,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route1Bunching.jpg')
+    plt.savefig(save + 'route1Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -60,7 +63,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route2Bunching.jpg')
+    plt.savefig(save + 'route2Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -86,7 +89,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route3Bunching.jpg')
+    plt.savefig(save + 'route3Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -133,7 +136,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'sharedStopsBunching1.jpg')
+    plt.savefig(save + 'sharedStopsBunching1.eps')
 else:
     plt.show()
 plt.clf()
@@ -183,7 +186,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'sharedStopsBunching2.jpg')
+    plt.savefig(save + 'sharedStopsBunching2.eps')
 else:
     plt.show()
 plt.clf()

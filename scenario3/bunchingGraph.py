@@ -1,18 +1,21 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('scenario3/results/continuous/timeReward/noTraffic/route1.pkl', 'rb') as f:
+with open('scenario3/results/noControl/noTraffic/route1.pkl', 'rb') as f:
     route1 = pickle.load(f)
-with open('scenario3/results/continuous/timeReward/noTraffic/route2.pkl', 'rb') as f:
+with open('scenario3/results/noControl/noTraffic/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
-with open('scenario3/results/continuous/timeReward/noTraffic/route3.pkl', 'rb') as f:
+with open('scenario3/results/noControl/noTraffic/route3.pkl', 'rb') as f:
     route3 = pickle.load(f)
 
-strategy = 'PPO'
-bunched = False
+strategy = 'No Control'
+# strategy = 'PPO'
 
-save = 'scenario3/results/graphs/continuous/timeReward/'
-# save = None
+bunched = False
+# bunched = True
+
+# save = 'scenario3/results/graphs/noControl/'
+save = None
 
 for y in range(0, 6):
     for z in route1[y]:
@@ -33,7 +36,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route1Bunching.jpg')
+    plt.savefig(save + 'route1Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -60,7 +63,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route2Bunching.jpg')
+    plt.savefig(save + 'route2Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -87,7 +90,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route3Bunching.jpg')
+    plt.savefig(save + 'route3Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -149,7 +152,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'sharedStopsBunching.jpg')
+    plt.savefig(save + 'sharedStopsBunching.eps')
 else:
     plt.show()
 plt.clf()

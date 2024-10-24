@@ -6,10 +6,12 @@ with open('wang2020/results/continuous/timeReward/bunched/route1.pkl', 'rb') as 
 with open('wang2020/results/continuous/timeReward/bunched/route2.pkl', 'rb') as f:
     route2 = pickle.load(f)
 
+# strategy = 'No Control'
 strategy = 'PPO'
-bunched = False
-# save = None
-save = 'wang2020/results/graphs/continuous/timeReward/bunched/'
+# bunched = False
+bunched = True
+save = None
+# save = 'wang2020/results/graphs/continuous/timeReward/bunched/'
 
 for y in range(0, 6):
     for z in route1[y]:
@@ -30,7 +32,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route1Bunching.jpg')
+    plt.savefig(save + 'route1Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -57,7 +59,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 # plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'route2Bunching.jpg')
+    plt.savefig(save + 'route2Bunching.eps')
 else:
     plt.show()
 plt.clf()
@@ -104,7 +106,7 @@ plt.xlabel('Time (mins)')
 plt.ylabel('Bus Stop')
 plt.legend(loc=4)
 if save is not None:
-    plt.savefig(save + 'sharedStopsBunching.jpg')
+    plt.savefig(save + 'sharedStopsBunching.eps')
 else:
     plt.show()
 plt.clf()

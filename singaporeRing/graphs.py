@@ -4,9 +4,13 @@ import numpy as np
 import statistics
 
 nc = pd.read_csv('singaporeRing/results/noControl/noTraffic/test/log.csv')
-# ppo = pd.read_csv('singaporeRing/results/discrete/timeReward/noTraffic/50000Masklog.csv')
-ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLen300000log.csv')
-# ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/shortEpLenlog.csv')
+#################################################################################################################
+# # ppo = pd.read_csv('singaporeRing/results/discrete/timeReward/noTraffic/50000Masklog.csv')
+# ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLen300000log.csv')
+# # ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/shortEpLenlog.csv')
+#################################################################################################################
+
+ppo = pd.read_csv('singaporeRing/results/continuous/timeReward/50000log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime = ppo['time'].tolist()
