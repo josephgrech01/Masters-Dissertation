@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import statistics
 
-nc = pd.read_csv('wang2020/results/noControl/noTraffic/log.csv')
+nc = pd.read_csv('wang2020/results/noControl/traffic90/log.csv')
 # ppo = pd.read_csv('wang2020/results/continuous/timeReward/traffic90/log.csv')
-ppo1 = pd.read_csv('wang2020/results/discrete/headwayReward/bunched/log.csv')
-ppo2 = pd.read_csv('wang2020/results/discrete/timeReward/bunched/log.csv')
-ppo3 = pd.read_csv('wang2020/results/continuous/headwayReward/bunched/log.csv')
-ppo4 = pd.read_csv('wang2020/results/continuous/timeReward/bunched/log.csv')
+ppo1 = pd.read_csv('wang2020/results/discrete/headwayReward/traffic90/log.csv')
+ppo2 = pd.read_csv('wang2020/results/discrete/timeReward/traffic90/log.csv')
+ppo3 = pd.read_csv('wang2020/results/continuous/headwayReward/traffic90/log.csv')
+ppo4 = pd.read_csv('wang2020/results/continuous/timeReward/traffic90/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime1 = ppo1['time'].tolist()
@@ -34,11 +34,11 @@ ppoDisp2 = ppo2['dispersion'].tolist()
 ppoDisp3 = ppo3['dispersion'].tolist()
 ppoDisp4 = ppo4['dispersion'].tolist()
 
-# bunched = False
-bunched = True
+bunched = False
+# bunched = True
 
-save = None
-# save = 'wang2020/results/graphs/bunched'
+# save = None
+save = 'wang2020/results/graphs/traffic3'
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)

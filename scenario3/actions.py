@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-ppo1 = pd.read_csv('wang2020/results/discrete/headwayReward/bunched/log.csv')
-ppo2 = pd.read_csv('wang2020/results/discrete/timeReward/bunched/log.csv')
-ppo3 = pd.read_csv('wang2020/results/continuous/headwayReward/bunched/log.csv')
-ppo4 = pd.read_csv('wang2020/results/continuous/timeReward/bunched/log.csv')
+ppo1 = pd.read_csv('scenario3/results/discrete/headwayReward/traffic29/log.csv')
+ppo2 = pd.read_csv('scenario3/results/discrete/timeReward/traffic29/log.csv')
+ppo3 = pd.read_csv('scenario3/results/continuous/headwayReward/traffic29/log.csv')
+ppo4 = pd.read_csv('scenario3/results/continuous/timeReward/traffic29/log.csv')
 
 action1 = ppo1['action']
 action2 = ppo2['action']
@@ -14,7 +14,7 @@ action3 = ppo3['action']
 action4 = ppo4['action']
 
 save = None
-# save = 'wang2020/results/graphs/bunched'
+# save = 'scenario3/results/graphs/'
 
 percentages = [{},{}]
 
@@ -77,11 +77,19 @@ bins = np.arange(0, 70, 10)
 bin_ranges = [f'{int(bins[i])}-{int(bins[i+1])}' for i in range(len(bins)-1)]
 
 plt.xticks(ticks=bins[:-1] + (bins[1] - bins[0])/2, labels=bin_ranges)
+
+# update the y-axis to double the tick values for each tickS
+current_yticks = plt.gca().get_yticks()
+plt.gca().set_yticklabels([f'{int(tick * 2)}' for tick in current_yticks])
+
+
 plt.title('Distribution of Holding Times (Percentage)')
 if save is not None:
     plt.savefig(save + 'continuousActions.eps')
 else:
     plt.show()
 plt.clf()
+
+
 
 
