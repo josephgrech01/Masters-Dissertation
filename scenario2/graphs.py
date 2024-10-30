@@ -37,8 +37,8 @@ ppoDisp4 = ppo4['dispersion'].tolist()
 bunched = False
 # bunched = True
 
-# save = 'scenario2/results/graphs/continuous/timeReward/bunched/'
-save = None
+save = 'scenario2/results/graphs/'
+# save = None
 
 # # Mean Waiting Time
 fig, ax1 = plt.subplots(1, 1)

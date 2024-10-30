@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-ppo1 = pd.read_csv('scenario3/results/discrete/headwayReward/traffic29/log.csv')
-ppo2 = pd.read_csv('scenario3/results/discrete/timeReward/traffic29/log.csv')
-ppo3 = pd.read_csv('scenario3/results/continuous/headwayReward/traffic29/log.csv')
-ppo4 = pd.read_csv('scenario3/results/continuous/timeReward/traffic29/log.csv')
+ppo1 = pd.read_csv('scenario2/results/discrete/headwayReward/noTraffic/log.csv')
+ppo2 = pd.read_csv('scenario2/results/discrete/timeReward/noTraffic/log.csv')
+ppo3 = pd.read_csv('scenario2/results/continuous/headwayReward/noTraffic/log.csv')
+ppo4 = pd.read_csv('scenario2/results/continuous/timeReward/noTraffic/log.csv')
 
 action1 = ppo1['action']
 action2 = ppo2['action']
@@ -14,59 +14,7 @@ action3 = ppo3['action']
 action4 = ppo4['action']
 
 save = None
-# save = 'scenario3/results/graphs/traffic'
-
-# percentages = [{},{}]
-
-# Only process data for "Model A" (first entry)
-# ppo = ppo1  # Assuming ppo1 corresponds to "Model A"
-# total_actions = len(ppo['action'])
-# holding_count = ppo['action'].tolist().count('Hold')
-# skipping_count = ppo['action'].tolist().count('Skip')
-# proceed_count = ppo['action'].tolist().count('No action')
-
-# # Calculate percentages
-# hold = (holding_count / total_actions) * 100
-# skip = (skipping_count / total_actions) * 100
-# proceed = (proceed_count / total_actions) * 100
-
-# percentages[0] = {'hold': hold, 'skip': skip, 'proceed': proceed}
-
-# # Only show "Model A"
-# x = ['Traffic Severity 3 - Model A']
-
-# # Define actions for "Model A" only
-# actions = {
-#     'Hold': [percentages[0]['hold']],
-#     'Skip': [percentages[0]['skip']],
-#     'Proceed': [percentages[0]['proceed']]
-# }
-
-# # Create the plot
-# fig, ax = plt.subplots()
-# bottom = np.zeros(1)  # Only one bar, so only one element for `bottom`
-
-# bar_width = 0.2
-
-# # Plot each section of the stacked bar
-# for a, action in actions.items():
-#     p = ax.bar(x, action, label=a, bottom=bottom, width=bar_width, edgecolor='black')
-#     bottom += action  # Update bottom for stacking
-#     # Remove labels if not needed
-#     # ax.bar_label(p, label_type='center')
-
-# # Customize and show the plot
-# ax.set_title('Distribution of Actions')
-# ax.legend(loc='upper right')
-# ax.set_ylabel('Percentage')
-# ax.set_xlim([-0.45, 0.45])  # Adjust x-axis to fit only one bar
-
-# # Show or save the plot
-# if save is not None:
-#     plt.savefig(save + 'discreteActions.eps')
-# else:
-#     plt.show()
-# plt.clf()
+# save = 'scenario2/results/graphs/'
 
 percentages = [{},{}]
 
@@ -120,7 +68,7 @@ models = ['Model C'] * len(model_c) + ['Model D'] * len(model_d)
 
 df = pd.DataFrame({
     'Holding Time (Seconds)': model_c + model_d,
-    'Model': ['Traffic Severity 1 - Model C'] * len(model_c) + ['Traffic Severity 2 - Model D'] * len(model_d)
+    'Model': ['Model C'] * len(model_c) + ['Model D'] * len(model_d)
 })
 
 sns.histplot(data=df, x='Holding Time (Seconds)', bins=6, shrink=0.8, hue='Model', multiple='dodge', edgecolor='black', stat='percent')
@@ -134,15 +82,11 @@ plt.xticks(ticks=bins[:-1] + (bins[1] - bins[0])/2, labels=bin_ranges)
 current_yticks = plt.gca().get_yticks()
 plt.gca().set_yticklabels([f'{int(tick * 2)}' for tick in current_yticks])
 
-
 plt.title('Distribution of Holding Times (Percentage)')
 if save is not None:
     plt.savefig(save + 'continuousActions.eps')
-    # pass
 else:
     plt.show()
 plt.clf()
-
-
 
 
