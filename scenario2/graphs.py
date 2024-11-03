@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import statistics
 
-nc = pd.read_csv('scenario2/results/noControl/noTraffic/log.csv')
+nc = pd.read_csv('scenario2/results/noControl/traffic90/log.csv')
 # ppo = pd.read_csv('scenario2/results/continuous/timeReward/traffic90/log.csv')
-ppo1 = pd.read_csv('scenario2/results/discrete/headwayReward/noTraffic/log.csv')
-ppo2 = pd.read_csv('scenario2/results/discrete/timeReward/noTraffic/log.csv')
-ppo3 = pd.read_csv('scenario2/results/continuous/headwayReward/noTraffic/log.csv')
-ppo4 = pd.read_csv('scenario2/results/continuous/timeReward/noTraffic/log.csv')
+ppo1 = pd.read_csv('scenario2/results/discrete/headwayReward/traffic90/log.csv')
+ppo2 = pd.read_csv('scenario2/results/discrete/timeReward/traffic90/log.csv')
+ppo3 = pd.read_csv('scenario2/results/continuous/headwayReward/traffic90/log.csv')
+ppo4 = pd.read_csv('scenario2/results/continuous/timeReward/traffic90/log.csv')
 
 ncSimTime = nc['time'].tolist()
 ppoSimTime1 = ppo1['time'].tolist()
@@ -37,7 +37,7 @@ ppoDisp4 = ppo4['dispersion'].tolist()
 bunched = False
 # bunched = True
 
-save = 'scenario2/results/graphs/'
+save = 'scenario2/results/graphs/traffic3'
 # save = None
 
 # # Mean Waiting Time
@@ -87,7 +87,8 @@ ax1.plot([ppoSimTime4[i] * 9 / 60 for i in range(len(ppoSimTime4)) if i % 7 ==0]
 ax1.grid()
 plt.legend()
 if save is not None:
-    plt.savefig(save + 'headwaySD.eps')
+    # plt.savefig(save + 'headwaySD.eps')
+    pass
 else:
     plt.show()
 plt.clf()
@@ -110,7 +111,8 @@ ax1.plot([ppoSimTime4[i] * 9 / 60 for i in range(len(ppoSimTime4)) if i % 7 ==0]
 ax1.grid()
 plt.legend()
 if save is not None:
-    plt.savefig(save + 'occDisp.eps')
+    # plt.savefig(save + 'occDisp.eps')
+    pass
 else:
     plt.show()
 plt.clf()

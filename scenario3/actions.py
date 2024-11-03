@@ -19,7 +19,7 @@ save = None
 # percentages = [{},{}]
 
 # Only process data for "Model A" (first entry)
-# ppo = ppo1  # Assuming ppo1 corresponds to "Model A"
+## ppo = ppo1  # Assuming ppo1 corresponds to "Model A"
 # total_actions = len(ppo['action'])
 # holding_count = ppo['action'].tolist().count('Hold')
 # skipping_count = ppo['action'].tolist().count('Skip')

@@ -1,4 +1,5 @@
-import gymnasium as gym
+# import gymnasium as gym
+import gym
 import os
 import sys
 from sumolib import checkBinary
@@ -74,7 +75,7 @@ class sumoMultiLine(gym.Env):
 
         self.bunchingGraphData = {}
 
-        self.df = pd.DataFrame(columns=['time', 'meanWaitTime', 'action', 'dispersion', 'headwaySD'])
+        self.df = pd.DataFrame(columns=['time', 'meanWaitTime', 'meanLow', 'action', 'dispersion', 'headwaySD'])
         # self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         # self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         # self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
@@ -274,8 +275,8 @@ class sumoMultiLine(gym.Env):
                 # self.minmax.to_csv(self.save+'minmax.csv')
             # self.rates.to_csv('results/test/rates3by10num1.csv')
 
-            # with open('singapore/results/skipping/nc/bunchingGraphNC.pkl', 'wb') as f:
-            #     pickle.dump(self.bunchingGraphData, f)
+                with open(self.save + 'bunchingGraph.pkl', 'wb') as f:
+                    pickle.dump(self.bunchingGraphData, f)
 
             
             
@@ -523,7 +524,7 @@ class sumoMultiLine(gym.Env):
                 traci.vehicle.subscribe(v[0], [traci.constants.VAR_NEXT_STOPS])
 
         
-        self.df = pd.DataFrame(columns=['time', 'meanWaitTime', 'action', 'dispersion', 'headwaySD'])
+        self.df = pd.DataFrame(columns=['time', 'meanWaitTime', 'meanLow', 'action', 'dispersion', 'headwaySD'])
         # self.df = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         # self.shared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
         # self.unshared = pd.DataFrame(columns=['time', 'mean', 'median', 'sd', 'min', 'max'])
@@ -545,8 +546,8 @@ class sumoMultiLine(gym.Env):
         print("EPISODEEEEEE: {}".format(self.episodes))
 
         # self.stoppedBuses = [[None for _ in range(12)], [None for _ in range(21)]]
-        # self.route22Travel = {i:[[]] for i in range(12)}
-        # self.route43Travel = {i:[[]] for i in range(21)}
+        self.route22Travel = {i:[[]] for i in range(12)}
+        self.route43Travel = {i:[[]] for i in range(21)}
 
         # self.inCommon = []
         # self.notInCommon = ['bus.'+str(i) for i in range(12)]
@@ -578,6 +579,14 @@ class sumoMultiLine(gym.Env):
                 stopData = traci.vehicle.getStops(bus, 1)
                 traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + 60))#120))
 
+                simTime = traci.simulation.getTime()
+                if bus[4:6] == '22':
+                    stopIndex = route22.index(stopData[0].stoppingPlaceID)
+                else:
+                    stopIndex = route43.index(stopData[0].stoppingPlaceID)
+
+
+                self.bunchingGraphData[bus][-1] = (simTime + 60, stopIndex)
                 ##########
                 # update bunching graph data !!!!!!!
                 ##########
@@ -595,17 +604,35 @@ class sumoMultiLine(gym.Env):
                 # print('stopData {}'.format(stopData))
                 # print('stopID {}'.format(stopData[0].stoppingPlaceID))
                 traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=time)
+                
+                simTime = traci.simulation.getTime()
+                if bus[4:6] == '22':
+                    stopIndex = route22.index(stopData[0].stoppingPlaceID)
+                else:
+                    stopIndex = route43.index(stopData[0].stoppingPlaceID)
+
+
+                self.bunchingGraphData[bus][-1] = (simTime + time, stopIndex)
+                
                 ##########
                 # update bunching graph data !!!!!!!
                 ##########
         else:
             if math.isnan(action):
                 action = 0
-            holdingTime = math.ceil(action * 60)# 120)
+            holdingTime = math.ceil(action * 60)#120)
 
             stopData = traci.vehicle.getStops(bus, 1)
             traci.vehicle.setBusStop(bus, stopData[0].stoppingPlaceID, duration=(time + holdingTime))
 
+            simTime = traci.simulation.getTime()
+            if bus[4:6] == '22':
+                stopIndex = route22.index(stopData[0].stoppingPlaceID)
+            else:
+                stopIndex = route43.index(stopData[0].stoppingPlaceID)
+
+
+            self.bunchingGraphData[bus][-1] = (simTime + holdingTime, stopIndex)
             ##########
             # update bunching graph data !!!!!!!
             ##########
@@ -663,6 +690,8 @@ class sumoMultiLine(gym.Env):
         while len(self.actionBuses) == 0:
             traci.simulationStep()
             time = traci.simulation.getTime()
+            if time % 1000 == 0:
+                print('time: {}'.format(time))
 
             # start of a new hour
             # print('TESTING HOUR: GETHOUR {} HOUR {} TIME {}'.format(self.getHour(time), self.hour, time))
@@ -755,6 +784,12 @@ class sumoMultiLine(gym.Env):
                                         else: 
                                             stopIndex = route43.index(stopId)
                                         self.bunchingGraphData[v[0]].append((time, stopIndex))
+                                        if v[0][4] == '2':
+                                            # print('v[0]: {}'.format(v[0]))
+                                            self.route22Travel[int(v[0].split('.')[1])][-1].append((time, stopIndex))
+                                        else:
+                                            # print('v[0]: {}'.format(int(v[0].split('.')[1])))
+                                            self.route43Travel[int(v[0].split('.')[1])][-1].append((time, stopIndex))
                                         #############################################################
                                     # else add bus to actionBuses only if the stop is not the final one in the route (since it should always stop at the final stop)
                                     else:
@@ -772,6 +807,7 @@ class sumoMultiLine(gym.Env):
                                         else: 
                                             stopIndex = route43.index(stopId)
                                         self.bunchingGraphData[v[0]].append((time, stopIndex))
+
 
                                         seconds = max(math.ceil(board * 3), math.ceil(alight * 1.8))
                                         self.bunchingGraphData[v[0]].append((time + seconds, stopIndex))
@@ -1210,11 +1246,15 @@ class sumoMultiLine(gym.Env):
         maxWaitTimes = self.getMaxWaitTimeOnStops()
 
         # if maxWaitTimes is not None:
-        mean = sum(maxWaitTimes)/len(maxWaitTimes)
-        print('mean: {}'.format(mean))
+        w = [x for x in maxWaitTimes if x != 0]
+        mean = sum(w)/len(w)
+        # print('mean: {}'.format(mean))
+
+        meanLow = sum(maxWaitTimes)/len(maxWaitTimes)
+        
         # median = statistics.median(maxWaitTimes)
         # self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'mean':mean, 'median':median, 'sd':self.sd(maxWaitTimes)}])])
-        self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean, 'action':a, 'dispersion':occDisp, 'headwaySD':self.sdVal}])])#, ignore_index=True)
+        self.df = pd.concat([self.df, pd.DataFrame.from_records([{'time':time, 'meanWaitTime':mean, 'meanLow':meanLow, 'action':a, 'dispersion':occDisp, 'headwaySD':self.sdVal}])])#, ignore_index=True)
             
             
             
