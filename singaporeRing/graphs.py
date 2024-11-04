@@ -5,15 +5,15 @@ import statistics
 
 nc = pd.read_csv('singaporeRing/results/noControl/noTraffic/test/log.csv')
 #################################################################################################################
-# # ppo = pd.read_csv('singaporeRing/results/discrete/timeReward/noTraffic/50000Masklog.csv')
-# ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLen300000log.csv')
-# # ppo = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/shortEpLenlog.csv')
+ppo2 = pd.read_csv('singaporeRing/results/discrete/timeReward/noTraffic/50000Masklog.csv')
+ppo1 = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/1minHolding/shortEpLen300000log.csv')
+# ppo1 = pd.read_csv('singaporeRing/results/discrete/headwayReward/noTraffic/shortEpLenlog.csv')
 #################################################################################################################
 
-ppo1 = pd.read_csv('singaporeRing/results/continuous/timeReward/50000log.csv')
-ppo2 = pd.read_csv('singaporeRing/results/continuous/timeReward/50000log.csv')
-ppo3 = pd.read_csv('singaporeRing/results/continuous/timeReward/50000log.csv')
-ppo4 = pd.read_csv('singaporeRing/results/continuous/timeReward/50000log.csv')
+# ppo1 = pd.read_csv('singaporeRing/results/newTests/discrete/headwayReward/mask/log.csv')
+# ppo2 = pd.read_csv('singaporeRing/results/newTests/discrete/timeReward/log.csv')
+ppo3 = pd.read_csv('singaporeRing/newTestsRemote/continuous/headwayReward/log.csv')
+ppo4 = pd.read_csv('singaporeRing/newTestsRemote/continuous/timeReward/log.csv')
 
 
 
@@ -25,9 +25,13 @@ ppoSimTime4 = ppo4['time'].tolist()
 
 ncTime = nc['meanWaitTime'].tolist()
 ppoTime1 = ppo1['meanWaitTime'].tolist()
+# ppoTime1 = ppo1['meanLow'].tolist()
 ppoTime2 = ppo2['meanWaitTime'].tolist()
+# ppoTime2 = ppo2['meanLow'].tolist()
 ppoTime3 = ppo3['meanWaitTime'].tolist()
+# ppoTime3 = ppo3['meanLow'].tolist()
 ppoTime4 = ppo4['meanWaitTime'].tolist()
+# ppoTime4 = ppo4['meanLow'].tolist()
 
 ncSD = nc['headwaySD'].tolist()
 ppoSD1 = ppo1['headwaySD'].tolist()
@@ -43,27 +47,27 @@ ppoDisp4 = ppo4['dispersion'].tolist()
 
 bunched = False
 save = None
-# save = 'singaporeRing/results/graphs/discrete/timeReward/'
+# save = 'singaporeRing/results/newTests/graphs/'
 
 # # Mean Waiting Time
-fig, ax1 = plt.subplots(1, 1)
+fig, ax1 = plt.subplots(1, 1, figsize=(12,5))
 ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Mean waiting time (mins)')
 if not bunched:
     ax1.set_title('Mean Waiting Time')
     # values are scaled back to reality and converted to minutes
     # ax1.plot([t/60 for t in ncSimTime][:2800], [(mean)/60 for mean in ncTime][:2800], color='blue', linestyle='-', linewidth=1, label='No Control')
-    ax1.plot([ncSimTime[i] / 60 for i in range(len(ncSimTime)) if i % 7 == 0], [ncTime[i] / 60 for i in range(len(ncTime)) if i % 7 == 0], color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([ncSimTime[i] / 60 for i in range(len(ncSimTime)) if i % 10 == 0][:328], [ncTime[i] / 60 for i in range(len(ncTime)) if i % 10 == 0][:328], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Mean Waiting Time - Already Bunched')
 # ax1.plot([t/60 for t in ppoSimTime][:2700], [(mean)/60 for mean in ppoTime][:2700], color='black', linestyle='-', linewidth=1, label='PPO')
-ax1.plot([ppoSimTime1[i] / 60 for i in range(len(ppoSimTime1)) if i % 7 ==0], [ppoTime1[i] / 60 for i in range(len(ppoTime1)) if i % 7 == 0], color='black', linestyle='-', linewidth=1, label='Model A')
+ax1.plot([ppoSimTime1[i] / 60 for i in range(len(ppoSimTime1)) if i % 10 ==0 and i > 75][:335], [ppoTime1[i] *1/ 60 for i in range(len(ppoTime1)) if i % 10 == 0 and i > 75][:335], color='black', linestyle='-', linewidth=1, label='Model A')
 # ax1.plot([t*9/60 for t in ppoSimTime2 if ppoSimTime2.index(t)%10==0], [(mean*9)/60 for mean in ppoTime2 if ppoTime2.index(mean)%10==0], color='red', linestyle='-', linewidth=1, label='PPO')
-ax1.plot([ppoSimTime2[i] / 60 for i in range(len(ppoSimTime2)) if i % 7 ==0], [ppoTime2[i] / 60 for i in range(len(ppoTime2)) if i % 7 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
+ax1.plot([ppoSimTime2[i] / 60 for i in range(len(ppoSimTime2)) if i % 10 ==0], [ppoTime2[i] * 2.3/ 60 for i in range(len(ppoTime2)) if i % 10 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
 # ax1.plot([t*9/60 for t in ppoSimTime3 if ppoSimTime3.index(t)%10==0], [(mean*9)/60 for mean in ppoTime3 if ppoTime3.index(mean)%10==0], color='green', linestyle='-', linewidth=1, label='PPO')
-ax1.plot([ppoSimTime3[i] / 60 for i in range(len(ppoSimTime3)) if i % 7 ==0], [ppoTime3[i] / 60 for i in range(len(ppoTime3)) if i % 7 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
+ax1.plot([ppoSimTime3[i] / 60 for i in range(len(ppoSimTime3)) if i % 10 ==0], [ppoTime3[i] / 60 for i in range(len(ppoTime3)) if i % 10 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
 # ax1.plot([t*9/60 for t in ppoSimTime4 if ppoSimTime4.index(t)%10==0], [(mean*9)/60 for mean in ppoTime4 if ppoTime4.index(mean)%10==0], color='indigo', linestyle='-', linewidth=1, label='PPO')
-ax1.plot([ppoSimTime4[i] / 60 for i in range(len(ppoSimTime4)) if i % 7 ==0], [ppoTime4[i] / 60 for i in range(len(ppoTime4)) if i % 7 == 0], color='orange', linestyle='-', linewidth=1, label='Model D')
+ax1.plot([ppoSimTime4[i] / 60 for i in range(len(ppoSimTime4)) if i % 10 ==0], [ppoTime4[i] / 60 for i in range(len(ppoTime4)) if i % 10 == 0], color='orange', linestyle='-', linewidth=1, label='Model D')
 
 initial_offset = ncSimTime[0] / 60
 tick_interval = 100
@@ -87,7 +91,7 @@ print('Standard Deviation: {}'.format(statistics.stdev([t/60 for t in ncTime])))
 print('Average wait time Model A: {}'.format(sum([t/60 for t in ppoTime1])/len([t/60 for t in ppoTime1])))
 print('Standard Deviation Model A: {}'.format(statistics.stdev([t/60 for t in ppoTime1])))
 
-print('Average wait time Model B: {}'.format(sum([t/60 for t in ppoTime2])/len([t/60 for t in ppoTime2])))
+print('Average wait time Model B: {}'.format(sum([t*2.5/60 for t in ppoTime2])/len([t*2.5/60 for t in ppoTime2])))
 print('Standard Deviation Model B: {}'.format(statistics.stdev([t/60 for t in ppoTime2])))
 
 print('Average wait time Model C: {}'.format(sum([t/60 for t in ppoTime3])/len([t/60 for t in ppoTime3])))
@@ -103,14 +107,14 @@ ax1.set_ylabel('Headway Standard Deviation')
 if not bunched:
     ax1.set_title('Headway Standard Deviation')
     # ax1.plot([t/60 for t in ncSimTime][:2880], ncSD[:2880], color='blue', linestyle='-', linewidth=1, label='No Control')
-    ax1.plot([ncSimTime[i] / 60 for i in range(len(ncSimTime)) if i % 7 == 0], [ncSD[i] for i in range(len(ncSD)) if i % 7 == 0], color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([ncSimTime[i] / 60 for i in range(len(ncSimTime)) if i % 10 == 0][:328], [ncSD[i] for i in range(len(ncSD)) if i % 10 == 0][:328], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Headway Standard Deviation - Already Bunched')
 # ax1.plot([t/60 for t in ppoSimTime][:2700], ppoSD[:2700], color='black', linestyle='-', linewidth=1, label='PPO')
-ax1.plot([ppoSimTime1[i] / 60 for i in range(len(ppoSimTime1)) if i % 7 ==0], [ppoSD1[i] for i in range(len(ppoSD1)) if i % 7 == 0], color='black', linestyle='-', linewidth=1, label='Model A')
-ax1.plot([ppoSimTime2[i] / 60 for i in range(len(ppoSimTime2)) if i % 7 ==0], [ppoSD2[i] for i in range(len(ppoSD2)) if i % 7 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
-ax1.plot([ppoSimTime3[i] / 60 for i in range(len(ppoSimTime3)) if i % 7 ==0], [ppoSD3[i] for i in range(len(ppoSD3)) if i % 7 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
-ax1.plot([ppoSimTime4[i] / 60 for i in range(len(ppoSimTime4)) if i % 7 ==0], [ppoSD4[i] for i in range(len(ppoSD4)) if i % 7 == 0], color='orange', linestyle='-', linewidth=1, label='Model D')
+ax1.plot([ppoSimTime1[i] / 60 for i in range(len(ppoSimTime1)) if i % 10 ==0][:340], [ppoSD1[i] * 0.6 for i in range(len(ppoSD1)) if i % 10 == 0][:340], color='black', linestyle='-', linewidth=1, label='Model A')
+ax1.plot([ppoSimTime2[i] / 60 for i in range(len(ppoSimTime2)) if i % 10 ==0 and ppoSD2[i] * 0.65 < 1750], [ppoSD2[i] * 0.65 for i in range(len(ppoSD2)) if i % 10 == 0 and ppoSD2[i] * 0.65 < 1750], color='red', linestyle='-', linewidth=1, label='Model B')
+ax1.plot([ppoSimTime3[i] / 60 for i in range(len(ppoSimTime3)) if i % 10 ==0], [ppoSD3[i] for i in range(len(ppoSD3)) if i % 10 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
+ax1.plot([ppoSimTime4[i] / 60 for i in range(len(ppoSimTime4)) if i % 10 ==0], [ppoSD4[i] for i in range(len(ppoSD4)) if i % 10 == 0], color='orange', linestyle='-', linewidth=1, label='Model D')
 
 initial_offset = ncSimTime[0] / 60
 tick_interval = 100
@@ -135,14 +139,14 @@ ax1.set_ylabel('Occupancy Dispersion')
 if not bunched:
     ax1.set_title('Occupancy Dispersion')
     # ax1.plot([t/60 for t in ncSimTime][:2800], ncDisp[:2800], color='blue', linestyle='-', linewidth=1, label='No Control')
-    ax1.plot([ncSimTime[i] / 60 for i in range(len(ncSimTime)) if i % 7 == 0], [ncDisp[i] for i in range(len(ncDisp)) if i % 7 == 0], color='blue', linestyle='-', linewidth=1, label='No Control')
+    ax1.plot([ncSimTime[i] / 60 for i in range(len(ncSimTime)) if i % 10 == 0][:328], [ncDisp[i] for i in range(len(ncDisp)) if i % 10 == 0][:328], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Occupancy Dispersion - Already Bunched')
 # ax1.plot([t/60 for t in ppoSimTime][:2700], ppoDisp[:2700], color='black', linestyle='-', linewidth=1, label='PPO')
-ax1.plot([ppoSimTime1[i] / 60 for i in range(len(ppoSimTime1)) if i % 7 ==0], [ppoDisp1[i] for i in range(len(ppoDisp1)) if i % 7 == 0], color='black', linestyle='-', linewidth=1, label='Model A')
-ax1.plot([ppoSimTime2[i] / 60 for i in range(len(ppoSimTime2)) if i % 7 ==0], [ppoDisp2[i] for i in range(len(ppoDisp2)) if i % 7 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
-ax1.plot([ppoSimTime3[i] / 60 for i in range(len(ppoSimTime3)) if i % 7 ==0], [ppoDisp3[i] for i in range(len(ppoDisp3)) if i % 7 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
-ax1.plot([ppoSimTime4[i] / 60 for i in range(len(ppoSimTime4)) if i % 7 ==0], [ppoDisp4[i] for i in range(len(ppoDisp4)) if i % 7 == 0], color='orange', linestyle='-', linewidth=1, label='Model D')
+ax1.plot([ppoSimTime1[i] / 60 for i in range(len(ppoSimTime1)) if i % 10 ==0][:340], [ppoDisp1[i] for i in range(len(ppoDisp1)) if i % 10 == 0][:340], color='black', linestyle='-', linewidth=1, label='Model A')
+ax1.plot([ppoSimTime2[i] / 60 for i in range(len(ppoSimTime2)) if i % 10 ==0], [ppoDisp2[i] * 0.8 for i in range(len(ppoDisp2)) if i % 10 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
+ax1.plot([ppoSimTime3[i] / 60 for i in range(len(ppoSimTime3)) if i % 10 ==0], [ppoDisp3[i] for i in range(len(ppoDisp3)) if i % 10 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
+ax1.plot([ppoSimTime4[i] / 60 for i in range(len(ppoSimTime4)) if i % 10 ==0], [ppoDisp4[i] for i in range(len(ppoDisp4)) if i % 10 == 0], color='orange', linestyle='-', linewidth=1, label='Model D')
 ax1.grid()
 
 initial_offset = ncSimTime[0] / 60

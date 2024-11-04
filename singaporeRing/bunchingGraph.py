@@ -1,16 +1,17 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('singaporeRing/newTestsRemote/noControl/2bunchingGraph.pkl', 'rb') as f:
+# with open('singaporeRing/newTestsRemote/noControl/bunchingGraph.pkl', 'rb') as f:
+with open('singaporeRing/newTestsRemote/continuous/headwayReward/bunchingGraph.pkl', 'rb') as f:
 # with open('singaporeRing/results/newTests/discrete/headwayReward/bunchingGraph.pkl', 'rb') as f:
     data = pickle.load(f)
 
-save = None
+# save = 'singaporeRing/results/newTests/graphs/modelC'
 save = None
 
 graph = 'shared'
 
-strategy = 'No Control'
+# strategy = 'No Control'
 strategy = 'PPO'
 
 # if graph == 'shared':
@@ -53,7 +54,7 @@ plt.title(strategy + ' - Shared Stops')
 plt.xlabel('Time of Day')
 plt.ylabel('Bus Stop')
 if save is not None:
-    plt.savefig(save + 'sharedStopsBunching.eps')
+    plt.savefig(save + 'SharedStopsBunching.eps')
 else:
     plt.show()
 
@@ -125,7 +126,7 @@ else:
 plt.xlabel('Time of Day')
 plt.ylabel('Bus Stop')
 if save is not None:
-    plt.savefig(save + 'route22Bunching.eps')
+    plt.savefig(save + 'Route22Bunching.eps')
 else:
     plt.show()
 
@@ -195,7 +196,7 @@ else:
 plt.xlabel('Time of Day')
 plt.ylabel('Bus Stop')
 if save is not None:
-    plt.savefig(save + 'route43Bunching.eps')
+    plt.savefig(save + 'Route43Bunching.eps')
 else:
     plt.show()
 plt.clf()
