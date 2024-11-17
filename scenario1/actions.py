@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-ppo1 = pd.read_csv('wang2020/results/discrete/headwayReward/bunched/log.csv')
-ppo2 = pd.read_csv('wang2020/results/discrete/timeReward/bunched/log.csv')
-ppo3 = pd.read_csv('wang2020/results/continuous/headwayReward/bunched/log.csv')
-ppo4 = pd.read_csv('wang2020/results/continuous/timeReward/bunched/log.csv')
+ppo1 = pd.read_csv('scenario1/results/discrete/headwayReward/bunched/log.csv')
+ppo2 = pd.read_csv('scenario1/results/discrete/timeReward/bunched/log.csv')
+ppo3 = pd.read_csv('scenario1/results/continuous/headwayReward/bunched/log.csv')
+ppo4 = pd.read_csv('scenario1/results/continuous/timeReward/bunched/log.csv')
 
 action1 = ppo1['action']
 action2 = ppo2['action']
@@ -14,7 +14,7 @@ action3 = ppo3['action']
 action4 = ppo4['action']
 
 save = None
-# save = 'wang2020/results/graphs/bunched'
+# save = 'scenario1/results/graphs/bunched'
 
 percentages = [{},{}]
 

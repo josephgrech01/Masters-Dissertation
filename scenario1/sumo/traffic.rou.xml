@@ -4,8 +4,8 @@
 <configuration>
     <end value="3000"/>
     <insertion-density value="100.0"/>
-    <net-file value="wang2020/sumo/ring.net.xml"/>
-    <route-file value="wang2020/sumo/traffic.rou.xml"/>
+    <net-file value="scenario1/sumo/ring.net.xml"/>
+    <route-file value="scenario1/sumo/traffic.rou.xml"/>
 </configuration>
 -->
 
@@ -13,12 +13,12 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
-        <net-file value="wang2020/sumo/ring.net.xml"/>
+        <net-file value="scenario1/sumo/ring.net.xml"/>
         <route-files value="trips.trips.xml"/>
     </input>
 
     <output>
-        <output-file value="wang2020/sumo/traffic.rou.xml"/>
+        <output-file value="scenario1/sumo/traffic.rou.xml"/>
         <alternatives-output value="NUL"/>
     </output>
 

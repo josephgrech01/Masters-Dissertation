@@ -13,9 +13,9 @@ e = ActionMasker(e, mask_fn)
 # model = PPO.load("models/ppoNoTraffic")
 
 # traffic
-# model=MaskablePPO.load("wang2020/models/maskablePPOupdatedHeadways200000dur15")
+# model=MaskablePPO.load("scenario1/models/maskablePPOupdatedHeadways200000dur15")
 model=MaskablePPO.load("scenario2/models/maskablePPOtimeReward450000")
-# model=MaskablePPO.load("wang2020/models/maskablePPOmixedConfigs500000")
+# model=MaskablePPO.load("scenario1/models/maskablePPOmixedConfigs500000")
 
 obs = e.reset()
 while True:

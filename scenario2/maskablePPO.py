@@ -19,7 +19,7 @@ def mask_fn(env):
 
 e = SumoEnv(gui=False, noWarnings=True, epLen=3000, traffic=False, mixedConfigs=False, bunched=False, save=None, continuous=False, headwayReward=False)
 e = ActionMasker(e, mask_fn)
-# model = MaskablePPO(MaskableActorCriticPolicy, e, verbose=1, n_steps=2778, gamma=0.93011, learning_rate=0.000012779, tensorboard_log="wang2020/tensorboard/maskablePPO/tuned/headwayReward")
+# model = MaskablePPO(MaskableActorCriticPolicy, e, verbose=1, n_steps=2778, gamma=0.93011, learning_rate=0.000012779, tensorboard_log="scenario1/tensorboard/maskablePPO/tuned/headwayReward")
 
 # model = MaskablePPO(MaskableActorCriticPolicy, e, verbose=1, learning_rate=0.001, tensorboard_log="scenario3/tensorboard/discrete/timeReward")
 
