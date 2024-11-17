@@ -77,6 +77,11 @@ bins = np.arange(0, 70, 10)
 bin_ranges = [f'{int(bins[i])}-{int(bins[i+1])}' for i in range(len(bins)-1)]
 
 plt.xticks(ticks=bins[:-1] + (bins[1] - bins[0])/2, labels=bin_ranges)
+
+# update the y-axis to double the tick values for each tickS
+current_yticks = plt.gca().get_yticks()
+plt.gca().set_yticklabels([f'{int(tick * 2)}' for tick in current_yticks])
+
 plt.title('Distribution of Holding Times (Percentage)')
 if save is not None:
     plt.savefig(save + 'continuousActions.eps')
