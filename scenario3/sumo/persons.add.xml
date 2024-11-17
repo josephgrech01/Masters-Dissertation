@@ -773,14 +773,14 @@
     <person id="B120" depart="0" departPos="221">
         <walk from="11" busStop="stop12"/>
     </person>
-
-
-
+    
 
 
 
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    
+
 
 
 
@@ -881,98 +881,98 @@
 
 
     <person id="C31" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C32" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C33" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C34" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C35" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C36" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C37" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C38" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C39" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
     <person id="C40" depart="0" departPos="221">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </person>
 
 
     <person id="C41" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C42" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C43" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C44" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C45" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C46" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C47" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C48" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C49" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
     <person id="C50" depart="0" departPos="221">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </person>
 
 
     <person id="C51" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C52" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C53" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C54" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C55" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C56" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C57" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C58" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C59" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
     <person id="C60" depart="0" departPos="221">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </person>
 
 
@@ -1073,104 +1073,107 @@
 
 
     <person id="C91" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C92" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C93" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C94" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C95" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C96" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C97" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C98" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C99" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
     <person id="C100" depart="0" departPos="221">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </person>
 
 
     <person id="C101" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C102" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C103" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C104" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C105" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C106" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C107" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C108" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C109" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
     <person id="C110" depart="0" departPos="221">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </person>
 
 
     <person id="C111" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C112" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C113" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C114" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C115" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C116" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C117" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C118" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C119" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
     <person id="C120" depart="0" departPos="221">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </person>
+
+
+
+
+
 
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-
-
 
 
     <personFlow id="pStop1" begin="0" end="200000" departPos="200" period="exp(0.0083)">
@@ -1249,10 +1252,7 @@
         <walk from="11" busStop="stop12"/>
     </personFlow>
 
-
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-
-
 
     <personFlow id="CStop1" begin="0" end="200000" departPos="200" period="exp(0.0083)">
         <walk from="C0" busStop="stop1C"/>
@@ -1264,13 +1264,13 @@
         <walk from="C2" busStop="stop3C"/>
     </personFlow>
     <personFlow id="CStop4" begin="0" end="200000" departPos="200" period="exp(0.0167)">
-        <walk from="C3" busStop="stop4C"/>
+        <walk from="E3" busStop="stop4B"/>
     </personFlow>
     <personFlow id="CStop5" begin="0" end="200000" departPos="200" period="exp(0.0167)">
-        <walk from="C4" busStop="stop5C"/>
+        <walk from="E4" busStop="stop5B"/>
     </personFlow>
     <personFlow id="CStop6" begin="0" end="200000" departPos="200" period="exp(0.05)">
-        <walk from="C5" busStop="stop6C"/>
+        <walk from="E5" busStop="stop6B"/>
     </personFlow>
     <personFlow id="CStop7" begin="0" end="200000" departPos="200" period="exp(0.0667)">
         <walk from="C6" busStop="stop7C"/>
@@ -1282,13 +1282,14 @@
         <walk from="C8" busStop="stop9C"/>
     </personFlow>
     <personFlow id="CStop10" begin="0" end="200000" departPos="200" period="exp(0.0108)">
-        <walk from="9" busStop="stop10"/>
+        <walk from="C9" busStop="stop10C"/>
     </personFlow>
     <personFlow id="CStop11" begin="0" end="200000" departPos="200" period="exp(0.0092)">
-        <walk from="10" busStop="stop11"/>
+        <walk from="C10" busStop="stop11C"/>
     </personFlow>
     <personFlow id="CStop12" begin="0" end="200000" departPos="200" period="exp(0.0083)">
-        <walk from="11" busStop="stop12"/>
+        <walk from="C11" busStop="stop12C"/>
     </personFlow>
+
 
 </additional>

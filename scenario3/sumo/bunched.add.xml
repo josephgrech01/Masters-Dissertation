@@ -8,16 +8,16 @@
     <busStop id="stop7" lane="6_1" startPos="221.67" endPos="231.67" lines="line1"/>
     <busStop id="stop8" lane="7_1" startPos="221.67" endPos="231.67" lines="line1"/>
     <busStop id="stop9" lane="8_1" startPos="221.67" endPos="231.67" lines="line1"/>
-    <busStop id="stop10" lane="9_1" startPos="221.67" endPos="231.67" lines="line1 line2 line3"/>
-    <busStop id="stop11" lane="10_1" startPos="221.67" endPos="231.67" lines="line1 line2 line3"/>
-    <busStop id="stop12" lane="11_1" startPos="221.67" endPos="231.67" lines="line1 line2 line3"/>
+    <busStop id="stop10" lane="9_1" startPos="221.67" endPos="231.67" lines="line1 line2"/>
+    <busStop id="stop11" lane="10_1" startPos="221.67" endPos="231.67" lines="line1 line2"/>
+    <busStop id="stop12" lane="11_1" startPos="221.67" endPos="231.67" lines="line1 line2"/>
 
     <busStop id="stop1B" lane="E0_1" startPos="221.67" endPos="231.67" lines="line2"/>
     <busStop id="stop2B" lane="E1_1" startPos="221.67" endPos="231.67" lines="line2"/>
     <busStop id="stop3B" lane="E2_1" startPos="221.67" endPos="231.67" lines="line2"/>
-    <busStop id="stop4B" lane="E3_1" startPos="221.67" endPos="231.67" lines="line2"/>
-    <busStop id="stop5B" lane="E4_1" startPos="221.67" endPos="231.67" lines="line2"/>
-    <busStop id="stop6B" lane="E5_1" startPos="221.67" endPos="231.67" lines="line2"/>
+    <busStop id="stop4B" lane="E3_1" startPos="221.67" endPos="231.67" lines="line2 line3"/>
+    <busStop id="stop5B" lane="E4_1" startPos="221.67" endPos="231.67" lines="line2 line3"/>
+    <busStop id="stop6B" lane="E5_1" startPos="221.67" endPos="231.67" lines="line2 line3"/>
     <busStop id="stop7B" lane="E6_1" startPos="221.67" endPos="231.67" lines="line2"/>
     <busStop id="stop8B" lane="E7_1" startPos="221.67" endPos="231.67" lines="line2"/>
     <busStop id="stop9B" lane="E8_1" startPos="221.67" endPos="231.67" lines="line2"/>
@@ -25,12 +25,12 @@
     <busStop id="stop1C" lane="C0_1" startPos="221.67" endPos="231.67" lines="line3"/>
     <busStop id="stop2C" lane="C1_1" startPos="221.67" endPos="231.67" lines="line3"/>
     <busStop id="stop3C" lane="C2_1" startPos="221.67" endPos="231.67" lines="line3"/>
-    <busStop id="stop4C" lane="C3_1" startPos="221.67" endPos="231.67" lines="line3"/>
-    <busStop id="stop5C" lane="C4_1" startPos="221.67" endPos="231.67" lines="line3"/>
-    <busStop id="stop6C" lane="C5_1" startPos="221.67" endPos="231.67" lines="line3"/>
     <busStop id="stop7C" lane="C6_1" startPos="221.67" endPos="231.67" lines="line3"/>
     <busStop id="stop8C" lane="C7_1" startPos="221.67" endPos="231.67" lines="line3"/>
     <busStop id="stop9C" lane="C8_1" startPos="221.67" endPos="231.67" lines="line3"/>
+    <busStop id="stop10C" lane="C9_1" startPos="221.67" endPos="231.67" lines="line3"/>
+    <busStop id="stop11C" lane="C10_1" startPos="221.67" endPos="231.67" lines="line3"/>
+    <busStop id="stop12C" lane="C11_1" startPos="221.67" endPos="231.67" lines="line3"/>
     
 
     <vType id="BUS" vClass="bus" accel="2.6" decel="4.5" maxSpeed="16.67" sigma="0" length="12" minGap="3" color="1,1,0" guiShape="bus"/> <!-- max speed was 1.85, 16.67-->
@@ -217,19 +217,19 @@
         <stop busStop="stop10" duration="15"/>
     </route>
 
-    <route id="route1C" edges="C0 C1 C2 C3 C4 C5 C6 C7 C8 9 10 11" repeat="10000">
+    <route id="route1C" edges="C0 C1 C2 E3 E4 E5 C6 C7 C8 C9 C10 C11" repeat="10000">
         <stop busStop="stop1C" duration="15"/>
         <stop busStop="stop2C" duration="15"/>
         <stop busStop="stop3C" duration="15"/>
-        <stop busStop="stop4C" duration="15"/>
-        <stop busStop="stop5C" duration="15"/>
-        <stop busStop="stop6C" duration="15"/>
+        <stop busStop="stop4B" duration="15"/>
+        <stop busStop="stop5B" duration="15"/>
+        <stop busStop="stop6B" duration="15"/>
         <stop busStop="stop7C" duration="15"/>
         <stop busStop="stop8C" duration="15"/>
         <stop busStop="stop9C" duration="15"/>
-        <stop busStop="stop10" duration="15"/>
-        <stop busStop="stop11" duration="15"/>
-        <stop busStop="stop12" duration="15"/>
+        <stop busStop="stop10C" duration="15"/>
+        <stop busStop="stop11C" duration="15"/>
+        <stop busStop="stop12C" duration="15"/>
     </route>
 
     <vehicle id="bus.0" type="BUS" depart="0" line="line1" route="route1"/>   <!-- color="255,0,0" -->
