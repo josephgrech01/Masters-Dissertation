@@ -23,10 +23,13 @@ import traci
 numBuses = 18
 
 class SumoEnv(gym.Env):
-    # epLen: the number of RL steps before the episode terminates
-    # traffic: set to zero for no traffic or else to the lowest traffic speed in km/h
-    # bunched: True - buses start already bunched, False - buses start evenly spaced
+    # epLen: the length of the episode in seconds
+    # traffic: False - load only buses in SUMO, True - add traffic
+    # bunched: False - buses start evenly spaced, True - buses start already bunched
     # mixedConfigs: Used during training to alternate between already bunched and evenly spaced scenarios
+    # save: None - run the episode without saving the log file, Otherwise provide filepath as string where the log file is to be saved
+    # continuous: False use discrete action space (fixed holding, stop skipping, and proceed), True - use continuous action space
+    # headwayReward: False - use waiting time minimization reward function, True - use headway equalization reward function
     def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=False, bunched=False, mixedConfigs=False, save=None, continuous=False, headwayReward=True):
         if gui:
             self._sumoBinary = checkBinary('sumo-gui')
@@ -41,11 +44,11 @@ class SumoEnv(gym.Env):
         self.headwayReward = headwayReward
 
         if not self.traffic and not bunched:
-            self.config = 'scenario2/sumo/ring.sumocfg'
+            self.config = 'scenario3/sumo/ring.sumocfg'
         elif not self.traffic and bunched:
-            self.config = 'scenario2/sumo/ringBunched.sumocfg'
+            self.config = 'scenario3/sumo/ringBunched.sumocfg'
         elif self.traffic and not bunched:
-            self.config = 'scenario2/sumo/ringTraffic.sumocfg'
+            self.config = 'scenario3/sumo/ringTraffic.sumocfg'
 
         self.noWarnings = noWarnings
         # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
@@ -441,10 +444,10 @@ class SumoEnv(gym.Env):
         
         if self.mixedConfigs: # choose the initial state of the environment (bunched or unbunched)
             if self.episodeNum % 2 == 0:
-                self.config = 'scenario2/sumo/ring.sumocfg'
+                self.config = 'scenario3/sumo/ring.sumocfg'
                 print('Not bunched')
             else:
-                self.config = 'scenario2/sumo/ringBunched.sumocfg'
+                self.config = 'scenario3/sumo/ringBunched.sumocfg'
                 print('Bunched')
 
         # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
@@ -699,7 +702,8 @@ class SumoEnv(gym.Env):
     # function which computes the state required by the gym environment
     # The state that is returned contains the stop which the bus has reached, the forward and backward headways, the number of persons waiting at each stop,
     # the stopping time required according to the number of people boarding and alighting at this stop, the current maximum passenger waiting
-    # times at each bus stop, and the number of passengers on the previous, current and following buses
+    # times at each bus stop, and the number of passengers on the previous, current and following buses.
+    # We also include the following multi-line information: the route and whether the bus is travelling in a shared corridor.
     def computeState(self):
 
         route = self.oneHotEncode(self.routes, self.decisionBus[0][3])
@@ -709,8 +713,7 @@ class SumoEnv(gym.Env):
             inCommon = 1
 
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
-        # bus = self.oneHotEncode(self.buses, self.decisionBus[0]) would need to update 
-
+        
         headways = self.getHeadways()
         
         waitingPersons = self.getPersonsOnStops()
@@ -719,16 +722,8 @@ class SumoEnv(gym.Env):
 
         numPassengers = self.getNumPassengers()
 
-        
-        # if self.traffic != 0:
-        #     # MUST ADAPT SPEED FACTORS FOR MORE THAN ONE LINE
-        #     speedFactors = self.getSpeedFactors()
-        #     state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
-        #     # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers + speedFactors
-        # else:
         state = route + [inCommon] + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
-        # state = route + stop + headways + waitingPersons + [self.stopTime] + maxWaitTimes + numPassengers
-
+       
         return state
 
     def oneHotEncode(self, list, item):

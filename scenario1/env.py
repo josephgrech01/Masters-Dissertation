@@ -19,14 +19,15 @@ else:
 from sumolib import checkBinary
 import traci
 
-# numBuses = 6
 numBuses = 12
 
 class SumoEnv(gym.Env):
-    # epLen: the number of RL steps before the episode terminates
-    # traffic: set to zero for no traffic or else to the lowest traffic speed in km/h
-    # bunched: True - buses start already bunched, False - buses start evenly spaced
+    # epLen: the length of the episode in seconds
+    # traffic: False - load only buses in SUMO, True - add traffic
+    # bunched: False - buses start evenly spaced, True - buses start already bunched
     # mixedConfigs: Used during training to alternate between already bunched and evenly spaced scenarios
+    # save: None - run the episode without saving the log file, Otherwise provide filepath as string where the log file is to be saved
+    # continuous: False - use discrete action space (fixed holding, stop skipping, and proceed), True - use continuous action space (dyanmic holding)
     def __init__(self, gui=False, noWarnings=False, epLen=250, traffic=False, bunched=False, mixedConfigs=False, save=None, continuous=False):
         if gui:
             self._sumoBinary = checkBinary('sumo-gui')
@@ -58,11 +59,6 @@ class SumoEnv(gym.Env):
             self.sumoCmd.append("--no-warnings")
 
         self.epLen = epLen
-
-        # if self.traffic == -1:
-        #     self.lowestTrafficSpeed = random.randint(7,10)
-        # else:
-        #     self.lowestTrafficSpeed = self.traffic
 
         self.gymStep = 0
        
@@ -108,8 +104,8 @@ class SumoEnv(gym.Env):
         # the observation space:
         # contains the stop which the bus has reached, the forward and backward headways of the bus, the number of persons waiting at each stop, 
         # the stopping time required according to the number of people boarding and alighting at this stop, the current maximum passenger waiting 
-        # times at each bus stop, the numnber of passengers on the previous, current, and following buses
-
+        # times at each bus stop, the numnber of passengers on the previous, current, and following buses.
+        # We also include the following multi-line information: the route and whether the bus is travelling in a shared corridor
         self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
         self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
 
@@ -338,10 +334,9 @@ class SumoEnv(gym.Env):
         if self.mixedConfigs: # choose the initial state of the environment (bunched or unbunched)
             if self.episodeNum % 2 == 0:
                 self.config = 'scenario1/sumo/ring.sumocfg'
-                # print('Not bunched')
+
             else:
                 self.config = 'scenario1/sumo/ringBunched.sumocfg'
-                # print('Bunched')
 
         # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
         self.sumoCmd = [self._sumoBinary, "-c", self.config, "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
@@ -488,7 +483,8 @@ class SumoEnv(gym.Env):
     # function which computes the state required by the gym environment
     # The state that is returned contains the stop which the bus has reached, the forward and backward headways, the number of persons waiting at each stop,
     # the stopping time required according to the number of people boarding and alighting at this stop, the current maximum passenger waiting
-    # times at each bus stop, and the number of passengers on the previous, current and following buses
+    # times at each bus stop, and the number of passengers on the previous, current and following buses.
+    # We also include the following multi-line information: the route and whether the bus is travelling in a shared corridor
     def computeState(self):
 
         route = self.oneHotEncode(self.routes, self.decisionBus[0][3])
@@ -498,7 +494,6 @@ class SumoEnv(gym.Env):
             inCommon = 1
 
         stop = self.oneHotEncode(self.busStops, self.decisionBus[1])
-        # bus = self.oneHotEncode(self.buses, self.decisionBus[0]) would need to update 
 
         headways = self.getHeadways()
         

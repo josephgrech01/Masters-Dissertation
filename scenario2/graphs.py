@@ -47,8 +47,6 @@ ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Mean waiting time (mins)')
 if not bunched:
     ax1.set_title('Mean Waiting Time')
-    # values are scaled back to reality and converted to minutes
-    # ax1.plot([t*9/60 for t in ncSimTime], [(mean*9)/60 for mean in ncTime], color='blue', linestyle='-', linewidth=1, label='No Control')
     ax1.plot([ncSimTime[i] * 9 / 60 for i in range(len(ncSimTime)) if i % 7 == 0][:88], [ncTime[i] * 9 / 60 for i in range(len(ncTime)) if i % 7 == 0][:88], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Mean Waiting Time - Already Bunched')
@@ -57,13 +55,9 @@ print(len([ppoTime1[i] * 9 / 60 for i in range(len(ppoTime1)) if i % 7 == 0]))
 print(len([ppoTime2[i] * 9 / 60 for i in range(len(ppoTime2)) if i % 7 == 0]))
 print(len([ppoTime3[i] * 9 / 60 for i in range(len(ppoTime3)) if i % 7 == 0]))    
 print(len([ppoTime4[i] * 9 / 60 for i in range(len(ppoTime4)) if i % 7 == 0]))
-# ax1.plot([t*9/60 for t in ppoSimTime1 if ppoSimTime1.index(t)%10==0], [(mean*9)/60 for mean in ppoTime1 if ppoTime1.index(mean)%10==0], color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.plot([ppoSimTime1[i] * 9 / 60 for i in range(len(ppoSimTime1)) if i % 7 ==0][:92], [ppoTime1[i] * 9 / 60 for i in range(len(ppoTime1)) if i % 7 == 0][:92], color='black', linestyle='-', linewidth=1, label='Model A')
-# ax1.plot([t*9/60 for t in ppoSimTime2 if ppoSimTime2.index(t)%10==0], [(mean*9)/60 for mean in ppoTime2 if ppoTime2.index(mean)%10==0], color='red', linestyle='-', linewidth=1, label='PPO')
 ax1.plot([ppoSimTime2[i] * 9 / 60 for i in range(len(ppoSimTime2)) if i % 7 ==0][:81], [ppoTime2[i] * 9 / 60 for i in range(len(ppoTime2)) if i % 7 == 0][:81], color='red', linestyle='-', linewidth=1, label='Model B')
-# ax1.plot([t*9/60 for t in ppoSimTime3 if ppoSimTime3.index(t)%10==0], [(mean*9)/60 for mean in ppoTime3 if ppoTime3.index(mean)%10==0], color='green', linestyle='-', linewidth=1, label='PPO')
 ax1.plot([ppoSimTime3[i] * 9 / 60 for i in range(len(ppoSimTime3)) if i % 7 ==0][:90], [ppoTime3[i] * 9 / 60 for i in range(len(ppoTime3)) if i % 7 == 0][:90], color='green', linestyle='-', linewidth=1, label='Model C')
-# ax1.plot([t*9/60 for t in ppoSimTime4 if ppoSimTime4.index(t)%10==0], [(mean*9)/60 for mean in ppoTime4 if ppoTime4.index(mean)%10==0], color='indigo', linestyle='-', linewidth=1, label='PPO')
 ax1.plot([ppoSimTime4[i] * 9 / 60 for i in range(len(ppoSimTime4)) if i % 7 ==0][:86], [ppoTime4[i] * 9 / 60 for i in range(len(ppoTime4)) if i % 7 == 0][:86], color='orange', linestyle='-', linewidth=1, label='Model D')
 ax1.grid()
 plt.legend()
@@ -89,11 +83,9 @@ ax1.set_xlabel('Time (mins)')
 ax1.set_ylabel('Headway Standard Deviation')
 if not bunched:
     ax1.set_title('Headway Standard Deviation')
-    # ax1.plot([t*9/60 for t in ncSimTime], ncSD, color='blue', linestyle='-', linewidth=1, label='No Control')
     ax1.plot([ncSimTime[i] * 9 / 60 for i in range(len(ncSimTime)) if i % 7 == 0], [ncSD[i] for i in range(len(ncSD)) if i % 7 == 0], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Headway Standard Deviation - Already Bunched')
-# ax1.plot([t*9/60 for t in ppoSimTime], ppoSD, color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.plot([ppoSimTime1[i] * 9 / 60 for i in range(len(ppoSimTime1)) if i % 7 ==0], [ppoSD1[i] for i in range(len(ppoSD1)) if i % 7 == 0], color='black', linestyle='-', linewidth=1, label='Model A')
 ax1.plot([ppoSimTime2[i] * 9 / 60 for i in range(len(ppoSimTime2)) if i % 7 ==0], [ppoSD2[i] for i in range(len(ppoSD2)) if i % 7 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
 ax1.plot([ppoSimTime3[i] * 9 / 60 for i in range(len(ppoSimTime3)) if i % 7 ==0], [ppoSD3[i] for i in range(len(ppoSD3)) if i % 7 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
@@ -116,7 +108,6 @@ if not bunched:
     ax1.plot([ncSimTime[i] * 9 / 60 for i in range(len(ncSimTime)) if i % 7 == 0], [ncDisp[i] for i in range(len(ncDisp)) if i % 7 == 0], color='blue', linestyle='-', linewidth=1, label='No Control')
 else:
     ax1.set_title('Occupancy Dispersion - Already Bunched')
-# ax1.plot([t*9/60 for t in ppoSimTime], ppoDisp, color='black', linestyle='-', linewidth=1, label='PPO')
 ax1.plot([ppoSimTime1[i] * 9 / 60 for i in range(len(ppoSimTime1)) if i % 7 ==0], [ppoDisp1[i] for i in range(len(ppoDisp1)) if i % 7 == 0], color='black', linestyle='-', linewidth=1, label='Model A')
 ax1.plot([ppoSimTime2[i] * 9 / 60 for i in range(len(ppoSimTime2)) if i % 7 ==0], [ppoDisp2[i] for i in range(len(ppoDisp2)) if i % 7 == 0], color='red', linestyle='-', linewidth=1, label='Model B')
 ax1.plot([ppoSimTime3[i] * 9 / 60 for i in range(len(ppoSimTime3)) if i % 7 ==0], [ppoDisp3[i] for i in range(len(ppoDisp3)) if i % 7 == 0], color='green', linestyle='-', linewidth=1, label='Model C')
@@ -128,71 +119,3 @@ if save is not None:
 else:
     plt.show()
 plt.clf()
-
-# x = ['Rule-Based Control', 'TRPO', 'PPO']
-
-# # No Traffic
-# holdNoTraffic = np.array([9, 30.5, 56.7])
-# skipNoTraffic = np.array([8.2, 0, 0])
-# proceedNoTraffic = np.array([82.8, 69.5, 43.3])
-
-# actions = {'Hold': holdNoTraffic, 'Skip': skipNoTraffic, 'Proceed': proceedNoTraffic}
-
-# fig, ax = plt.subplots()
-# bottom = np.zeros(3)
-
-# for a, action in actions.items():
-#     p = ax.bar(x, action, label=a, bottom=bottom)
-#     bottom += action
-#     ac = [str(x)+'%' if x != 0 else '' for x in action]
-#     ax.bar_label(p, labels=ac, label_type='center')
-
-# ax.set_title('Distribution of Actions - No Traffic')
-# ax.legend()
-# plt.savefig('results/final/actions/noTraffic.jpg')
-# plt.show()
-# plt.clf()
-
-# # Traffic, Evenly spaced
-# holdNoTraffic = np.array([41.5, 48.3, 77])
-# skipNoTraffic = np.array([20.6, 1.6, 11.8])
-# proceedNoTraffic = np.array([37.9, 50.1, 11.2])
-
-# actions = {'Hold': holdNoTraffic, 'Skip': skipNoTraffic, 'Proceed': proceedNoTraffic}
-
-# fig, ax = plt.subplots()
-# bottom = np.zeros(3)
-
-# for a, action in actions.items():
-#     p = ax.bar(x, action, label=a, bottom=bottom)
-#     bottom += action
-#     ac = [str(x)+'%' if x != 0 else '' for x in action]
-#     ax.bar_label(p, labels=ac, label_type='center')
-
-# ax.set_title('Distribution of Actions - Traffic, Evenly Spaced')
-# ax.legend()
-# plt.savefig('results/final/actions/Traffic.jpg')
-# plt.show()
-# plt.clf()
-
-# # Traffic, Bunched
-# holdNoTraffic = np.array([40.9, 51.5, 64.5])
-# skipNoTraffic = np.array([22.2, 6.8, 22.8])
-# proceedNoTraffic = np.array([36.9, 41.7, 12.8])
-
-# actions = {'Hold': holdNoTraffic, 'Skip': skipNoTraffic, 'Proceed': proceedNoTraffic}
-
-# fig, ax = plt.subplots()
-# bottom = np.zeros(3)
-
-# for a, action in actions.items():
-#     p = ax.bar(x, action, label=a, bottom=bottom)
-#     bottom += action
-#     ac = [str(x)+'%' if x != 0 else '' for x in action]
-#     ax.bar_label(p, labels=ac, label_type='center')
-
-# ax.set_title('Distribution of Actions - Traffic, Bunched')
-# ax.legend()
-# plt.savefig('results/final/actions/TrafficBunched.jpg')
-# plt.show()
-# plt.clf()
