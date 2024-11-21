@@ -69,9 +69,6 @@ else:
                     # c = 'red'
                     # label = 'Route 43'
 
-        # print(graph)
-        # print(k[4:6])
-        # print(label)
         if not labelled[label]:
             plt.plot(x_values, y_values, color=c, linewidth=1, label=label)
             labelled[label] = True
@@ -88,7 +85,7 @@ else:
         plt.title('Route 43 Trajectories - PPO with Weighted Reward')
     plt.xlabel('Time of Day')
     plt.ylabel('Stop along Route')
-    # plt.savefig('singapore/results/sidewalks/tls/normalFreq/ppoWeightedRewardRoute22Bunching.jpg')
+    # plt.savefig('singapore/results/Route22Bunching.jpg')
     plt.show()
 
 

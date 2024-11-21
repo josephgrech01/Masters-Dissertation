@@ -52,7 +52,6 @@ class sumoMultiLine(AECEnv):
 
         traci.start(self.sumoCmd)
 
-        # self.envStep = 0
         self.currentVehicles = []
         self.hour = 6
         
@@ -76,11 +75,6 @@ class sumoMultiLine(AECEnv):
         print('ACTION BUSES: {}'.format(self.actionBuses))
         print('ACTIONS: {}'.format(actions))
         rewards = {agent: self.calculateReward(agent, actions[agent]) for agent in self.actionBuses}
-        # dones = {}
-        # done = False
-        # if len(self.agents) < 1:
-        #     done = True
-        # print('ACTION BUSES SHOULD NOT BE EMPTY: {}'.format(self.actionBuses))
 
         return observations, rewards, done, {} #, dones, {}
 
@@ -157,21 +151,17 @@ class sumoMultiLine(AECEnv):
 
         traci.start(self.sumoCmd)
 
-        # self.envStep = 0
         self.currentVehicles = []
         self.hour = 6
         
         self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
         self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
-        self.addPassengers()#self.df22, self.df43, self.hour)
+        self.addPassengers()
 
         return {agent: self.observe(agent) for agent in self.actionBuses}
 
     def close(self):
         traci.close()
-        ##############################################
-        ### NOT SURE IF SHOULD ADDED ANYTHING ELSE ###
-        ##############################################
 
     # executes the given action to the agent
     def executeAction(self, agent, action):
@@ -200,7 +190,7 @@ class sumoMultiLine(AECEnv):
                 self.df22 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route22.csv'))
                 self.df43 = pd.read_csv(os.path.join('singapore','demand','byHour','hour'+str(self.hour),'route43.csv'))
                 # add the passengers for the coming hour
-                self.addPassengers()#self.df22, self.df43, self.hour)
+                self.addPassengers()
             
             # keep track of vehicles active in the simulation
             newV = traci.simulation.getDepartedIDList()
@@ -212,15 +202,11 @@ class sumoMultiLine(AECEnv):
                 print("New Vehicle, Agent Added: {}".format(v))
                 if traci.vehicle.getLine(v) == '22':
                     self.total22 += 1
-                    # print('total22: {}'.format(self.total22))
                 else:
                     self.total43 += 1
-                    # print('total43: {}'.format(self.total43))
             self.currentVehicles.extend(newVehicles)
             print('Current Vehicles: {}'.format(self.currentVehicles))
-            #########################################################################
-            ###################### ADD AGENTS #######################################
-            #########################################################################
+            
             # create the trip for the newly departed passengers
             newPersons = traci.simulation.getDepartedPersonIDList()
             self.setStop(newPersons)#, self.df22, self.df43)
@@ -264,10 +250,6 @@ class sumoMultiLine(AECEnv):
                                         # an action should be taken for this bus
                                         self.actionBuses.append(v[0])
                                         self.agent_states['alight_board'] = persons # keep track of number of people that want to alight and board                                    
-
-            ############################################################################################################
-            ###################### UPDATE GLOBAL LIST OF WHICH BUSES SHOULD STOP #######################################
-            ############################################################################################################
             
             # removing the vehicles that have ended their journey
             for v in removeVehicles:
@@ -277,17 +259,12 @@ class sumoMultiLine(AECEnv):
                         self.currentVehicles.remove(x)
                         self.removeAgent(v)
 
-            #########################################################################
-            ###################### REMOVE AGENTS ####################################
-            #########################################################################
-
             if len(self.agents) < 1:
                 return True
         #########################################################################
         ###################### RETURN TRUE IF NO MORE BUSES ####################
         #########################################################################
-        # if len(self.agents) < 1:
-        #     return True
+        
         return False
     
     # function that adds the passengers into the simulation for the coming hour
@@ -345,7 +322,7 @@ class sumoMultiLine(AECEnv):
         departures = []
         currentTime = 0
 
-        # keem adding passengers until the last departure that does not exceed an hour 
+        # keep adding passengers until the last departure that does not exceed an hour 
         while currentTime < totalTime:
             interval = random.expovariate(lambdaValue) # Poisson distribution
             currentTime += interval

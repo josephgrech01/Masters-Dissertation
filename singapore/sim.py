@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 import sys
 import optparse
@@ -59,24 +57,6 @@ def run():
             # add the passengers for the coming hour
             addPassengers(df22, df43, hour)
 
-        #################################################################
-        # TEST
-        ####
-        
-        # route1 = traci.simulation.findRoute('543768663', '245934570#2', vType='bus')
-        # print('ROUTE 1: {}'.format(route1))
-        # print('')
-        # route2 = traci.simulation.findRoute('631887962#0', '528461109', vType='bus')
-        # print('ROUTE 2: {}'.format(route2))
-        # print('')
-        # route3 = traci.simulation.findRoute('543768663', '528461109', vType='bus')
-        # print('ROUTE 3: {}'.format(route3))
-        # print('')
-        # route4 = traci.simulation.findRoute('631887962#0', '245934570#2', vType='bus')
-        # print('ROUTE 4: {}'.format(route4))
-
-        #################################################################
-
         # keep track of vehicles active in the simulation
         newV = traci.simulation.getDepartedIDList()
         newVehicles = []
@@ -86,7 +66,6 @@ def run():
             print("New Vehicle: {}".format(v))
         currentVehicles.extend(newVehicles)
         
-
         # create the trip for the newly departed passengers
         newPersons = traci.simulation.getDepartedPersonIDList()
         setStop(newPersons, df22, df43)
@@ -128,7 +107,6 @@ def run():
                 veh1 = currentVehicles[1][0]
                 lane1 = traci.vehicle.getLaneID(veh1)
                 edge1 = traci.lane.getEdgeID(lane1)
-                # len1 = traci.lane.getLength(lane1)
                 lanePos1 = traci.vehicle.getLanePosition(veh1)
                 
                 veh2 = currentVehicles[0][0]
@@ -148,7 +126,6 @@ def run():
                 route = traci.simulation.findRoute(edge1, edge2, vType='bus')
                 actual = route.length - lanePos1 - (len2 - lanePos2)
 
-                # print('ROUTE: {}'.format(route))
                 print('LENGTH: {}'.format(route.length))
 
                 print("speed 1: {}".format(traci.vehicle.getSpeed(veh1)))
@@ -158,7 +135,6 @@ def run():
                 print('USING FUNCTION: {}'.format(getForwardHeadway(veh1, veh2)))
             else:
                 print("CURRENTLY ONLY 1 VEHICLES IN SIM")
-
 
         step += 1
 
@@ -220,7 +196,7 @@ def getDepartures(rate, hour):
     departures = []
     currentTime = 0
 
-    # keem adding passengers until the last departure that does not exceed an hour 
+    # keep adding passengers until the last departure that does not exceed an hour 
     while currentTime < totalTime:
         interval = random.expovariate(lambdaVvalue) # Poisson distribution
         currentTime += interval
@@ -293,10 +269,6 @@ def updateTrips(arrived):
         trips.pop(p) # remove finished trip from dictionary
 
 def getForwardHeadway(follower, leader):
-    ##### CHECK #####################################################################
-    ##### IF BUS IS ARRIVING AT TERMINAL, IT WILL NOT HAVE A FORWARD HEADWAY
-    ##### IF BUS IS LEAVING FROM TERMINAL, IT WILL NOT HAVE A BACKWARD HEADYWA
-    #################################################################################
     followerLane = traci.vehicle.getLaneID(follower)
     followerPosition = traci.vehicle.getLanePosition(follower)
     followerEdge = traci.lane.getEdgeID(followerLane)
