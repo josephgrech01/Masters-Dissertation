@@ -4,19 +4,13 @@ from sb3_contrib.common.wrappers import ActionMasker
 from env import sumoMultiLine
 
 def mask_fn(env):
-    # print('masking')
     return env.valid_action_mask()
 
 actions = ['Hold', 'Skip', 'Proceed']
 e = sumoMultiLine(gui=True, noWarnings=True, epLen=50000, traffic=False, bunched=False, headwayReward=False, continuous=False, saveState=False, save='singaporeRing/results/discrete/timeReward/noTraffic/50000Mask')
 e = ActionMasker(e, mask_fn)
-# no traffic
-# model = PPO.load("models/ppoNoTraffic")
 
-# traffic
 model=MaskablePPO.load("singaporeRing/models/discrete/timeReward1400000")
-# model=MaskablePPO.load("singaporeRing/models/discrete/epLen50000headwayReward150000")
-
 
 obs = e.reset()
 while True:

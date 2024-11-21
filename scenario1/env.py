@@ -53,7 +53,6 @@ class SumoEnv(gym.Env):
             self.config = 'scenario1/sumo/ringTraffic.sumocfg'
 
         self.noWarnings = noWarnings
-        # self.sumoCmd = [self._sumoBinary, "-c", self.config, "--tripinfo-output", "tripinfo.xml", "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
         self.sumoCmd = [self._sumoBinary, "-c", self.config, "--no-internal-links", "false", "--lanechange.overtake-right", "true"]
         if self.noWarnings:
             self.sumoCmd.append("--no-warnings")

@@ -13,8 +13,8 @@ action2 = ppo2['action']
 action3 = ppo3['action']
 action4 = ppo4['action']
 
-# save = None
-save = 'singaporeRing/results/newTests/graphs/'
+save = None
+# save = 'singaporeRing/results/newTests/graphs/'
 
 percentages = [{},{}]
 
