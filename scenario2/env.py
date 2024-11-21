@@ -103,7 +103,6 @@ class SumoEnv(gym.Env):
         # the stopping time required according to the number of people boarding and alighting at this stop, the current maximum passenger waiting 
         # times at each bus stop, the numnber of passengers on the previous, current, and following buses.
         # We also include the following multi-line information: the route and whether the bus is travelling in a shared corridor
-        
         self.low = np.array([0 for _ in range(len(self.routes))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0] +  [0 for _ in range(len(self.busStops))] + [0] + [0 for _ in range(len(self.busStops))] + [0, 0, 0], dtype='float32')
         self.high = np.array([1 for _ in range(len(self.routes))] + [1] + [1 for _ in range(len(self.busStops))] + [5320, 5320] + [float('inf') for _ in self.busStops] + [float('inf')] + [200000 for _ in self.busStops] + [85, 85, 85], dtype='float32')
 

@@ -2,13 +2,9 @@ from stable_baselines3 import PPO
 from env import SumoEnv
 
 
-e = SumoEnv(gui=True, noWarnings=True, epLen=3000, traffic=True, bunched=False, continuous=True, headwayReward=False, save=None)#'scenario2/results/continuous/timeReward/traffic90/')
+e = SumoEnv(gui=True, noWarnings=True, epLen=3000, traffic=True, bunched=False, continuous=True, headwayReward=False, save=None)#'scenario3/results/continuous/timeReward/traffic90/')
 
-# model = PPO.load('singapore/models/sidewalks/ppo1800000fypReward')
-
-# model = PPO.load('singapore/models/sidewalks/weightedReward/normalFreq/ppo1750000WeightedRewardTLS')
-
-model = PPO.load('scenario2/models/continuous/timeReward550000_2')
+model = PPO.load('scenario3/models/continuous/timeReward550000_2')
 
 obs = e.reset()
 while True:
